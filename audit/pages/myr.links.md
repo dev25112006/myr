@@ -1,0 +1,171 @@
+# Links / CTAs
+
+- [anchor] Skip to content -> `#content`
+- [internal] MyR Advance Solution -> `/`
+- [internal]  -> `https://myradvancesolution.com/`
+- [internal] Home -> `/`
+- [internal] Launch Your Website -> `/website-development/`
+- [internal] All-in-One Lead CRM -> `/privyr/`
+- [internal] Smart IPBX Solutions -> `/ipbx-solution/`
+- [internal] Contact Us -> `/contact-us/`
+- [popup/js] All Services -> `#elementor-action%3Aaction%3Doff_canvas%3Aopen%26settings%3DeyJpZCI6ImM5ODgxMDEiLCJkaXNwbGF5TW9kZSI6Im9wZW4ifQ%3D%3D`
+- [anchor] ₹ 0.00 0 Cart -> `#`
+- [internal] Featured Web Development Leave the Website to Our Experts, So You Can Focus on What Matters. -> `/website-development/`
+- [internal] CRM Development We create tailored CRM solutions for your business success. -> `/crm-development/`
+- [internal] Digital Marketing Boost Your Brand with Targeted Digital Marketing & Ads -> `/digital-marketing/`
+- [internal] Networking Solution Seamless & Secure Networking Solutions for Your Business. -> `/network-solution/`
+- [internal] IPBX Solution Advanced IPBX Solutions for Smart & Efficient Communication. -> `/ipbx-solution/`
+- [internal] Book Now CCTV Solution Protect What Matters with Our Reliable CCTV Solutions. -> `/cctv-solution/`
+- [internal] Toll-Free 1800 XXX 8899 Number Seamless Communication with 1800 Toll-Free & WhatsApp API Solutions. -> `/1800-number/`
+- [external] Facebook -> `https://www.facebook.com/myrnetwork`
+- [external] Instagram -> `https://www.instagram.com/myr_solution/`
+- [internal]  -> `/`
+- [internal]  -> `/tech-store/`
+- [popup/js]  -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjI5NzUiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [internal] Shop -> `/shop/`
+- [internal] All Services -> `/services/`
+- [internal] Digital Marketing -> `/digital-marketing/`
+- [internal] Scalable IPBX Systems -> `/ipbx-solution/`
+- [internal] CCTV Solution & Installation -> `/cctv-solution/`
+- [internal] Get Your 1800 Number -> `/1800-number/`
+- [internal] Log In -> `/my-account/`
+- [internal] Shop Now -> `/tech-store/`
+- [internal] UPTO 60% OFF Web Development We craft sleek, user-friendly designs tailored for your success. -> `/website-development/`
+- [internal] UPTO 70% OFF Digital Marketing We excel in digital marketing, maximizing your online success. -> `/digital-marketing/`
+- [internal] Networking Solution Streamline connections with tailored networking solutions. -> `/network-solution/`
+- [internal] UPTO 60% OFF IPBX Solution Seamless communication, enhanced efficiency for your business. -> `/ipbx-solution/`
+- [internal] CCTV Solution We fortify your digital and physical spaces with CCTV solutions. -> `/cctv-solution`
+- [internal] Toll-Free 1800 XXX 8899 Number Unlock unparalleled customer engagement with our exclusive 1-800 toll-free number service -> `/1800-number`
+- [internal] Contact Us Now -> `/contact-us/`
+- [internal] Know More -> `/about-us/`
+- [internal] Choose plan -> `/checkout/?add-to-cart=2765&quantity=1`
+- [internal] Choose plan -> `/checkout/?add-to-cart=2766&quantity=1`
+- [internal] Choose plan -> `/checkout/?add-to-cart=2767&quantity=1`
+- [internal] View all features -> `/website-development/#viewallfeatures`
+- [anchor] Read the full story -> `#`
+- [anchor] Read more stories -> `#`
+- [anchor] Close -> `#`
+- [internal] Shop Page -> `/tech-store/`
+- [internal] Contact Us -> `https://myradvancesolution.com/contact-us/`
+- [popup/js] My Account -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjI5NzUiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [internal] support@myradvancesolution.com -> `mailto:support@myradvancesolution.com`
+- [internal] 👋Got Questions? Chat Now! -> `https://1367.3cx.cloud/myradvancesolutionpr`
+- [anchor] Get Started -> `#E-Commerce`
+- [internal]  -> `http://myradvancesolution.com`
+- [external] Linkedin -> `https://www.linkedin.com/in/myr-advance-solution-04b1151a6/`
+- [external] Whatsapp -> `https://wa.me/+917408443341`
+- [external] X-twitter -> `https://x.com/myrnetwork`
+- [internal] Home -> `https://myradvancesolution.com/`
+- [internal] Services -> `/services/`
+- [internal] Privacy Policy -> `/privacy-policy/`
+- [internal] Shipping Policy -> `/shipping-policy/`
+- [internal] Terms & Conditions -> `/terms-and-conditions/`
+- [internal] Refund & Return Policy -> `/refund-and-return-policy/`
+- [internal] Web Development -> `/website-development/`
+- [internal] CRM Development -> `/crm-development/`
+- [internal] IPBX Solution -> `/ipbx-solution/`
+- [internal] CCTV -> `/cctv-solution/`
+- [internal] Toll Free 1800 XXX - -> `/1800-number/`
+- [internal] More -> `https://myradvancesolution.com/services/`
+- [internal] About Myr Advance Solution -> `/about-us/`
+- [internal] Roadmap -> `/roadmap/`
+- [internal] Talk to sales -> `/talk-to-sales/`
+- [popup/js] Partner with Us -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjQ0OTkiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [internal] © 2016-2025 myradvancesolution.com - Premium website development, CRM, IP PBX & telephone system and More -> `/`
+- [internal] © 2016-2025 myradvancesolution.com -> `/`
+- [internal] Lost your password? -> `/my-account/lost-password/`
+- [internal] privacy policy -> `/privacy-policy/`
+
+# Forms
+- form action=`None` method=post
+    - text `username` label: 
+    - password `password` label: 
+    - checkbox `rememberme` label: 
+    - hidden `woocommerce-login-nonce` label: 
+    - hidden `_wp_http_referer` label: 
+- form action=`None` method=post
+    - email `email` label: 
+    - hidden `woocommerce-register-nonce` label: 
+    - hidden `_wp_http_referer` label: 
+- form action=`/` method=post
+    - text `wpforms[fields][1]` label: Your Name
+    - email `wpforms[fields][2]` label: Email
+    - text `wpforms[fields][3]` label: Contact Number
+    - text `wpforms[fields][6]` label: Business Name
+    - textarea `wpforms[fields][5]` label: Complete Address
+    - text `wpforms[fields][4]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - text `wpforms[fields][8]` label: Your Location (City/State)
+    - textarea `wpforms[fields][9]` label: Message/Additional Details (Optional)
+    - hidden `wpforms[id]` label: 
+    - hidden `wpforms[time_token]` label: 
+    - hidden `page_title` label: 
+    - hidden `page_url` label: 
+    - hidden `url_referer` label: 
+    - hidden `page_id` label: 
+    - hidden `wpforms[post_id]` label: 
+
+# Images
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/MYR-e1709294854593.png?fit=815%2C237&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/MYR-e1709294854593.png?fit=815%2C237&ssl=1`
+-  -> `/wp-content/uploads/2024/08/MYR-LOGO.png`
+-  -> `/wp-content/uploads/2024/08/MYR-LOGO.png`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2025/01/website-front-hero-image.png?fit=2000%2C1333&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2025/01/website-front-hero-image.png?fit=2000%2C1333&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/ipbx-768x644-1.png?fit=768%2C644&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/ipbx-768x644-1.png?fit=768%2C644&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2025/02/it-expert-2.png?fit=600%2C651&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2025/02/it-expert-2.png?fit=600%2C651&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-toll-free-number-768x644-1.png?fit=768%2C644&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-toll-free-number-768x644-1.png?fit=768%2C644&ssl=1`
+- buy-time-attendance -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-time-attendance.png?fit=300%2C300&ssl=1`
+- buy-time-attendance -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-time-attendance.png?fit=300%2C300&ssl=1`
+- buy-restaurant-billing-software -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-restaurant-billing-software.png?fit=300%2C300&ssl=1`
+- buy-restaurant-billing-software -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-restaurant-billing-software.png?fit=300%2C300&ssl=1`
+- buy-pos-system -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-pos-system.png?fit=300%2C300&ssl=1`
+- buy-pos-system -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-pos-system.png?fit=300%2C300&ssl=1`
+- buy-Lenovo -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-Lenovo.png?fit=300%2C300&ssl=1`
+- buy-Lenovo -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-Lenovo.png?fit=300%2C300&ssl=1`
+- buy-keyboard-mouse -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-keyboard-mouse.png?fit=300%2C300&ssl=1`
+- buy-keyboard-mouse -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-keyboard-mouse.png?fit=300%2C300&ssl=1`
+- buy-hp-laptop -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-hp-laptop.png?fit=300%2C300&ssl=1`
+- buy-hp-laptop -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-hp-laptop.png?fit=300%2C300&ssl=1`
+- buy-hikvision -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-hikvision.png?fit=300%2C300&ssl=1`
+- buy-hikvision -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-hikvision.png?fit=300%2C300&ssl=1`
+- buy-grandstream -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-grandstream.png?fit=300%2C300&ssl=1`
+- buy-grandstream -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-grandstream.png?fit=300%2C300&ssl=1`
+- buy-dlink -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-dlink.png?fit=300%2C300&ssl=1`
+- buy-dlink -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-dlink.png?fit=300%2C300&ssl=1`
+- buy-dell-laptop -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-dell-laptop.png?fit=300%2C300&ssl=1`
+- buy-dell-laptop -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-dell-laptop.png?fit=300%2C300&ssl=1`
+- buy-cp-plus -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-cp-plus.png?fit=300%2C300&ssl=1`
+- buy-cp-plus -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-cp-plus.png?fit=300%2C300&ssl=1`
+- buy-cctv -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-cctv.png?fit=300%2C300&ssl=1`
+- buy-cctv -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-cctv.png?fit=300%2C300&ssl=1`
+- buy-belden -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-belden.png?fit=300%2C300&ssl=1`
+- buy-belden -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-belden.png?fit=300%2C300&ssl=1`
+- buy-avaya -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-avaya.png?fit=300%2C300&ssl=1`
+- buy-avaya -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-avaya.png?fit=300%2C300&ssl=1`
+- buy-thermal-printer -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-thermal-printer.png?fit=300%2C300&ssl=1`
+- buy-thermal-printer -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-thermal-printer.png?fit=300%2C300&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/Prabhat-Tripathi.jpeg?fit=600%2C568&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/Prabhat-Tripathi.jpeg?fit=600%2C568&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/Abhishek-Khare.jpg?fit=588%2C588&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/Abhishek-Khare.jpg?fit=588%2C588&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/male-icon.jpg?fit=751%2C751&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/male-icon.jpg?fit=751%2C751&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/female-icon.jpg?fit=760%2C751&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/female-icon.jpg?fit=760%2C751&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/Live-Support-Chat.png?fit=1080%2C1080&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/Live-Support-Chat.png?fit=1080%2C1080&ssl=1`
+- MYR ADVANCE SOLUTION -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/MYR-ADVANCE-SOLUTION.png?fit=270%2C79&ssl=1`
+- MYR ADVANCE SOLUTION -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/MYR-ADVANCE-SOLUTION.png?fit=270%2C79&ssl=1`
+- Loading -> `/wp-content/plugins/wpforms-lite/assets/images/submit-spin.svg`
+- Loading -> `/wp-content/plugins/wpforms-lite/assets/images/submit-spin.svg`

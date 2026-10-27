@@ -1,0 +1,142 @@
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { CATALOG, type CatalogProduct } from '@/lib/catalog'
+import { useCart } from '@/lib/stores'
+import { inr } from '@/lib/format'
+import { CHAT_SALES } from '@/components/layout/nav'
+import { useCatalogPrice } from '@/lib/useCatalogPrice'
+
+type CategoryKind = 'website' | 'it' | 'pbx'
+
+const CATEGORY_INFO: Record<CategoryKind, { title: string; description: string; crumbs: string[] }> = {
+  website: {
+    title: 'Website Development',
+    description: 'Choose a website plan built around your business, from a strong first online presence to a fully customized ecommerce experience.',
+    crumbs: ['Website Development'],
+  },
+  it: {
+    title: 'IT Products',
+    description: 'Explore dependable IT hardware and infrastructure solutions for your workplace, network, and security needs.',
+    crumbs: ['IT Products'],
+  },
+  pbx: {
+    title: 'PBX & IP Telephone',
+    description: 'Business phone systems and IP telephony equipment designed for clear, flexible team communication.',
+    crumbs: ['PBX'],
+  },
+}
+
+const HARDWARE = [
+  { name: 'Dell Laptops', image: '/assets/2024-08-buy-dell-laptop.png' },
+  { name: 'HP Laptops', image: '/assets/2024-08-buy-hp-laptop.png' },
+  { name: 'Hikvision Security', image: '/assets/2024-08-buy-hikvision.png' },
+  { name: 'D-Link Networking', image: '/assets/2024-08-buy-dlink.png' },
+  { name: 'Grandstream Telephony', image: '/assets/2024-08-buy-grandstream.png' },
+  { name: 'Avaya Communication', image: '/assets/2024-08-buy-avaya.png' },
+]
+
+function Breadcrumbs({ current }: { current: string }) {
+  return <nav aria-label="Breadcrumb" className="mb-5 text-sm text-slate-500"><Link to="/tech-store/" className="hover:text-rose-600">Tech Store</Link><span className="mx-2">/</span><span className="text-slate-800">{current}</span></nav>
+}
+
+function AddButton({ product, label = 'Add to cart' }: { product: CatalogProduct; label?: string }) {
+  const { add, count } = useCart()
+  const price = useCatalogPrice(product.id, product.price)
+  const [added, setAdded] = useState(false)
+  return <div>
+    <button type="button" onClick={() => { add({ id: product.id, price }); setAdded(true) }} className="btn btn-md bg-rose-600 text-white hover:bg-rose-700">{added ? 'Added to cart ✓' : label}</button>
+    {added && <p role="status" className="mt-2 text-xs text-slate-500">Cart now has {count} item{count === 1 ? '' : 's'}. <Link to="/tech-store/" className="font-semibold text-rose-600">Continue shopping</Link></p>}
+  </div>
+}
+
+function ProductCard({ product }: { product: CatalogProduct }) {
+  const isVariable = product.type === 'variable'
+  const price = useCatalogPrice(product.id, product.price)
+  const image = product.image ?? (product.category === 'Digital Marketing' ? '/assets/2024-09-digital-marketing.jpg' : '/assets/2024-09-website-development.jpg')
+  return <article className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-slate-300 hover:shadow-lg">
+    <div className="flex h-52 items-center justify-center bg-white p-5"><img src={image} alt={product.name} loading="lazy" className="h-full w-full object-contain" /></div>
+    <div className="flex flex-1 flex-col border-t border-slate-100 p-5">
+      <p className="text-xs font-semibold uppercase tracking-wide text-rose-600">{product.category}</p>
+      <h2 className="mt-2 text-lg font-bold text-slate-900">{product.name}</h2>
+      <p className="mt-3 flex items-baseline gap-2"><span className="text-xl font-bold text-slate-900">{isVariable ? 'From ' : ''}{inr(price, { paise: false })}</span>{product.compareAt && <span className="text-sm text-slate-400 line-through">{inr(product.compareAt, { paise: false })}</span>}</p>
+      <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-500">{product.id === 2765 ? 'A polished business website to establish your brand online.' : product.id === 2766 ? 'A custom website with integrated ecommerce functionality.' : product.id === 2767 ? 'A tailored web experience with advanced features and integrations.' : product.id === 2424 ? 'Choose from website development plans designed for different business needs.' : 'A scalable business communication system with advanced calling features.'}</p>
+      <div className="mt-5">{isVariable ? <Link to={product.id === 2768 ? '/product/digital-marketing/' : '/website-development/'} className="btn btn-md w-full border border-slate-300 bg-white text-slate-800 hover:bg-slate-50">Select options</Link> : <AddButton product={product} />}</div>
+    </div>
+  </article>
+}
+
+export function ProductCategoryPage({ kind }: { kind: CategoryKind }) {
+  const info = CATEGORY_INFO[kind]
+  const products = kind === 'website'
+    ? [CATALOG[2767], CATALOG[2765], CATALOG[2766], CATALOG[2424]]
+    : kind === 'pbx'
+      ? [CATALOG[3056]]
+      : [CATALOG[3056]]
+
+  return <>
+    <section className="border-b border-slate-200 bg-[#f7f7f7] py-10 sm:py-14">
+      <div className="container-page"><Breadcrumbs current={info.title} /><p className="text-xs font-bold uppercase tracking-[.16em] text-rose-600">Shop category</p><h1 className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">{info.title}</h1><p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-600">{info.description}</p></div>
+    </section>
+
+    {kind === 'it' && <section className="bg-white py-10"><div className="container-page"><h2 className="text-xl font-bold text-slate-900">Browse IT product ranges</h2><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{HARDWARE.map((item) => <a key={item.name} href={CHAT_SALES} target="_blank" rel="noreferrer" className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-rose-200 hover:shadow-sm"><div className="flex h-16 w-20 items-center justify-center rounded-lg bg-slate-50 p-2"><img src={item.image} alt="" className="h-full w-full object-contain" loading="lazy" /></div><div><h3 className="font-semibold text-slate-900">{item.name}</h3><span className="mt-1 block text-sm text-rose-600">Ask about availability →</span></div></a>)}</div></div></section>}
+
+    <section className="bg-white py-12 sm:py-16">
+      <div className="container-page"><div className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm text-slate-500">Showing all {products.length} results</p><h2 className="mt-1 text-2xl font-bold text-slate-900">{kind === 'website' ? 'Website plans' : kind === 'pbx' ? 'PBX systems' : 'Featured IT solution'}</h2></div><Link to="/tech-store/" className="text-sm font-semibold text-rose-600 hover:text-rose-700">Back to Tech Store →</Link></div><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{products.map((product) => <ProductCard key={product.id} product={product} />)}</div></div>
+    </section>
+    <section className="border-t border-slate-200 bg-[#f7f7f7] py-10"><div className="container-page flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-wide text-rose-600">Need help choosing?</p><h2 className="mt-2 text-xl font-bold text-slate-900">Talk with our product team.</h2></div><a href={CHAT_SALES} target="_blank" rel="noreferrer" className="btn btn-md bg-rose-600 text-white hover:bg-rose-700">Ask our team</a></div></section>
+  </>
+}
+
+const IPBX_SPECS: [string, string][] = [
+  ['Model', 'MYRLINK IP100 V3'],
+  ['User capacity', '100 users (upgradable to 600 users)'],
+  ['Concurrent calls', 'Unlimited, as per user capacity'],
+  ['Call center features', 'Sophisticated call center functionalities'],
+  ['Functionalities', 'Instant messaging, phone book, CRM integration'],
+  ['Voice logger', 'Available for incoming and outgoing calls'],
+  ['Conference support', 'Bridge conference for multi-party calls'],
+  ['Multi-level IVR', 'Included for advanced call routing'],
+  ['Public address system', 'Integrated for mass communication'],
+  ['Storage', '512 GB SSD'],
+  ['SIP trunk', 'SIP network trunk with multiple trunk support'],
+  ['Dimensions / weight', '18 × 18 × 4 cm / 2 kg'],
+]
+
+export function Ip100ProductPage() {
+  const [quantity, setQuantity] = useState(1)
+  const [tab, setTab] = useState<'description' | 'specifications'>('description')
+  const product = CATALOG[3056]
+  const price = useCatalogPrice(3056, product.price)
+  const { add, count } = useCart()
+  const [added, setAdded] = useState(false)
+  return <>
+    <section className="bg-white py-8 sm:py-12"><div className="container-page"><Breadcrumbs current={product.name} /><div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-14">
+      <div className="flex min-h-[360px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-8"><img src="/assets/2024-09-ip-pbx-1.png" alt="MYRLINK IP PBX IP100 V3" className="max-h-[440px] w-full object-contain" /></div>
+      <div className="pt-2"><p className="text-xs font-bold uppercase tracking-[.16em] text-rose-600">Sale · IP PBX Solution</p><h1 className="mt-3 text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">MYRLINK IP PBX IP100 V3</h1><p className="mt-5 flex flex-wrap items-baseline gap-3"><span className="text-lg text-slate-400 line-through">{inr(150000, { paise: false })}</span><span className="text-3xl font-bold text-slate-900">{inr(price, { paise: false })}</span></p><p className="mt-5 leading-relaxed text-slate-600">Designed for seamless business communication with SIP trunk support, built-in call center features, CRM integration, multi-level IVR, and voice logging. It is scalable for growing teams and supports advanced routing and conferencing.</p>
+        <div className="mt-7 flex flex-wrap items-center gap-3"><div className="flex h-11 items-center rounded-lg border border-slate-300"><button type="button" className="h-full px-3 text-slate-600 hover:text-rose-600" onClick={() => setQuantity((q) => Math.max(1, q - 1))} aria-label="Decrease quantity">−</button><span className="min-w-8 text-center text-sm font-semibold text-slate-900">{quantity}</span><button type="button" className="h-full px-3 text-slate-600 hover:text-rose-600" onClick={() => setQuantity((q) => q + 1)} aria-label="Increase quantity">+</button></div><button type="button" onClick={() => { add({ id: product.id, qty: quantity }); setAdded(true) }} className="btn btn-md bg-rose-600 text-white hover:bg-rose-700">{added ? 'Added to cart ✓' : 'Add to cart'}</button></div>
+        {added && <p role="status" className="mt-3 text-sm text-slate-500">Cart now has {count} item{count === 1 ? '' : 's'}. <Link to="/tech-store/" className="font-semibold text-rose-600">Continue shopping</Link></p>}
+        <div className="mt-7 border-t border-slate-200 pt-5 text-sm text-slate-500"><p>SKU: <span className="text-slate-800">MYR-IT-254301TS</span></p><p className="mt-2">Categories: <Link className="text-rose-600 hover:underline" to="/product-category/pbx/">PBX</Link>, <Link className="text-rose-600 hover:underline" to="/product-category/it-products/">IT Products</Link>, <Link className="text-rose-600 hover:underline" to="/ipbx-solution/">IP PBX Solution</Link></p></div>
+      </div>
+    </div></div></section>
+    <section className="border-y border-slate-200 bg-[#f7f7f7] py-10 sm:py-14"><div className="container-page"><div className="flex gap-6 border-b border-slate-200"><button onClick={() => setTab('description')} className={`border-b-2 px-1 pb-3 text-sm font-semibold ${tab === 'description' ? 'border-rose-600 text-slate-900' : 'border-transparent text-slate-500'}`}>Description</button><button onClick={() => setTab('specifications')} className={`border-b-2 px-1 pb-3 text-sm font-semibold ${tab === 'specifications' ? 'border-rose-600 text-slate-900' : 'border-transparent text-slate-500'}`}>Additional information</button></div>
+      {tab === 'description' ? <div className="max-w-4xl py-7"><h2 className="text-2xl font-bold text-slate-900">Enhance Your Business Communication with MYRLINK IP100 V3</h2><p className="mt-4 leading-relaxed text-slate-600">The MYRLINK IP100 V3 brings call handling, CRM integration, and team communication into one scalable system. It supports multi-level IVR, call logging, conference calls, and voice recording for incoming and outgoing calls.</p><p className="mt-3 leading-relaxed text-slate-600">The system supports up to 100 users, with upgrade capacity up to 600 users. Multiple SIP trunks help adapt calling capacity to your business needs.</p></div> : <div className="max-w-4xl py-6"><dl className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">{IPBX_SPECS.map(([label, value]) => <div key={label} className="grid gap-1 px-4 py-3 sm:grid-cols-[220px_1fr]"><dt className="font-semibold text-slate-800">{label}</dt><dd className="text-slate-600">{value}</dd></div>)}</dl></div>}
+    </div></section>
+    <section className="bg-white py-10"><div className="container-page flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-wide text-rose-600">Need a hand?</p><h2 className="mt-2 text-xl font-bold text-slate-900">Talk to us about your IP PBX setup.</h2></div><a href={CHAT_SALES} target="_blank" rel="noreferrer" className="btn btn-md bg-rose-600 text-white hover:bg-rose-700">Talk to sales</a></div></section>
+  </>
+}
+
+const DM_PLANS = [
+  { id: 2773, name: 'Standard', price: 7999, duration: 'Monthly', tagline: 'For small businesses and startups', features: ['SEO for up to 5 pages', 'Manage up to 2 social accounts', '10 custom posts per month', 'Basic lead generation setup', '1 ad campaign'] },
+  { id: 2774, name: 'Pro+', price: 16999, duration: 'Monthly', tagline: 'For growing businesses', features: ['SEO for up to 10 pages', 'Manage up to 4 social accounts', '20 custom posts per month', 'Advanced lead generation', '3 optimized ad campaigns'] },
+  { id: 2775, name: 'Standard', price: 6999, duration: 'Annual billing', tagline: 'Annual plan for small businesses', features: ['SEO for up to 5 pages', 'Manage up to 2 social accounts', '10 custom posts per month', 'Basic lead generation setup', '1 ad campaign'] },
+  { id: 2776, name: 'Pro+', price: 14999, duration: 'Annual billing', tagline: 'Annual plan for growing businesses', features: ['SEO for up to 10 pages', 'Manage up to 4 social accounts', '20 custom posts per month', 'Advanced lead generation', '3 optimized ad campaigns'] },
+]
+
+export function DigitalMarketingProductPage() {
+  const product = CATALOG[2768]
+  const dmPrices = [useCatalogPrice(2773, 7999), useCatalogPrice(2774, 16999), useCatalogPrice(2775, 6999), useCatalogPrice(2776, 14999)]
+  return <>
+    <section className="border-b border-slate-200 bg-[#f7f7f7] py-8 sm:py-12"><div className="container-page"><Breadcrumbs current="Digital Marketing"/><div className="grid items-center gap-8 lg:grid-cols-[.9fr_1.1fr]"><div className="flex min-h-[280px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6"><img src="/assets/2024-09-digital-marketing.jpg" alt="Digital marketing service" className="max-h-80 w-full object-contain"/></div><div><p className="text-xs font-bold uppercase tracking-[.16em] text-rose-600">Digital Marketing Plans</p><h1 className="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl">Digital Marketing</h1><p className="mt-4 leading-relaxed text-slate-600">Grow your reach with a practical mix of search optimization, social account management, content creation, lead generation, and paid campaign design.</p><p className="mt-5 text-2xl font-bold text-slate-900">From {inr(Math.min(...dmPrices), { paise: false })} <span className="text-sm font-normal text-slate-500">/ month</span></p><p className="mt-4 text-sm text-slate-500">Select a plan below to compare included services and add it to your cart.</p></div></div></div></section>
+    <section className="bg-white py-12 sm:py-16"><div className="container-page"><div className="mx-auto max-w-2xl text-center"><p className="text-xs font-bold uppercase tracking-[.16em] text-rose-600">Choose your plan</p><h2 className="mt-2 text-3xl font-bold text-slate-900">Marketing support that scales with you</h2><p className="mt-3 text-slate-600">Both monthly and annual options include a focused set of services to support your growth.</p></div><div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">{DM_PLANS.map((plan, index) => <article key={plan.id} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-slate-300 hover:shadow-lg"><p className="text-xs font-semibold uppercase tracking-wide text-rose-600">{plan.duration}</p><h3 className="mt-2 text-xl font-bold text-slate-900">{plan.name}</h3><p className="mt-1 text-sm text-slate-500">{plan.tagline}</p><p className="mt-5 text-3xl font-bold text-slate-900">{inr(dmPrices[index], { paise: false })}<span className="text-sm font-normal text-slate-500">{plan.duration === 'Monthly' ? ' /mo' : ' /mo, billed yearly'}</span></p><ul className="mt-5 flex-1 space-y-3 border-t border-slate-100 pt-5">{plan.features.map((feature) => <li key={feature} className="flex gap-2 text-sm leading-relaxed text-slate-600"><span className="text-rose-600">✓</span>{feature}</li>)}</ul><div className="mt-6"><AddButton product={{ ...product, id: plan.id, price: plan.price, name: `Digital Marketing ${plan.name} (${plan.duration})` }} /></div></article>)}</div></div></section>
+  </>
+}

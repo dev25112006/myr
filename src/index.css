@@ -1,0 +1,437 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   MYR REBUILD — DESIGN TOKENS (navy + blush retheme)
+   "Blush navy" — light base (white / mist), deep navy #050C5F
+   for headings & primary pills, rose-pink #E369AF accents,
+   coral deal highlights, hairline borders, white glass surfaces.
+   ============================================================ */
+@theme {
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Navy neutrals — role-based: 950/900 = headings & navy pills,
+     100–800 = text on light surfaces (darkest body → muted). */
+  --color-ink-950: #050c5f;
+  --color-ink-900: #101a66;
+  --color-ink-850: #1c2459;
+  --color-ink-800: #232a5e;
+  --color-ink-700: #333a6b;
+  --color-ink-600: #474e77;
+  --color-ink-400: #6b72a0;
+  --color-ink-500: #565d88;
+  --color-ink-300: #575e8d;
+  --color-ink-200: #333a6b;
+  --color-ink-100: #1c2250;
+  --color-paper: #f1f3f9;
+  --color-paper-strong: #ffffff;
+
+  /* Rose-pink accent (sampled from reference: #E369AF / #D85888) */
+  --color-accent-300: #f6a9cd;
+  --color-accent-400: #e369af;
+  --color-accent-500: #d85888;
+  --color-accent-600: #a63a6c;
+
+  /* Coral / flame (awning stripes on reference) */
+  --color-flame-400: #f5a455;
+  --color-flame-500: #e8752a;
+  --color-flame-600: #c25410;
+
+  /* Deal / save badges — soft coral */
+  --color-lime-400: #ff9466;
+
+  --color-line: rgb(5 12 95 / 0.1);
+  --color-line-strong: rgb(5 12 95 / 0.16);
+
+  --shadow-glow: 0 0 0 1px rgb(227 105 175 / 0.35), 0 18px 60px -24px rgb(227 105 175 / 0.4);
+  --shadow-card: 0 24px 60px -32px rgb(5 12 95 / 0.16);
+
+  --radius-card: 1.25rem;
+
+  --animate-marquee: marquee 42s linear infinite;
+  --animate-marquee-rev: marquee-rev 42s linear infinite;
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-shimmer: shimmer 3.2s linear infinite;
+  --animate-aurora: aurora 14s ease-in-out infinite alternate;
+  --animate-pulse-ring: pulse-ring 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes marquee-rev {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 50%; }
+    to { background-position: -200% 50%; }
+  }
+  @keyframes aurora {
+    0% { transform: translate(-4%, -2%) scale(1); opacity: 0.55; }
+    100% { transform: translate(3%, 2%) scale(1.12); opacity: 0.85; }
+  }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgb(227 105 175 / 0.45); }
+    70% { box-shadow: 0 0 0 12px rgb(227 105 175 / 0); }
+    100% { box-shadow: 0 0 0 0 rgb(227 105 175 / 0); }
+  }
+}
+
+
+/* ------------------------------------------------------------
+   Landing hero "website assemble" motion illustration — loops:
+   pieces fly in and assemble a website window, the page scrolls
+   up with a slight 3D tilt, then components slowly disassemble.
+   ------------------------------------------------------------ */
+@keyframes piece-cycle {
+  0% { transform: scale(0.88); opacity: 0; }
+  3% { opacity: 1; }
+  20% { transform: none; opacity: 1; }
+  64% { transform: none; opacity: 1; }
+  86% { transform: scale(0.94); opacity: 0.9; }
+  94% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(0.88); opacity: 0; }
+}
+@keyframes piece-anchor-cycle {
+  0% { transform: scale(0.92); opacity: 0; }
+  3% { opacity: 1; }
+  22% { transform: none; opacity: 1; }
+  92% { transform: none; opacity: 1; }
+  97%, 100% { transform: scale(0.92); opacity: 0; }
+}
+@keyframes site-scroll-cycle {
+  0%, 22% { transform: translateY(0); }
+  56%, 100% { transform: translateY(-34%); }
+}
+@keyframes site-tilt-cycle {
+  0%, 22% { transform: rotateX(0deg) rotate(0deg); }
+  56%, 100% { transform: rotateX(6deg) rotate(-2.5deg); }
+}
+
+
+/* ------------------------------------------------------------
+   Cinematic website background (website-development hero) —
+   a website film scrolls upward while the camera cuts through
+   wide / title-zoom / dutch-angle / extreme-close shots.
+   ------------------------------------------------------------ */
+@keyframes cine-camera-cycle {
+  0% {
+    transform: scale(1.03) rotateX(4deg) rotateY(-3deg) rotateZ(0deg) translateY(1.5%);
+  }
+  24.5% {
+    transform: scale(1.14) rotateX(6deg) rotateY(-5deg) rotateZ(0deg) translateY(-1%);
+  }
+  25% {
+    transform: scale(1.4) rotateX(1deg) rotateY(3deg) rotateZ(0deg) translateY(-6%);
+  }
+  49.5% {
+    transform: scale(1.3) rotateX(3deg) rotateY(1deg) rotateZ(0deg) translateY(-3%);
+  }
+  50% {
+    transform: scale(1.2) rotateX(9deg) rotateY(6deg) rotateZ(-3.5deg) translateY(2%);
+  }
+  74.5% {
+    transform: scale(1.28) rotateX(7deg) rotateY(3deg) rotateZ(-1.5deg) translateY(-1%);
+  }
+  75% {
+    transform: scale(1.85) rotateX(-2deg) rotateY(-7deg) rotateZ(0deg) translateY(-10%);
+  }
+  99.5% {
+    transform: scale(1.65) rotateX(0deg) rotateY(-4deg) rotateZ(0deg) translateY(-7%);
+  }
+  100% {
+    transform: scale(1.03) rotateX(4deg) rotateY(-3deg) rotateZ(0deg) translateY(1.5%);
+  }
+}
+@keyframes cine-scroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+/* ------------------------------------------------------------
+   Core-services device screens — incoming call + MYR app open/close.
+   ------------------------------------------------------------ */
+@keyframes call-shake {
+  0%, 55%, 100% { transform: rotate(0deg); }
+  8% { transform: rotate(-7deg); }
+  16% { transform: rotate(7deg); }
+  24% { transform: rotate(-5deg); }
+  32% { transform: rotate(5deg); }
+  40% { transform: rotate(-3deg); }
+  48% { transform: rotate(3deg); }
+}
+@keyframes call-halo {
+  0% { transform: scale(1); opacity: 0.65; }
+  70%, 100% { transform: scale(1.9); opacity: 0; }
+}
+@keyframes call-dot {
+  0%, 55%, 100% { opacity: 0.25; transform: translateY(0); }
+  25% { opacity: 1; transform: translateY(-3px); }
+}
+@keyframes app-window {
+  0%, 7% { transform: scale(0.24); opacity: 0; }
+  17%, 57% { transform: scale(1); opacity: 1; }
+  67%, 100% { transform: scale(0.24); opacity: 0; }
+}
+@keyframes app-icon {
+  0%, 8% { opacity: 1; transform: scale(1); }
+  17%, 57% { opacity: 0; transform: scale(0.6); }
+  66%, 100% { opacity: 1; transform: scale(1); }
+}
+@keyframes app-logo {
+  0%, 24% { opacity: 0; transform: scale(0.92); }
+  34%, 50% { opacity: 1; transform: scale(1); }
+  60%, 100% { opacity: 0; transform: scale(0.92); }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-paper text-ink-100 font-sans antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent-400) 35%, transparent);
+  }
+  /* Premium slim scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(227 105 175 / 0.35) transparent;
+  }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-track { background: var(--color-paper); }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(rgb(227 105 175 / 0.45), rgb(216 88 136 / 0.25));
+    border-radius: 99px;
+    border: 2px solid var(--color-paper);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgb(216 88 136 / 0.65); }
+  :focus-visible {
+    outline: 2px solid var(--color-accent-500);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+    min-width: 0;
+  }
+
+  .btn {
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full font-semibold
+      transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50
+      cursor-pointer whitespace-nowrap;
+    will-change: transform;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: translateY(0); }
+
+  /* Shine sweep on hover — premium micro-interaction */
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.35) 50%, transparent 65%);
+    transform: translateX(-120%);
+    transition: transform 0.55s ease;
+    pointer-events: none;
+  }
+  .btn:hover::after { transform: translateX(120%); }
+
+  .btn-sm { @apply px-4 py-2 text-sm; }
+  .btn-md { @apply px-6 py-3 text-sm sm:text-base; }
+  .btn-lg { @apply px-8 py-4 text-base; }
+
+  /* Primary = deep navy pill with white text (reference "Start selling") */
+  .btn-primary {
+    @apply bg-ink-950 text-white hover:bg-ink-800 hover:shadow-glow;
+  }
+  .btn-ghost-dark {
+    @apply border border-line bg-white text-ink-950 hover:border-accent-400/60 hover:text-accent-600;
+  }
+  .btn-solid-dark {
+    @apply bg-paper text-ink-950 border border-line hover:border-accent-400/60;
+  }
+  .btn-light {
+    @apply bg-ink-950 text-white hover:bg-ink-800;
+  }
+  .btn-outline-light {
+    @apply border border-ink-950/25 text-ink-950 hover:border-ink-950;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em]
+      text-accent-600;
+  }
+
+  .card {
+    @apply rounded-[var(--radius-card)] border border-line bg-white backdrop-blur
+      transition-all duration-300;
+  }
+  .card:hover {
+    border-color: rgb(227 105 175 / 0.5);
+    box-shadow: 0 24px 60px -32px rgb(227 105 175 / 0.35);
+    transform: translateY(-3px);
+  }
+  .card-light {
+    @apply rounded-[var(--radius-card)] border border-ink-900/10 bg-paper-strong shadow-[0_24px_60px_-40px_rgb(5_12_95/0.28)]
+      transition-all duration-300;
+  }
+  .card-light:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 32px 70px -38px rgb(5 12 95 / 0.4);
+  }
+
+  .hairline { @apply border-line; }
+
+  .section-dark { @apply bg-white text-ink-100; }
+  .section-deep { @apply bg-paper text-ink-100; }
+  .section-light { @apply bg-paper text-ink-900; }
+  .section-white { @apply bg-paper-strong text-ink-900; }
+
+  .grid-noise {
+    background-image:
+      radial-gradient(circle at 20% 10%, rgb(227 105 175 / 0.12), transparent 45%),
+      radial-gradient(circle at 85% 30%, rgb(245 164 85 / 0.1), transparent 40%),
+      linear-gradient(rgb(5 12 95 / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(5 12 95 / 0.05) 1px, transparent 1px);
+    background-size: auto, auto, 48px 48px, 48px 48px;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-ink-950 via-accent-600 to-accent-400 bg-clip-text text-transparent;
+  }
+
+  /* Animated shimmer gradient text */
+  .text-shimmer {
+    background-image: linear-gradient(
+      110deg,
+      var(--color-accent-600) 20%,
+      var(--color-flame-500) 40%,
+      var(--color-accent-500) 60%,
+      var(--color-accent-600) 80%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: var(--animate-shimmer);
+  }
+
+  /* Frosted white panel */
+  .glass {
+    @apply border border-line bg-white/70 backdrop-blur-xl;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink-900
+      placeholder:text-ink-400 transition focus:border-accent-500 focus:outline-none;
+  }
+  .input-light {
+    @apply w-full rounded-xl border border-ink-900/12 bg-white px-4 py-3 text-sm text-ink-900
+      placeholder:text-ink-400 transition focus:border-accent-500 focus:outline-none;
+  }
+  img, video, canvas, svg { max-width: 100%; }
+  input, select, textarea, button { min-width: 0; }
+  table { border-spacing: 0; }
+  .label { @apply mb-1.5 block text-sm font-medium text-ink-200; }
+  .label-light { @apply mb-1.5 block text-sm font-medium text-ink-800; }
+
+  /* Core-services device screen helpers */
+  .call-ring {
+    transform-origin: 50% 65%;
+    animation: call-shake 3s ease-in-out infinite;
+  }
+  .call-halo {
+    animation: call-halo 1.8s ease-out infinite;
+  }
+  .call-dot {
+    animation: call-dot 1.4s ease-in-out infinite;
+  }
+  .app-window {
+    transform-origin: 50% 88%;
+    animation: app-window 5.5s ease-in-out infinite;
+  }
+  .app-icon {
+    animation: app-icon 5.5s ease-in-out infinite;
+  }
+  .app-logo {
+    animation: app-logo 5.5s ease-in-out infinite;
+  }
+
+  /* Cinematic website background helpers (website-development hero) */
+  .cine-camera {
+    animation: cine-camera-cycle 18s linear infinite;
+    will-change: transform;
+  }
+  .cine-track {
+    animation: cine-scroll 26s linear infinite;
+    will-change: transform;
+  }
+
+  /* Hero assemble illustration helpers */
+  .piece {
+    transform: none;
+    opacity: 1;
+    animation: piece-cycle 10s ease-in-out infinite;
+  }
+  .piece-anchor {
+    transform: none;
+    opacity: 1;
+    animation: piece-anchor-cycle 10s ease-in-out infinite;
+  }
+  .site-scroll {
+    animation: site-scroll-cycle 10s ease-in-out infinite;
+  }
+  .site-tilt {
+    transform-origin: 50% 50%;
+    animation: site-tilt-cycle 10s ease-in-out infinite;
+  }
+
+}
+
+@media (max-width: 359px) {
+  .container-page { padding-left: 0.75rem; padding-right: 0.75rem; }
+  .btn-md { padding-left: 1rem; padding-right: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+@utility marquee-track {
+  animation: var(--animate-marquee);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .piece,
+  .piece-anchor,
+  .site-scroll,
+  .site-tilt,
+  .cine-camera,
+  .cine-track {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

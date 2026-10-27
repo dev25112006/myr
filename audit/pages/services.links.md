@@ -1,0 +1,130 @@
+# Links / CTAs
+
+- [anchor] Skip to content -> `#content`
+- [internal] MyR Advance Solution -> `/`
+- [internal] Transforming Ideas into Digital Realities -> `/`
+- [internal] Home -> `/`
+- [internal] Shop -> `/tech-store/`
+- [popup/js] My Account -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjI5NzUiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [internal]  -> `/`
+- [internal]  -> `/tech-store/`
+- [popup/js]  -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjI5NzUiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [anchor] ₹ 0.00 0 Cart -> `#`
+- [internal] Shop -> `/shop/`
+- [internal] Launch Your Website -> `/website-development/`
+- [internal] All-in-One Lead CRM -> `/privyr/`
+- [internal] All Services -> `/services/`
+- [internal] Digital Marketing -> `/digital-marketing/`
+- [internal] Scalable IPBX Systems -> `/ipbx-solution/`
+- [internal] CCTV Solution & Installation -> `/cctv-solution/`
+- [internal] Get Your 1800 Number -> `/1800-number/`
+- [internal] Contact Us -> `/contact-us/`
+- [internal] Log In -> `/my-account/`
+- [internal] Premium Web Development We craft sleek, user-friendly designs tailored for your success. -> `/website-development/`
+- [internal] CRM Development We create tailored CRM solutions for your business success. -> `/crm-development/`
+- [internal] Exclusive Digital Marketing We excel in digital marketing, maximizing your online success. -> `/digital-marketing/`
+- [internal] Networking Solution Streamline connections with tailored networking solutions. -> `/network-solution/`
+- [internal] IPBX Solution Seamless communication, enhanced efficiency for your business. -> `/ipbx-solution/`
+- [internal] Book Now CCTV Solution We fortify your digital and physical spaces with CCTV solutions. -> `/cctv-solution/`
+- [internal] Toll-Free 1800 XXX 8899 Number Unlock unparalleled customer engagement with our exclusive 1-800 toll-free number service -> `/1800-number/`
+- [popup/js] Schedule an Appointment with Our IT Pro -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjMxOTUiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [internal] Know More -> `/about-us/`
+- [internal] Shop Page -> `/tech-store/`
+- [internal] Contact Us -> `https://myradvancesolution.com/contact-us/`
+- [internal] policy page. -> `/privacy-policy/`
+- [internal] Refund request -> `/my-account/`
+- [internal] policy page -> `/refund-and-return-policy/`
+- [external] +91 7408443341 -> `https://wa.me/+917408443341`
+- [internal] Hi 👋 How can we help? -> `https://1367.3cx.cloud/myradvancesolutionpr`
+- [internal]  -> `http://myradvancesolution.com`
+- [external] Facebook -> `https://www.facebook.com/myrnetwork`
+- [external] Instagram -> `https://www.instagram.com/myr_solution/`
+- [external] Linkedin -> `https://www.linkedin.com/in/myr-advance-solution-04b1151a6/`
+- [external] Whatsapp -> `https://wa.me/+917408443341`
+- [external] X-twitter -> `https://x.com/myrnetwork`
+- [internal] Home -> `https://myradvancesolution.com/`
+- [internal] Services -> `/services/`
+- [internal] Privacy Policy -> `/privacy-policy/`
+- [internal] Shipping Policy -> `/shipping-policy/`
+- [internal] Terms & Conditions -> `/terms-and-conditions/`
+- [internal] Refund & Return Policy -> `/refund-and-return-policy/`
+- [internal] Web Development -> `/website-development/`
+- [internal] CRM Development -> `/crm-development/`
+- [internal] IPBX Solution -> `/ipbx-solution/`
+- [internal] CCTV -> `/cctv-solution/`
+- [internal] Toll Free 1800 XXX - -> `/1800-number/`
+- [internal] More -> `https://myradvancesolution.com/services/`
+- [internal] About Myr Advance Solution -> `/about-us/`
+- [internal] Roadmap -> `/roadmap/`
+- [internal] Talk to sales -> `/talk-to-sales/`
+- [popup/js] Partner with Us -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjQ0OTkiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [internal] © 2016-2025 myradvancesolution.com - Premium website development, CRM, IP PBX & telephone system and More -> `/`
+- [internal] © 2016-2025 myradvancesolution.com -> `/`
+- [internal] Lost your password? -> `/my-account/lost-password/`
+- [internal] privacy policy -> `/privacy-policy/`
+
+# Forms
+- form action=`/services/` method=post
+    - text `wpforms[fields][1]` label: 
+    - email `wpforms[fields][2]` label: 
+    - text `wpforms[fields][3]` label: Phone Number with Country Code eg. +1 1234567890
+    - text `wpforms[fields][8]` label: 
+    - select `wpforms[fields][4]` label: 
+    - text `wpforms[fields][5]` label: 
+    - select `wpforms[fields][6]` label: 
+    - textarea `wpforms[fields][7]` label: (Feel free to add any other details about your Project/Service need)
+    - hidden `wpforms[id]` label: 
+    - hidden `wpforms[time_token]` label: 
+    - hidden `page_title` label: 
+    - hidden `page_url` label: 
+    - hidden `url_referer` label: 
+    - hidden `page_id` label: 
+    - hidden `wpforms[post_id]` label: 
+- form action=`None` method=post
+    - text `username` label: 
+    - password `password` label: 
+    - checkbox `rememberme` label: 
+    - hidden `woocommerce-login-nonce` label: 
+    - hidden `_wp_http_referer` label: 
+- form action=`None` method=post
+    - email `email` label: 
+    - hidden `woocommerce-register-nonce` label: 
+    - hidden `_wp_http_referer` label: 
+- form action=`/services/` method=post
+    - text `wpforms[fields][4]` label: 
+    - text `wpforms[fields][1]` label: Your Name
+    - email `wpforms[fields][2]` label: Email
+    - text `wpforms[fields][3]` label: Contact Number
+    - text `wpforms[fields][6]` label: Business Name
+    - textarea `wpforms[fields][5]` label: Complete Address
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - text `wpforms[fields][8]` label: Your Location (City/State)
+    - textarea `wpforms[fields][9]` label: Message/Additional Details (Optional)
+    - hidden `wpforms[id]` label: 
+    - hidden `wpforms[time_token]` label: 
+    - hidden `page_title` label: 
+    - hidden `page_url` label: 
+    - hidden `url_referer` label: 
+    - hidden `page_id` label: 
+    - hidden `wpforms[post_id]` label: 
+
+# Images
+-  -> `/wp-content/uploads/2024/08/MYR-LOGO.png`
+-  -> `/wp-content/uploads/2024/08/MYR-LOGO.png`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/MYR-MOBILE-LOGO.png?fit=500%2C500&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/MYR-MOBILE-LOGO.png?fit=500%2C500&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-toll-free-number-768x644-1.png?fit=768%2C644&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-toll-free-number-768x644-1.png?fit=768%2C644&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/sales-support-girl.png?fit=612%2C408&ssl=1`
+- MYR ADVANCE SOLUTION -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/MYR-ADVANCE-SOLUTION.png?fit=270%2C79&ssl=1`
+- Loading -> `/wp-content/plugins/wpforms-lite/assets/images/submit-spin.svg`
+- Loading -> `/wp-content/plugins/wpforms-lite/assets/images/submit-spin.svg`
+- Loading -> `/wp-content/plugins/wpforms-lite/assets/images/submit-spin.svg`
+- Loading -> `/wp-content/plugins/wpforms-lite/assets/images/submit-spin.svg`

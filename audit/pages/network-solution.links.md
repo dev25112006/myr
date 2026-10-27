@@ -1,0 +1,103 @@
+# Links / CTAs
+
+- [anchor] Skip to content -> `#content`
+- [internal] MyR Advance Solution -> `/`
+- [internal] Transforming Ideas into Digital Realities -> `/`
+- [internal] Home -> `/`
+- [internal] Shop -> `/tech-store/`
+- [popup/js] My Account -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjI5NzUiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [internal]  -> `/`
+- [internal]  -> `/tech-store/`
+- [popup/js]  -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjI5NzUiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [anchor] ₹ 0.00 0 Cart -> `#`
+- [internal] Shop -> `/shop/`
+- [internal] Launch Your Website -> `/website-development/`
+- [internal] All-in-One Lead CRM -> `/privyr/`
+- [internal] All Services -> `/services/`
+- [internal] Digital Marketing -> `/digital-marketing/`
+- [internal] Scalable IPBX Systems -> `/ipbx-solution/`
+- [internal] CCTV Solution & Installation -> `/cctv-solution/`
+- [internal] Get Your 1800 Number -> `/1800-number/`
+- [internal] Contact Us -> `/contact-us/`
+- [internal] Log In -> `/my-account/`
+- [internal] Talk to sales -> `https://1367.3cx.cloud/myradvancesolutionpr`
+- [internal] Live Chat -> `https://1367.3cx.cloud/myradvancesolutionpr`
+- [anchor] Book Free Consultation -> `#dm`
+- [internal] Still Have Questions ? Live Chat Now -> `https://1367.3cx.cloud/myradvancesolutionpr`
+- [internal]  -> `http://myradvancesolution.com`
+- [external] Facebook -> `https://www.facebook.com/myrnetwork`
+- [external] Instagram -> `https://www.instagram.com/myr_solution/`
+- [external] Linkedin -> `https://www.linkedin.com/in/myr-advance-solution-04b1151a6/`
+- [external] Whatsapp -> `https://wa.me/+917408443341`
+- [external] X-twitter -> `https://x.com/myrnetwork`
+- [internal] Home -> `https://myradvancesolution.com/`
+- [internal] Shop Page -> `/tech-store/`
+- [internal] Services -> `/services/`
+- [internal] Privacy Policy -> `/privacy-policy/`
+- [internal] Shipping Policy -> `/shipping-policy/`
+- [internal] Terms & Conditions -> `/terms-and-conditions/`
+- [internal] Refund & Return Policy -> `/refund-and-return-policy/`
+- [internal] Web Development -> `/website-development/`
+- [internal] CRM Development -> `/crm-development/`
+- [internal] IPBX Solution -> `/ipbx-solution/`
+- [internal] CCTV -> `/cctv-solution/`
+- [internal] Toll Free 1800 XXX - -> `/1800-number/`
+- [internal] More -> `https://myradvancesolution.com/services/`
+- [internal] About Myr Advance Solution -> `/about-us/`
+- [internal] Roadmap -> `/roadmap/`
+- [internal] Talk to sales -> `/talk-to-sales/`
+- [popup/js] Partner with Us -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjQ0OTkiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [internal] © 2016-2025 myradvancesolution.com - Premium website development, CRM, IP PBX & telephone system and More -> `/`
+- [internal] © 2016-2025 myradvancesolution.com -> `/`
+- [internal] Lost your password? -> `/my-account/lost-password/`
+- [internal] privacy policy -> `/privacy-policy/`
+
+# Forms
+- form action=`None` method=post
+    - text `username` label: 
+    - password `password` label: 
+    - checkbox `rememberme` label: 
+    - hidden `woocommerce-login-nonce` label: 
+    - hidden `_wp_http_referer` label: 
+- form action=`None` method=post
+    - email `email` label: 
+    - hidden `woocommerce-register-nonce` label: 
+    - hidden `_wp_http_referer` label: 
+- form action=`/network-solution/` method=post
+    - text `wpforms[fields][1]` label: Your Name
+    - email `wpforms[fields][2]` label: Email
+    - text `wpforms[fields][3]` label: Contact Number
+    - text `wpforms[fields][6]` label: Business Name
+    - textarea `wpforms[fields][5]` label: Complete Address
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - text `wpforms[fields][8]` label: Your Location (City/State)
+    - text `wpforms[fields][4]` label: 
+    - textarea `wpforms[fields][9]` label: Message/Additional Details (Optional)
+    - hidden `wpforms[id]` label: 
+    - hidden `wpforms[time_token]` label: 
+    - hidden `page_title` label: 
+    - hidden `page_url` label: 
+    - hidden `url_referer` label: 
+    - hidden `page_id` label: 
+    - hidden `wpforms[post_id]` label: 
+
+# Images
+-  -> `/wp-content/uploads/2024/08/MYR-LOGO.png`
+-  -> `/wp-content/uploads/2024/08/MYR-LOGO.png`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/MYR-MOBILE-LOGO.png?fit=500%2C500&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/MYR-MOBILE-LOGO.png?fit=500%2C500&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/cloud-networking.png?fit=2000%2C1333&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/cloud-networking.png?fit=2000%2C1333&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/male-network-support-e1726830127733.png?fit=500%2C359&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/male-network-support-e1726830127733.png?fit=500%2C359&ssl=1`
+- MYR ADVANCE SOLUTION -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/MYR-ADVANCE-SOLUTION.png?fit=270%2C79&ssl=1`
+- MYR ADVANCE SOLUTION -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/MYR-ADVANCE-SOLUTION.png?fit=270%2C79&ssl=1`
+- Loading -> `/wp-content/plugins/wpforms-lite/assets/images/submit-spin.svg`
+- Loading -> `/wp-content/plugins/wpforms-lite/assets/images/submit-spin.svg`

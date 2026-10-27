@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Disallow: /crm-dashboard/
+Disallow: /my-leads/
+Disallow: /crm-reports/
+Disallow: /crm-tasks/
+Disallow: /my-profile/
+Disallow: /import-leads/
+Disallow: /crm-login/
+Disallow: /team-chat/
+Disallow: /team-panel/
+Disallow: /customer-panel/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /my-account/
+Disallow: /lets-keep-in-touch/
+
+Sitemap: https://www.myradvancesolution.com/sitemap.xml

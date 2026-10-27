@@ -1,0 +1,20 @@
+import { spawn } from 'node:child_process'
+import { chromium } from 'playwright'
+const PORT = 4189
+const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { cwd: process.cwd(), stdio: 'ignore' })
+await new Promise(r => setTimeout(r, 1500))
+const browser = await chromium.launch()
+const page = await browser.newPage({ viewport: { width: 1440, height: 960 } })
+await page.goto(`http://localhost:${PORT}/`, { waitUntil: 'networkidle' })
+await page.screenshot({ path: '/tmp/myr/home-top.png' })
+await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight * 0.35))
+await new Promise(r => setTimeout(r, 900))
+await page.screenshot({ path: '/tmp/myr/home-mid.png' })
+await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight * 0.72))
+await new Promise(r => setTimeout(r, 900))
+await page.screenshot({ path: '/tmp/myr/home-low.png' })
+const m = await browser.newPage({ viewport: { width: 390, height: 844 } })
+await m.goto(`http://localhost:${PORT}/`, { waitUntil: 'networkidle' })
+await m.screenshot({ path: '/tmp/myr/home-mobile.png' })
+await browser.close(); server.kill('SIGTERM')
+console.log('shots done')

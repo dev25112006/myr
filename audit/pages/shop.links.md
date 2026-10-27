@@ -1,0 +1,176 @@
+# Links / CTAs
+
+- [anchor] Skip to content -> `#content`
+- [internal] MyR Advance Solution -> `/`
+- [internal] Transforming Ideas into Digital Realities -> `/`
+- [internal] Home -> `/`
+- [internal] Shop -> `/tech-store/`
+- [popup/js] My Account -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjI5NzUiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [internal]  -> `/`
+- [internal]  -> `/tech-store/`
+- [popup/js]  -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjI5NzUiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [anchor] ₹ 0.00 0 Cart -> `#`
+- [internal] Shop -> `/shop/`
+- [internal] Launch Your Website -> `/website-development/`
+- [internal] All-in-One Lead CRM -> `/privyr/`
+- [internal] All Services -> `/services/`
+- [internal] Digital Marketing -> `/digital-marketing/`
+- [internal] Scalable IPBX Systems -> `/ipbx-solution/`
+- [internal] CCTV Solution & Installation -> `/cctv-solution/`
+- [internal] Get Your 1800 Number -> `/1800-number/`
+- [internal] Contact Us -> `/contact-us/`
+- [internal] Log In -> `/my-account/`
+- [internal] Website Development -> `/product-category/website-development/`
+- [internal] PBX -> `/product-category/pbx/`
+- [internal] IT Products -> `/product-category/it-products/`
+- [internal] IP PBX Solution -> `/product-category/ip-pbx/`
+- [internal] Digital Marketing -> `/product-category/digital-marketing/`
+- [internal] Transforming Your Vision into a Digital Reality with Speed and Precision Choose Plan -> `/product/website-development/`
+- [internal] Digital Marketing Solutions to Drive Growth and Results Choose Plan -> `/product/digital-marketing/`
+- [internal] Your Business, Connected: Advanced IP PBX for Smarter Communication Buy Now -> `/product/myrlink-ip-pbx-ip100-v3/`
+- [internal]  -> `/product/digital-marketing/`
+- [internal]  -> `/product/myrlink-ip-pbx-ip100-v3/`
+- [internal]  -> `/product/website-development/`
+- [internal] Digital Marketing Plans -> `/product/digital-marketing/`
+- [internal] UP TO 70% OFF DEAL -> `/product-category/it-products/`
+- [internal] BUY NOW -> `/checkout/?add-to-cart=2765&quantity=1`
+- [internal] BUY NOW -> `/checkout/?add-to-cart=3056&quantity=1`
+- [internal] Purchase Today, Go Live Tomorrow – Websites Ready in 24hrs -> `/product/website-development/`
+- [internal] Buy MYRLINK IPBX Now & Transform Communication -> `/product/myrlink-ip-pbx-ip100-v3/`
+- [internal] Digital Marketing -> `/product/digital-marketing/`
+- [internal] Choose Plan -> `/product/digital-marketing/`
+- [internal] CCTV Solution -> `/tech-store/`
+- [internal] Shop Now -> `/tech-store/`
+- [internal]  -> `/product-category/networking-devices/`
+- [internal] Network Product -> `/product-category/networking-devices/`
+- [internal] Shop Now -> `/product-category/networking-devices/`
+- [internal]  -> `/product-category/it-products/`
+- [internal] PBX & IP Telephone -> `/product-category/it-products/`
+- [internal] Shop Now -> `/product-category/it-products/`
+- [internal] Select options -> `/product/website-development/`
+- [internal] Website Development -> `/product/website-development/`
+- [internal] Select options -> `/product/digital-marketing/`
+- [internal]  -> `/product/newbiz-essentials/`
+- [internal] Add to cart -> `/tech-store/?add-to-cart=5085`
+- [internal] NewBiz Essentials -> `/product/newbiz-essentials/`
+- [internal]  -> `/product/revampcommerce-lite/`
+- [internal] Add to cart -> `/tech-store/?add-to-cart=5088`
+- [internal] RevampCommerce Lite -> `/product/revampcommerce-lite/`
+- [internal]  -> `/product/elitecustom-suite/`
+- [internal] Add to cart -> `/tech-store/?add-to-cart=5090`
+- [internal] EliteCustom Suite -> `/product/elitecustom-suite/`
+- [internal] Connect Smarter, Communicate Better – Upgrade to IP Telephony Today! -> `/product-category/it-products/`
+- [internal] Smart Networking Devices -> `/product-category/it-products/`
+- [internal]  -> `http://myradvancesolution.com`
+- [external] Facebook -> `https://www.facebook.com/myrnetwork`
+- [external] Instagram -> `https://www.instagram.com/myr_solution/`
+- [external] Linkedin -> `https://www.linkedin.com/in/myr-advance-solution-04b1151a6/`
+- [external] Whatsapp -> `https://wa.me/+917408443341`
+- [external] X-twitter -> `https://x.com/myrnetwork`
+- [internal] Home -> `https://myradvancesolution.com/`
+- [internal] Shop Page -> `/tech-store/`
+- [internal] Services -> `/services/`
+- [internal] Privacy Policy -> `/privacy-policy/`
+- [internal] Shipping Policy -> `/shipping-policy/`
+- [internal] Terms & Conditions -> `/terms-and-conditions/`
+- [internal] Refund & Return Policy -> `/refund-and-return-policy/`
+- [internal] Web Development -> `/website-development/`
+- [internal] CRM Development -> `/crm-development/`
+- [internal] IPBX Solution -> `/ipbx-solution/`
+- [internal] CCTV -> `/cctv-solution/`
+- [internal] Toll Free 1800 XXX - -> `/1800-number/`
+- [internal] More -> `https://myradvancesolution.com/services/`
+- [internal] About Myr Advance Solution -> `/about-us/`
+- [internal] Roadmap -> `/roadmap/`
+- [internal] Talk to sales -> `/talk-to-sales/`
+- [popup/js] Partner with Us -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjQ0OTkiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
+- [internal] © 2016-2025 myradvancesolution.com - Premium website development, CRM, IP PBX & telephone system and More -> `/`
+- [internal] © 2016-2025 myradvancesolution.com -> `/`
+- [internal] Lost your password? -> `/my-account/lost-password/`
+- [internal] privacy policy -> `/privacy-policy/`
+
+# Forms
+- form action=`/` method=get
+    - text `s` label: Search...
+    - hidden `post_type` label: 
+- form action=`/` method=get
+    - text `s` label: Search...
+    - hidden `post_type` label: 
+- form action=`None` method=post
+    - text `username` label: 
+    - password `password` label: 
+    - checkbox `rememberme` label: 
+    - hidden `woocommerce-login-nonce` label: 
+    - hidden `_wp_http_referer` label: 
+- form action=`None` method=post
+    - email `email` label: 
+    - hidden `woocommerce-register-nonce` label: 
+    - hidden `_wp_http_referer` label: 
+- form action=`/tech-store/` method=post
+    - text `wpforms[fields][1]` label: Your Name
+    - text `wpforms[fields][4]` label: 
+    - email `wpforms[fields][2]` label: Email
+    - text `wpforms[fields][3]` label: Contact Number
+    - text `wpforms[fields][6]` label: Business Name
+    - textarea `wpforms[fields][5]` label: Complete Address
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - checkbox `wpforms[fields][7][]` label: 
+    - text `wpforms[fields][8]` label: Your Location (City/State)
+    - textarea `wpforms[fields][9]` label: Message/Additional Details (Optional)
+    - hidden `wpforms[id]` label: 
+    - hidden `wpforms[time_token]` label: 
+    - hidden `page_title` label: 
+    - hidden `page_url` label: 
+    - hidden `url_referer` label: 
+    - hidden `page_id` label: 
+    - hidden `wpforms[post_id]` label: 
+
+# Images
+-  -> `/wp-content/uploads/2024/08/MYR-LOGO.png`
+-  -> `/wp-content/uploads/2024/08/MYR-LOGO.png`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/MYR-MOBILE-LOGO.png?fit=500%2C500&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/MYR-MOBILE-LOGO.png?fit=500%2C500&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/MYR-e1709294854593.png?fit=815%2C237&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/MYR-e1709294854593.png?fit=815%2C237&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/Special-Sale-Launch-Your-Website-Save-Big.png?fit=851%2C315&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/Special-Sale-Launch-Your-Website-Save-Big.png?fit=851%2C315&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/Best-Deal-on-IP-PBX-myrlink.png?fit=851%2C315&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/Best-Deal-on-IP-PBX-myrlink.png?fit=851%2C315&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/CCTV-Laptops-and-Smartwatches.png?fit=851%2C315&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/CCTV-Laptops-and-Smartwatches.png?fit=851%2C315&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/gradient-responsive-website-design.png?fit=1024%2C682&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/gradient-responsive-website-design.png?fit=1024%2C682&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/myrlink-ip-pbx.png?fit=500%2C500&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/myrlink-ip-pbx.png?fit=500%2C500&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/gradient-responsive-website.png?fit=2000%2C1333&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/gradient-responsive-website.png?fit=2000%2C1333&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/myrlink-ip-pbx.png?fit=500%2C500&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/myrlink-ip-pbx.png?fit=500%2C500&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/digital-marketing.jpg?fit=1080%2C1080&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/digital-marketing.jpg?fit=1080%2C1080&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/hivision-set.jpg?fit=1080%2C1080&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/hivision-set.jpg?fit=1080%2C1080&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/10/network-category.jpg?fit=1080%2C1080&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/10/network-category.jpg?fit=1080%2C1080&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/10/ip-telephone-category.jpg?fit=1080%2C1080&ssl=1`
+-  -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/10/ip-telephone-category.jpg?fit=1080%2C1080&ssl=1`
+- Website Development -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/gradient-responsive-website-design.png?resize=300%2C300&ssl=1`
+- Website Development -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/gradient-responsive-website-design.png?resize=300%2C300&ssl=1`
+- Digital Marketing -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/document-marketing-strategy-business-concept.png?resize=300%2C300&ssl=1`
+- Digital Marketing -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/document-marketing-strategy-business-concept.png?resize=300%2C300&ssl=1`
+- NewBiz Essentials -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/website-development.jpg?resize=300%2C300&ssl=1`
+- NewBiz Essentials -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/website-development.jpg?resize=300%2C300&ssl=1`
+- RevampCommerce Lite -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/website-development.jpg?resize=300%2C300&ssl=1`
+- RevampCommerce Lite -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/website-development.jpg?resize=300%2C300&ssl=1`
+- EliteCustom Suite -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/website-development.jpg?resize=300%2C300&ssl=1`
+- EliteCustom Suite -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/09/website-development.jpg?resize=300%2C300&ssl=1`
+- MYR ADVANCE SOLUTION -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/MYR-ADVANCE-SOLUTION.png?fit=270%2C79&ssl=1`
+- MYR ADVANCE SOLUTION -> `https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/MYR-ADVANCE-SOLUTION.png?fit=270%2C79&ssl=1`
+- Loading -> `/wp-content/plugins/wpforms-lite/assets/images/submit-spin.svg`
+- Loading -> `/wp-content/plugins/wpforms-lite/assets/images/submit-spin.svg`

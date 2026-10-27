@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="140" y1="80" x2="1450" y2="1170" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF9F4"/>
+      <stop offset="1" stop-color="#F5F1FF"/>
+    </linearGradient>
+    <linearGradient id="phone" x1="540" y1="96" x2="1055" y2="1126" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#273246"/>
+      <stop offset="1" stop-color="#0C1423"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FB923C"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+    <filter id="shadow" x="430" y="30" width="760" height="1190" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="30"/>
+      <feGaussianBlur stdDeviation="35"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix values="0 0 0 0 0.09 0 0 0 0 0.11 0 0 0 0 0.18 0 0 0 0.24 0"/>
+      <feBlend in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+    <clipPath id="screenClip"><rect x="574" y="92" width="452" height="1016" rx="54"/></clipPath>
+  </defs>
+  <rect width="1600" height="1200" rx="44" fill="url(#bg)"/>
+  <circle cx="340" cy="250" r="210" fill="#FDBA74" fill-opacity=".13"/>
+  <circle cx="1290" cy="930" r="270" fill="#C4B5FD" fill-opacity=".18"/>
+  <g filter="url(#shadow)">
+    <rect x="550" y="68" width="500" height="1064" rx="78" fill="url(#phone)"/>
+    <rect x="562" y="80" width="476" height="1040" rx="68" fill="#070D17"/>
+    <rect x="574" y="92" width="452" height="1016" rx="54" fill="#F8FAFC"/>
+    <g clip-path="url(#screenClip)">
+      <rect x="574" y="92" width="452" height="1016" fill="#F8FAFC"/>
+      <rect x="574" y="92" width="452" height="48" fill="#FFF"/>
+      <text x="605" y="123" fill="#111827" font-family="Arial, sans-serif" font-size="19" font-weight="700">9:41</text>
+      <path d="M936 116h8v11h-8zM949 112h8v15h-8zM962 108h8v19h-8z" fill="#334155"/>
+      <path d="M988 113c8 0 14 6 14 14h-28c0-8 6-14 14-14Z" fill="#334155"/>
+      <rect x="610" y="108" width="124" height="27" rx="14" fill="#070D17"/>
+      <text x="608" y="196" fill="#0F172A" font-family="Arial, sans-serif" font-size="31" font-weight="700">My Leads</text>
+      <text x="608" y="228" fill="#64748B" font-family="Arial, sans-serif" font-size="16">Good morning, Alex</text>
+      <circle cx="980" cy="195" r="24" fill="#FFEDD5"/>
+      <text x="966" y="202" fill="#C2410C" font-family="Arial, sans-serif" font-size="17" font-weight="700">AM</text>
+      <rect x="602" y="254" width="396" height="128" rx="24" fill="#FFF" stroke="#E2E8F0" stroke-width="2"/>
+      <text x="628" y="290" fill="#64748B" font-family="Arial, sans-serif" font-size="16">NEW LEADS</text>
+      <text x="628" y="348" fill="#0F172A" font-family="Arial, sans-serif" font-size="43" font-weight="700">128</text>
+      <rect x="848" y="278" width="118" height="38" rx="19" fill="#ECFDF5"/>
+      <circle cx="870" cy="297" r="5" fill="#10B981"/>
+      <text x="884" y="303" fill="#047857" font-family="Arial, sans-serif" font-size="14" font-weight="700">+12 today</text>
+      <text x="608" y="425" fill="#0F172A" font-family="Arial, sans-serif" font-size="22" font-weight="700">Follow up</text>
+      <text x="923" y="425" fill="#EA580C" font-family="Arial, sans-serif" font-size="15" font-weight="700">View all</text>
+      <rect x="602" y="448" width="396" height="80" rx="20" fill="#FFF" stroke="#E2E8F0" stroke-width="2"/>
+      <circle cx="646" cy="488" r="25" fill="#DBEAFE"/>
+      <text x="633" y="495" fill="#1D4ED8" font-family="Arial, sans-serif" font-size="15" font-weight="700">PS</text>
+      <text x="686" y="481" fill="#0F172A" font-family="Arial, sans-serif" font-size="17" font-weight="700">Priya Sharma</text>
+      <text x="686" y="505" fill="#64748B" font-family="Arial, sans-serif" font-size="14">Website enquiry · 10:42 AM</text>
+      <rect x="897" y="468" width="82" height="28" rx="14" fill="#FEF3C7"/>
+      <text x="910" y="487" fill="#B45309" font-family="Arial, sans-serif" font-size="12" font-weight="700">FOLLOW UP</text>
+      <rect x="602" y="540" width="396" height="80" rx="20" fill="#FFF" stroke="#E2E8F0" stroke-width="2"/>
+      <circle cx="646" cy="580" r="25" fill="#FCE7F3"/>
+      <text x="633" y="587" fill="#BE185D" font-family="Arial, sans-serif" font-size="15" font-weight="700">RK</text>
+      <text x="686" y="573" fill="#0F172A" font-family="Arial, sans-serif" font-size="17" font-weight="700">Rahul Khanna</text>
+      <text x="686" y="597" fill="#64748B" font-family="Arial, sans-serif" font-size="14">Facebook lead · 9:18 AM</text>
+      <rect x="897" y="560" width="82" height="28" rx="14" fill="#DBEAFE"/>
+      <text x="910" y="579" fill="#1D4ED8" font-family="Arial, sans-serif" font-size="12" font-weight="700">NEW LEAD</text>
+      <rect x="602" y="632" width="396" height="80" rx="20" fill="#FFF" stroke="#E2E8F0" stroke-width="2"/>
+      <circle cx="646" cy="672" r="25" fill="#DCFCE7"/>
+      <text x="633" y="679" fill="#15803D" font-family="Arial, sans-serif" font-size="15" font-weight="700">AM</text>
+      <text x="686" y="665" fill="#0F172A" font-family="Arial, sans-serif" font-size="17" font-weight="700">Anita Mehra</text>
+      <text x="686" y="689" fill="#64748B" font-family="Arial, sans-serif" font-size="14">WhatsApp · Yesterday</text>
+      <rect x="897" y="652" width="82" height="28" rx="14" fill="#DCFCE7"/>
+      <text x="910" y="671" fill="#15803D" font-family="Arial, sans-serif" font-size="12" font-weight="700">QUALIFIED</text>
+      <rect x="602" y="748" width="396" height="114" rx="24" fill="url(#accent)"/>
+      <text x="628" y="786" fill="#FFF7ED" font-family="Arial, sans-serif" font-size="15" font-weight="700">TODAY'S ACTIVITY</text>
+      <text x="628" y="829" fill="#FFF" font-family="Arial, sans-serif" font-size="25" font-weight="700">8 leads to follow up</text>
+      <circle cx="949" cy="805" r="25" fill="#FFF" fill-opacity=".2"/>
+      <path d="m944 795 11 10-11 10" stroke="#FFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="574" y="1006" width="452" height="102" fill="#FFF"/>
+      <path d="M574 1006h452" stroke="#E2E8F0" stroke-width="2"/>
+      <circle cx="650" cy="1041" r="8" fill="#F97316"/>
+      <text x="628" y="1076" fill="#C2410C" font-family="Arial, sans-serif" font-size="13" font-weight="700">Leads</text>
+      <circle cx="800" cy="1041" r="8" fill="#94A3B8"/>
+      <text x="770" y="1076" fill="#64748B" font-family="Arial, sans-serif" font-size="13">Messages</text>
+      <circle cx="950" cy="1041" r="8" fill="#94A3B8"/>
+      <text x="927" y="1076" fill="#64748B" font-family="Arial, sans-serif" font-size="13">Profile</text>
+    </g>
+    <rect x="738" y="98" width="124" height="23" rx="12" fill="#070D17"/>
+  </g>
+</svg>
