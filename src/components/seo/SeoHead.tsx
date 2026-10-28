@@ -4,7 +4,10 @@ import { getRouteMeta } from '@/content/routeMeta'
 import { ORGANIZATION_LD, WEBSITE_LD, breadcrumbLd, pageLd } from '@/lib/seoLd'
 
 const SITE = typeof window !== 'undefined' ? window.location.origin : ''
-const DEFAULT_OG = `${SITE}/assets/2025-01-website-front-hero-image.png`
+const CANONICAL_SITE = SITE && !/^https?:\/\/(localhost|127\.0\.0\.1)(:|$)/.test(SITE)
+  ? 'https://www.myradvancesolution.com'
+  : SITE
+const DEFAULT_OG = `${CANONICAL_SITE}/assets/2025-01-website-front-hero-image.png`
 
 function upsertMeta(attr: 'name' | 'property', key: string, content: string) {
   let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`)
@@ -54,7 +57,7 @@ export function SeoHead() {
     const keywords = meta?.keywords || 'MyR Advance Solution, IT solutions'
     // This is a clone deployment: canonical URLs must use the current host,
     // never the reference site's host embedded in the audit inventory.
-    const canonical = `${SITE}${pathname}`
+    const canonical = meta?.canonical || `${CANONICAL_SITE}${pathname}`
     const robots = meta?.robots === false ? 'noindex, nofollow' : 'index, follow'
     const isHome = pathname === '/'
 
@@ -73,6 +76,7 @@ export function SeoHead() {
     upsertMeta('property', 'og:url', canonical)
     upsertMeta('property', 'og:image', DEFAULT_OG)
     upsertMeta('property', 'og:locale', 'en_IN')
+    upsertMeta('property', 'og:locale:alternate', 'en_US')
 
     /* Twitter */
     upsertMeta('name', 'twitter:card', 'summary_large_image')

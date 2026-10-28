@@ -4,6 +4,9 @@ import { HomePage } from '@/pages/HomePage'
 import { ServicesPage } from '@/pages/ServicesPage'
 import { WebsiteDevelopmentPage } from '@/pages/WebsiteDevelopmentPage'
 import { CrmDevelopmentPage } from '@/pages/CrmDevelopmentPage'
+import { HRMSolutionsPage } from '@/pages/HRMSolutionsPage'
+import { EcommerceSolutionsPage } from '@/pages/EcommerceSolutionsPage'
+import { EducationErpPage } from '@/pages/EducationErpPage'
 import { DigitalMarketingPage } from '@/pages/DigitalMarketingPage'
 import { NetworkSolutionPage } from '@/pages/NetworkSolutionPage'
 import { IpBxSolutionPage } from '@/pages/IpBxSolutionPage'
@@ -36,6 +39,9 @@ export function AppRoutes() {
         <Route path="/services/" element={<ServicesPage />} />
         <Route path="/website-development/" element={<WebsiteDevelopmentPage />} />
         <Route path="/crm-development/" element={<CrmDevelopmentPage />} />
+        <Route path="/hrm-solutions/" element={<HRMSolutionsPage />} />
+        <Route path="/ecommerce-solutions/" element={<EcommerceSolutionsPage />} />
+        <Route path="/education-erp/" element={<EducationErpPage />} />
         <Route path="/digital-marketing/" element={<DigitalMarketingPage />} />
 
         {/* Phase 3 */}

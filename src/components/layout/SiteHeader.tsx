@@ -130,8 +130,13 @@ export function SiteHeader() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden min-w-0 flex-nowrap items-center gap-0.5 whitespace-nowrap xl:flex xl:gap-1" aria-label="Primary">
-          {nav.map((item) => (
+        <nav
+          className="hidden min-w-0 flex-nowrap items-center gap-0.5 whitespace-nowrap xl:flex xl:gap-1"
+          aria-label="Primary"
+          onMouseEnter={() => setMegaOpen(true)}
+          onFocus={() => setMegaOpen(true)}
+        >
+          {nav.filter((item) => item.label !== 'Contact Us').map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -142,7 +147,7 @@ export function SiteHeader() {
           ))}
 
           {/* All Services dropdown */}
-          <div className="relative">
+          <div className="relative" onMouseEnter={() => setServicesOpen(true)} onMouseLeave={() => setServicesOpen(false)}>
             <button
                 type="button"
                 onClick={() => setServicesOpen((v) => !v)}
@@ -153,6 +158,7 @@ export function SiteHeader() {
                     : 'text-ink-200 hover:text-accent-600',
                 )}
                 aria-expanded={servicesOpen}
+                aria-controls="all-services-menu"
               >
                 All Services
                 <svg className={cn('h-2.5 w-2.5 transition-transform duration-200', servicesOpen && 'rotate-180')} viewBox="0 0 10 10" aria-hidden>
@@ -166,6 +172,7 @@ export function SiteHeader() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.16 }}
+                    id="all-services-menu"
                     className="absolute left-0 top-full z-50 mt-2 w-72 rounded-2xl border border-line bg-white p-2 shadow-card backdrop-blur-xl"
                   >
                     {OFFCANVAS_SERVICES.map((s) => (
@@ -183,6 +190,15 @@ export function SiteHeader() {
               )}
             </AnimatePresence>
           </div>
+          {nav.filter((item) => item.label === 'Contact Us').map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className="whitespace-nowrap rounded-full px-2 py-2 text-xs font-medium text-ink-200 transition-colors hover:text-accent-600 xl:px-2.5 xl:text-sm"
+            >
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
 
         <AnimatePresence>
@@ -195,12 +211,14 @@ export function SiteHeader() {
               className="absolute left-0 right-0 top-full z-50 hidden pt-2 xl:block"
             >
               <div className="max-h-[calc(100vh-6rem)] overflow-y-auto rounded-2xl border border-line bg-white p-6 shadow-card">
-                <div className="grid grid-cols-5 gap-5">
+                <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-4">
                 {[
                   { title: 'Home', to: '/', links: [['Services', '/#services'], ['Shop', '/#E-Commerce'], ['Plans', '/#pricing'], ['Contact', '/#contact']] },
                   { title: 'Shop', to: '/tech-store/', links: [['Browse categories', '/tech-store/#store-browse'], ['Popular products & plans', '/tech-store/#store-products'], ['IP telephony', '/tech-store/#store-categories'], ['Contact our team', '/tech-store/#store-contact']] },
                   { title: 'Launch Your Website', to: '/website-development/', links: [['Website solutions', '/website-development/#website-solutions'], ['Development process', '/website-development/#development-process'], ['Included features', '/website-development/#viewallfeatures'], ['Pricing plans', '/website-development/#Pricing']] },
                   { title: 'All-in-One Lead CRM', to: '/privyr/', links: [['Lead management', '/privyr/#lead-management'], ['Features', '/privyr/#crm-features'], ['30-second setup', '/privyr/#quick-setup'], ['Plans & pricing', '/privyr/#privyrpricing']] },
+                  { title: 'HRM Solutions', to: '/hrm-solutions/', links: [['People management', '/hrm-solutions/#hrm-workspace'], ['Attendance & leave', '/hrm-solutions/#hrm-workspace'], ['Payroll & hiring', '/hrm-solutions/#hrm-workspace'], ['Talk to our team', '/contact-us/?interest=hrm#contact-form']] },
+                  { title: 'Education ERP', to: '/education-erp/', links: [['School ERP', '/education-erp/?type=school#institution-types'], ['College ERP', '/education-erp/?type=college#institution-types'], ['Coaching ERP', '/education-erp/?type=coaching#institution-types'], ['Modules & features', '/education-erp/#erp-modules']] },
                   { title: 'Contact Us', to: '/contact-us/', links: [['Contact options', '/contact-us/#contact-options'], ['Send us a message', '/contact-us/#contact-form'], ['Our offices', '/contact-us/#our-offices']] },
                 ].map((page) => (
                   <section key={page.to}>
@@ -219,8 +237,8 @@ export function SiteHeader() {
                     {[
                       ['Website Development', '/website-development/'],
                       ['CRM Solutions', '/crm-development/'],
-                      ['HRM Solutions', '/contact-us/?interest=hrm#contact-form'],
-                      ['E-Commerce Solutions', '/product/revampcommerce-lite/'],
+                      ['HRM Solutions', '/hrm-solutions/'],
+                      ['E-Commerce Solutions', '/ecommerce-solutions/'],
                       ['WhatsApp Automation', '/privyr/#quick-setup'],
                       ['AI Digital Marketing', '/digital-marketing/'],
                       ['Networking Solutions', '/network-solution/'],
@@ -329,7 +347,7 @@ export function SiteHeader() {
             className="overflow-hidden border-t border-line bg-white/95 backdrop-blur-xl xl:hidden"
           >
             <nav className="container-page flex max-h-[calc(100dvh-4rem)] flex-col gap-1 overflow-y-auto py-4" aria-label="Mobile">
-              {nav.map((item) => (
+              {nav.filter((item) => item.label !== 'Contact Us').map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
@@ -382,6 +400,16 @@ export function SiteHeader() {
                   </motion.div>
                 )}
               </AnimatePresence>
+              {nav.filter((item) => item.label === 'Contact Us').map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-xl px-3 py-3 text-base font-medium text-ink-200"
+                >
+                  {item.label}
+                </NavLink>
+              ))}
               {!user && (
                 <button
                   type="button"

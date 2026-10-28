@@ -15,6 +15,10 @@ export const ORGANIZATION_LD = {
   url: `${SITE}/`,
   logo: `${SITE}/assets/2024-08-MYR-ADVANCE-SOLUTION.png`,
   foundingDate: '2016',
+  areaServed: [
+    { '@type': 'Country', name: 'India' },
+    { '@type': 'Country', name: 'United States' },
+  ],
   sameAs: [
     'https://www.facebook.com/myrnetwork',
     'https://www.instagram.com/myr_solution/',
@@ -63,7 +67,7 @@ export function breadcrumbLd(path: string, pageTitle: string) {
   }
 }
 
-/** Service schema for the 7 core service routes. */
+/** Service schema for the primary software and infrastructure service routes. */
 const SERVICES: Record<string, { name: string; desc: string }> = {
   '/website-development/': {
     name: 'Website Development',
@@ -72,6 +76,22 @@ const SERVICES: Record<string, { name: string; desc: string }> = {
   '/crm-development/': {
     name: 'CRM Development',
     desc: 'Custom CRM solutions tailored to your business to boost sales and convert leads.',
+  },
+  '/privyr/': {
+    name: 'Lead Management CRM Software',
+    desc: 'Mobile CRM workflows for enquiry capture, contact management, sales follow-up, and lead pipeline visibility.',
+  },
+  '/hrm-solutions/': {
+    name: 'Human Resource Management Software',
+    desc: 'HRMS implementation planning for employee records, hiring, onboarding, attendance, leave, payroll workflows, and employee self service.',
+  },
+  '/education-erp/': {
+    name: 'Education ERP Software',
+    desc: 'Education ERP planning for schools, colleges, and coaching institutes, including admissions, academics, attendance, fees, exams, and portals.',
+  },
+  '/ecommerce-solutions/': {
+    name: 'Ecommerce Website Development',
+    desc: 'Responsive ecommerce website development with product catalogs, checkout planning, payment integration, inventory workflows, and SEO foundations.',
   },
   '/digital-marketing/': {
     name: 'Digital Marketing',
@@ -104,7 +124,12 @@ export function serviceLd(path: string) {
     name: s.name,
     description: s.desc,
     provider: { '@id': `${SITE}/#organization` },
-    areaServing: { '@type': 'Country', name: 'India' },
+    areaServed: path === '/1800-number/'
+      ? { '@type': 'Country', name: 'India' }
+      : [
+          { '@type': 'Country', name: 'India' },
+          { '@type': 'Country', name: 'United States' },
+        ],
     serviceType: s.name,
   }
 }

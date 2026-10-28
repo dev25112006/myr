@@ -60,6 +60,8 @@ export const LEAD_FORM_4500: FormConfig = {
       options: [
         'Website Development',
         'CRM Solutions',
+        'HRM Solutions',
+        'Education ERP',
         'IT Infrastructure',
         'Digital Marketing',
         'Toll-Free Numbers',

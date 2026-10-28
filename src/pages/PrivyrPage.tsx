@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { usePopup } from '@/lib/stores'
 import { Reveal, SectionHeading, Stagger, StaggerItem, CountUp, TestimonialCard, type Story } from '@/components/ui'
 import type { ReactNode } from 'react'
@@ -184,6 +186,185 @@ function HeroSection() {
       </div>
     </section>
   )
+}
+
+type DemoLead = { name: string; company: string; source: string; stage: string; value: string; initials: string; color: string }
+
+const CRM_INDUSTRIES = [
+  { name: 'Real Estate', focus: 'Property enquiries', entity: 'Property', sources: ['Property portal', 'Website', 'Referral'] },
+  { name: 'Healthcare', focus: 'Patient enquiries', entity: 'Appointment', sources: ['Website', 'Phone', 'Referral'] },
+  { name: 'Retail & Ecommerce', focus: 'Customer orders', entity: 'Order', sources: ['Online store', 'Instagram', 'WhatsApp'] },
+  { name: 'Education', focus: 'Student admissions', entity: 'Enrollment', sources: ['Course page', 'Open day', 'Referral'] },
+  { name: 'Fitness & Wellness', focus: 'Member enquiries', entity: 'Membership', sources: ['Instagram', 'Website', 'Walk-in'] },
+  { name: 'Professional Services', focus: 'Client enquiries', entity: 'Project', sources: ['Website', 'LinkedIn', 'Referral'] },
+  { name: 'Hospitality', focus: 'Guest enquiries', entity: 'Booking', sources: ['Website', 'Phone', 'Travel partner'] },
+  { name: 'Other Business', focus: 'New opportunities', entity: 'Deal', sources: ['Website', 'Email', 'Referral'] },
+]
+
+const DEMO_LEADS: DemoLead[] = [
+  { name: 'Olivia Chen', company: 'Northstar Group', source: 'Website', stage: 'New', value: '₹1,25,000', initials: 'OC', color: '#e9d5ff' },
+  { name: 'Arjun Mehta', company: 'Mehta & Co.', source: 'WhatsApp', stage: 'Contacted', value: '₹84,000', initials: 'AM', color: '#bfdbfe' },
+  { name: 'Maya Patel', company: 'Patel Ventures', source: 'Referral', stage: 'Qualified', value: '₹2,10,000', initials: 'MP', color: '#bbf7d0' },
+  { name: 'Noah Williams', company: 'Willow House', source: 'Instagram', stage: 'Proposal', value: '₹96,500', initials: 'NW', color: '#fed7aa' },
+  { name: 'Sara Khan', company: 'Khan Studio', source: 'Website', stage: 'Won', value: '₹1,65,000', initials: 'SK', color: '#fecdd3' },
+]
+
+const INDUSTRY_DEMO_LEADS: DemoLead[][] = [
+  DEMO_LEADS,
+  [
+    { name: 'Dr. Olivia Chen', company: 'Northstar Family Clinic', source: 'Website', stage: 'New', value: 'First visit', initials: 'OC', color: '#e9d5ff' },
+    { name: 'Arjun Mehta', company: 'Cardiology consultation', source: 'Phone', stage: 'Contacted', value: 'Follow-up', initials: 'AM', color: '#bfdbfe' },
+    { name: 'Maya Patel', company: 'Willow Health Centre', source: 'Referral', stage: 'Qualified', value: 'Specialist', initials: 'MP', color: '#bbf7d0' },
+    { name: 'Noah Williams', company: 'Diagnostics enquiry', source: 'Website', stage: 'Proposal', value: 'Lab booking', initials: 'NW', color: '#fed7aa' },
+    { name: 'Sara Khan', company: 'Lakeside Dental', source: 'WhatsApp', stage: 'Won', value: 'Appointment', initials: 'SK', color: '#fecdd3' },
+  ],
+  [
+    { name: 'Olivia Chen', company: 'Everyday Linen · 2 items', source: 'Online store', stage: 'New', value: '₹8,400', initials: 'OC', color: '#e9d5ff' },
+    { name: 'Arjun Mehta', company: 'Studio Carry · Cart query', source: 'WhatsApp', stage: 'Contacted', value: '₹4,200', initials: 'AM', color: '#bfdbfe' },
+    { name: 'Maya Patel', company: 'Sunday Form · Repeat buyer', source: 'Instagram', stage: 'Qualified', value: '₹12,600', initials: 'MP', color: '#bbf7d0' },
+    { name: 'Noah Williams', company: 'The Good Edit · Bulk order', source: 'Email', stage: 'Proposal', value: '₹28,500', initials: 'NW', color: '#fed7aa' },
+    { name: 'Sara Khan', company: 'Softline · New collection', source: 'Online store', stage: 'Won', value: '₹6,800', initials: 'SK', color: '#fecdd3' },
+  ],
+  [
+    { name: 'Olivia Chen', company: 'Oakridge Academy · Grade 8', source: 'Course page', stage: 'New', value: 'Application', initials: 'OC', color: '#e9d5ff' },
+    { name: 'Arjun Mehta', company: 'Brightpath · Data course', source: 'Open day', stage: 'Contacted', value: 'Campus tour', initials: 'AM', color: '#bfdbfe' },
+    { name: 'Maya Patel', company: 'Northstar Learning · MBA', source: 'Referral', stage: 'Qualified', value: 'Documents', initials: 'MP', color: '#bbf7d0' },
+    { name: 'Noah Williams', company: 'Skill Foundry · UX cohort', source: 'Website', stage: 'Proposal', value: 'Offer sent', initials: 'NW', color: '#fed7aa' },
+    { name: 'Sara Khan', company: 'Little Steps · Nursery', source: 'Phone', stage: 'Won', value: 'Enrolled', initials: 'SK', color: '#fecdd3' },
+  ],
+  [
+    { name: 'Olivia Chen', company: 'Northstar Fitness · Trial', source: 'Instagram', stage: 'New', value: 'Trial class', initials: 'OC', color: '#e9d5ff' },
+    { name: 'Arjun Mehta', company: 'Form Studio · Personal training', source: 'Walk-in', stage: 'Contacted', value: 'Consultation', initials: 'AM', color: '#bfdbfe' },
+    { name: 'Maya Patel', company: 'Goodbody Club · Renewal', source: 'Website', stage: 'Qualified', value: 'Annual plan', initials: 'MP', color: '#bbf7d0' },
+    { name: 'Noah Williams', company: 'Peak Movement · Group class', source: 'WhatsApp', stage: 'Proposal', value: 'Class pack', initials: 'NW', color: '#fed7aa' },
+    { name: 'Sara Khan', company: 'Sunday Yoga · Intro pass', source: 'Instagram', stage: 'Won', value: 'Member', initials: 'SK', color: '#fecdd3' },
+  ],
+  [
+    { name: 'Olivia Chen', company: 'Northstar Advisory · Strategy', source: 'LinkedIn', stage: 'New', value: 'Discovery', initials: 'OC', color: '#e9d5ff' },
+    { name: 'Arjun Mehta', company: 'Mehta & Co. · Operations', source: 'Referral', stage: 'Contacted', value: '₹84,000', initials: 'AM', color: '#bfdbfe' },
+    { name: 'Maya Patel', company: 'Patel Ventures · Retainer', source: 'Website', stage: 'Qualified', value: '₹2,10,000', initials: 'MP', color: '#bbf7d0' },
+    { name: 'Noah Williams', company: 'Willow House · Brand work', source: 'LinkedIn', stage: 'Proposal', value: '₹96,500', initials: 'NW', color: '#fed7aa' },
+    { name: 'Sara Khan', company: 'Khan Studio · Consulting', source: 'Email', stage: 'Won', value: '₹1,65,000', initials: 'SK', color: '#fecdd3' },
+  ],
+  [
+    { name: 'Olivia Chen', company: 'The Garden House · 2 guests', source: 'Website', stage: 'New', value: 'Dinner booking', initials: 'OC', color: '#e9d5ff' },
+    { name: 'Arjun Mehta', company: 'Field & Fork · Private event', source: 'Phone', stage: 'Contacted', value: '18 guests', initials: 'AM', color: '#bfdbfe' },
+    { name: 'Maya Patel', company: 'Room Nine · Weekend stay', source: 'Travel partner', stage: 'Qualified', value: '2 nights', initials: 'MP', color: '#bbf7d0' },
+    { name: 'Noah Williams', company: 'Wildflower Hall · Wedding', source: 'Website', stage: 'Proposal', value: 'Venue quote', initials: 'NW', color: '#fed7aa' },
+    { name: 'Sara Khan', company: 'Sunday Table · Celebration', source: 'WhatsApp', stage: 'Won', value: 'Confirmed', initials: 'SK', color: '#fecdd3' },
+  ],
+  [
+    { name: 'Olivia Chen', company: 'Northstar Group', source: 'Website', stage: 'New', value: '₹1,25,000', initials: 'OC', color: '#e9d5ff' },
+    { name: 'Arjun Mehta', company: 'Mehta & Co.', source: 'Email', stage: 'Contacted', value: '₹84,000', initials: 'AM', color: '#bfdbfe' },
+    { name: 'Maya Patel', company: 'Patel Ventures', source: 'Referral', stage: 'Qualified', value: '₹2,10,000', initials: 'MP', color: '#bbf7d0' },
+    { name: 'Noah Williams', company: 'Willow House', source: 'Website', stage: 'Proposal', value: '₹96,500', initials: 'NW', color: '#fed7aa' },
+    { name: 'Sara Khan', company: 'Khan Studio', source: 'WhatsApp', stage: 'Won', value: '₹1,65,000', initials: 'SK', color: '#fecdd3' },
+  ],
+]
+
+function CrmLiveDashboard() {
+  const [open, setOpen] = useState(false)
+  const [industryIndex, setIndustryIndex] = useState(0)
+  const [view, setView] = useState('Overview')
+  const [search, setSearch] = useState('')
+  const [stageFilter, setStageFilter] = useState('All leads')
+  const [leads, setLeads] = useState(INDUSTRY_DEMO_LEADS[0])
+  const [showAdd, setShowAdd] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newCompany, setNewCompany] = useState('')
+  const [doneTasks, setDoneTasks] = useState<number[]>([])
+  const industry = CRM_INDUSTRIES[industryIndex]
+  const metricsByIndustry = [
+    [['New enquiries', '24', '+12%'], ['Pipeline value', '₹8.4L', '+8%'], ['Closed this month', '18', '+5'], ['Follow-ups due', '7', 'Today']],
+    [['New patients', '18', '+9%'], ['Visits to confirm', '12', '+4'], ['Appointments booked', '46', '+11'], ['Follow-ups due', '5', 'Today']],
+    [['New orders', '32', '+16%'], ['Order value', '₹4.8L', '+12%'], ['Repeat customers', '68', '+8'], ['Open queries', '9', 'Today']],
+    [['New applicants', '21', '+14%'], ['Applications', 'Active', 'This term'], ['Enrolments', '38', '+7'], ['Follow-ups due', '6', 'Today']],
+    [['New members', '16', '+11%'], ['Membership value', '₹2.4L', '+8%'], ['Trials booked', '28', '+10'], ['Follow-ups due', '4', 'Today']],
+    [['New enquiries', '14', '+10%'], ['Project pipeline', '₹8.4L', '+8%'], ['Clients won', '18', '+5'], ['Follow-ups due', '7', 'Today']],
+    [['New bookings', '29', '+18%'], ['Booking value', '₹3.2L', '+14%'], ['Confirmed stays', '41', '+9'], ['Guest requests', '8', 'Today']],
+    [['New leads', '24', '+12%'], ['Open pipeline', '₹8.4L', '+8%'], ['Converted', '18', '+5'], ['Tasks due', '7', 'Today']],
+  ][industryIndex]
+  const tasksByIndustry = [
+    ['Call Priya about the 3-bedroom home', 'Arrange viewing at Garden House', 'Send listing options to new buyer'],
+    ['Confirm Olivia’s first appointment', 'Send care instructions to Arjun', 'Review new clinic enquiries'],
+    ['Reply to cart question from Olivia', 'Confirm Maya’s order details', 'Review today’s new orders'],
+    ['Call Olivia about the campus tour', 'Send course details to Arjun', 'Review new student applications'],
+    ['Check in after Maya’s trial class', 'Confirm Arjun’s trainer consultation', 'Follow up with new member leads'],
+    ['Follow up with Olivia about strategy', 'Send proposal to Noah', 'Review new client enquiries'],
+    ['Confirm Olivia’s dinner booking', 'Send event quote to Arjun', 'Check in with new guest enquiries'],
+    ['Follow up with Olivia Chen', 'Share proposal with Noah', 'Review new website leads'],
+  ][industryIndex]
+  const stages = ['New', 'Contacted', 'Qualified', 'Proposal', 'Won']
+  const navItems = ['Overview', 'Leads', 'Pipeline', 'Tasks']
+  const filtered = leads.filter((lead) => {
+    const matchesSearch = `${lead.name} ${lead.company} ${lead.source}`.toLowerCase().includes(search.toLowerCase())
+    return matchesSearch && (stageFilter === 'All leads' || lead.stage === stageFilter)
+  })
+  const addLead = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const name = newName.trim()
+    if (!name) return
+    setLeads((current) => [{ name, company: newCompany.trim() || industry.focus, source: industry.sources[0], stage: 'New', value: industry.entity, initials: name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase(), color: '#c7d2fe' }, ...current])
+    setNewName('')
+    setNewCompany('')
+    setShowAdd(false)
+    setView('Leads')
+  }
+  const moveLead = (name: string) => setLeads((current) => current.map((lead) => lead.name === name ? { ...lead, stage: stages[Math.min(stages.indexOf(lead.stage) + 1, stages.length - 1)] } : lead))
+  const changeIndustry = (index: number) => {
+    setIndustryIndex(index)
+    setLeads(INDUSTRY_DEMO_LEADS[index])
+    setStageFilter('All leads')
+    setSearch('')
+    setDoneTasks([])
+  }
+
+  return (
+    <>
+      <section className="section-deep relative isolate overflow-hidden py-16 sm:py-20">
+        <div className="pointer-events-none absolute -right-24 top-0 -z-10 h-80 w-80 rounded-full bg-accent-400/15 blur-3xl" />
+        <div className="container-page grid items-center gap-8 lg:grid-cols-1">
+          <div><p className="eyebrow">A CRM that fits your work</p><h2 className="mt-3 text-3xl font-bold leading-tight text-ink-950 sm:text-4xl">One clear view of every customer relationship.</h2><p className="mt-4 max-w-xl text-sm leading-relaxed text-ink-400">Explore the complete CRM workspace for sales, service, and follow-ups. Switch industries to see different sample contacts, records, metrics, and tasks in the full desktop dashboard.</p><button type="button" onClick={() => setOpen(true)} className="btn btn-primary btn-md mt-6">Open full desktop CRM <span className="ml-2">↗</span></button><p className="mt-3 text-xs text-ink-400">Interactive demo · Industry-specific sample data · No account needed</p></div>
+          <button type="button" onClick={() => setOpen(true)} className="group rounded-2xl border border-white/10 bg-[#111827] p-2.5 text-left shadow-[0_28px_90px_-35px_rgba(2,6,23,.7)] transition hover:-translate-y-1 sm:p-3" aria-label="Open live CRM dashboard demo">
+            <div className="flex items-center justify-between gap-2 px-1 pb-2 text-[9px] text-slate-400"><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-rose-400"/><i className="h-2 w-2 rounded-full bg-amber-300"/><i className="h-2 w-2 rounded-full bg-emerald-400"/> myr.crm / overview</span><span className="rounded-full bg-emerald-400/10 px-2 py-1 text-emerald-300">● Live preview</span></div>
+            <div className="grid min-h-60 grid-cols-[62px_1fr] overflow-hidden rounded-xl bg-slate-50 sm:min-h-72 sm:grid-cols-[110px_1fr] lg:min-h-[380px] lg:grid-cols-[170px_1fr]">
+              <div className="bg-slate-950 p-2.5 text-white sm:p-4"><b className="text-[9px] sm:text-xs">myr<span className="text-orange-400">CRM</span></b>{['Home', 'Leads', 'Pipeline', 'Tasks'].map((item, i) => <div key={item} className={`mt-3 rounded-md px-1.5 py-1.5 text-[7px] sm:text-[9px] ${i === 0 ? 'bg-white/15 text-white' : 'text-slate-500'}`}>{item}</div>)}</div>
+              <div className="p-3 sm:p-5"><div className="flex items-center justify-between"><div><b className="text-[11px] text-slate-900 sm:text-sm">Good morning, Alex</b><p className="mt-1 text-[7px] text-slate-400 sm:text-[9px]">Here’s your relationship snapshot</p></div><span className="rounded-md bg-orange-500 px-2 py-1.5 text-[7px] font-bold text-white sm:text-[9px]">+ Add lead</span></div><div className="mt-3 grid grid-cols-3 gap-1.5 sm:mt-4 sm:gap-2">{[['New leads', '24', '+12%'], ['In pipeline', '₹8.4L', '+8%'], ['Won this month', '18', '+5%']].map(([label, value, trend]) => <div key={label} className="rounded-lg border border-slate-200 bg-white p-2 sm:p-3"><span className="block text-[6px] text-slate-400 sm:text-[8px]">{label}</span><b className="mt-1 block text-[11px] text-slate-900 sm:text-base">{value}</b><span className="text-[6px] font-semibold text-emerald-600 sm:text-[8px]">↗ {trend}</span></div>)}</div><div className="mt-2 grid gap-2 sm:mt-3 sm:grid-cols-[1.2fr_.8fr]"><div className="rounded-lg border border-slate-200 bg-white p-2.5"><div className="flex justify-between text-[7px] font-bold text-slate-700 sm:text-[9px]">Pipeline activity <span className="font-normal text-slate-400">This month⌄</span></div><div className="mt-3 flex h-16 items-end gap-1 sm:h-20">{[34, 49, 42, 66, 52, 78, 62, 91, 70, 85, 74, 100].map((height, i) => <i key={i} className="flex-1 rounded-t-sm bg-orange-400/80 transition-all group-hover:bg-orange-500" style={{ height: `${height}%` }}/>)}</div></div><div className="rounded-lg border border-slate-200 bg-white p-2.5"><div className="text-[7px] font-bold text-slate-700 sm:text-[9px]">Next up</div>{['Call Olivia', 'Send proposal', 'Team check-in'].map((item, i) => <p key={item} className="mt-2 flex items-center gap-1.5 text-[6px] text-slate-500 sm:text-[8px]"><i className={`h-2 w-2 rounded-sm border ${i === 0 ? 'border-orange-400 bg-orange-100' : 'border-slate-300'}`}/>{item}</p>)}</div></div></div>
+            </div>
+            <div className="flex items-center justify-between px-1 pt-2 text-[8px] text-slate-400"><span>Tap to explore the dashboard</span><span className="transition-transform group-hover:translate-x-1">↗</span></div>
+          </button>
+        </div>
+      </section>
+
+      <AnimatePresence>
+        {open && <motion.div className="fixed inset-0 z-[110] overflow-y-auto bg-[#f4f6fa] text-slate-900" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur"><div className="mx-auto flex min-h-14 max-w-[1600px] items-center justify-between gap-2 px-3 sm:min-h-16 sm:px-6"><div className="flex min-w-0 items-center gap-2"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-slate-950 text-xs font-black text-white">m<span className="text-orange-400">.</span></span><span className="hidden text-sm font-bold sm:inline">MYR CRM <span className="font-normal text-slate-400">/ Workspace</span></span><span className="truncate text-xs font-bold sm:hidden">MYR CRM Workspace</span></div><label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-[10px] sm:px-3 sm:text-xs"><span className="hidden text-slate-400 sm:inline">Industry</span><select value={industryIndex} onChange={(e) => changeIndustry(Number(e.target.value))} className="max-w-32 bg-transparent font-semibold outline-none sm:max-w-none">{CRM_INDUSTRIES.map((item, i) => <option key={item.name} value={i}>{item.name}</option>)}</select></label><button type="button" onClick={() => setOpen(false)} className="rounded-lg border border-slate-200 px-2.5 py-2 text-[10px] font-semibold hover:bg-slate-50 sm:px-3 sm:text-xs">← <span className="hidden sm:inline">Back to page</span><span className="sm:hidden">Back</span></button></div></header>
+          <section aria-label="Interactive CRM dashboard" className="mx-auto grid max-w-[1600px] gap-4 px-3 py-4 sm:px-6 sm:py-6 lg:grid-cols-[210px_minmax(0,1fr)]">
+            <aside className="hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:block"><div className="px-2 py-2 text-[9px] font-bold uppercase tracking-wider text-slate-400">Workspace</div>{navItems.map((item, i) => <button key={item} type="button" onClick={() => setView(item)} className={`mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-xs font-semibold ${view === item ? 'bg-slate-950 text-white' : 'text-slate-600 hover:bg-slate-50'}`}><span className="w-5 text-center">{['▦', '◉', '⌁', '✓'][i]}</span>{item}</button>)}<div className="mt-6 rounded-xl bg-orange-50 p-3"><p className="text-[10px] font-bold text-slate-800">Industry workspace</p><p className="mt-1 text-[9px] leading-relaxed text-slate-500">Showing {industry.focus.toLowerCase()} for {industry.name}.</p></div><div className="mt-4 border-t border-slate-100 pt-3 text-[9px] text-slate-400">Demo mode · Sample records</div></aside>
+            <section className="min-w-0">
+              <div className="mb-3 flex gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 shadow-sm lg:hidden">{navItems.map((item) => <button key={item} type="button" onClick={() => setView(item)} className={`min-w-max flex-1 rounded-lg px-3 py-2 text-[10px] font-semibold ${view === item ? 'bg-slate-950 text-white' : 'text-slate-600'}`}>{item}</button>)}</div>
+              <div className="mb-4 flex flex-wrap items-end justify-between gap-3"><div><div className="flex items-center gap-2"><h1 className="text-xl font-bold sm:text-2xl">{view === 'Overview' ? 'Good morning, Alex' : view}</h1><span className="rounded-full bg-amber-50 px-2 py-1 text-[8px] font-bold text-amber-700">DEMO DATA</span></div><p className="mt-1 text-xs text-slate-500">{view === 'Overview' ? `A quick look at ${industry.focus.toLowerCase()} and what needs your attention.` : `${industry.name} · ${industry.focus}`}</p></div><div className="flex gap-2"><div className="relative"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search records…" aria-label="Search records" className="h-9 w-36 rounded-lg border border-slate-200 bg-white px-3 text-[10px] outline-none focus:border-orange-400 sm:w-48 sm:text-xs"/></div><button type="button" onClick={() => setShowAdd(true)} className="h-9 rounded-lg bg-orange-500 px-3 text-[10px] font-bold text-white shadow-sm hover:bg-orange-600 sm:px-4 sm:text-xs">+ <span className="hidden sm:inline">Add lead</span><span className="sm:hidden">Add</span></button></div></div>
+              {view === 'Overview' && <>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{metricsByIndustry.map(([label, value, note], i) => <motion.article key={`${industryIndex}-${label}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * .06 }} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4"><p className="text-[9px] font-medium text-slate-500 sm:text-[10px]">{label}</p><b className="mt-2 block text-xl sm:text-2xl">{i === 0 && label.toLowerCase().includes('lead') || i === 0 && label.toLowerCase().includes('enquir') ? leads.filter((l) => l.stage === 'New').length + 19 : value}</b><span className={`mt-1 block text-[8px] font-semibold ${i === 3 ? 'text-amber-600' : 'text-emerald-600'}`}>{i === 3 ? `${Math.max(0, Number.parseInt(value, 10) - doneTasks.length)} ${note.toLowerCase()}` : note}</span></motion.article>)}</div>
+                <div className="mt-3 grid gap-3 xl:grid-cols-[1.35fr_.65fr]"><article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div className="flex items-start justify-between"><div><h2 className="text-xs font-bold sm:text-sm">Pipeline overview</h2><p className="mt-1 text-[9px] text-slate-400">Opportunities by stage · this month</p></div><button type="button" className="text-[9px] font-semibold text-slate-500">Monthly⌄</button></div><div className="mt-5 flex h-32 items-end gap-2 border-b border-slate-100 px-1 sm:h-40">{[36, 48, 42, 68, 58, 75, 64, 88, 73, 95, 80, 100].map((height, i) => <motion.div key={i} initial={{ height: 0 }} animate={{ height: `${height}%` }} transition={{ duration: .55, delay: i * .025 }} className="flex-1 rounded-t-md" style={{ background: `linear-gradient(to top, #f97316, ${i > 8 ? '#fdba74' : '#fed7aa'})` }}/>)}</div><div className="mt-2 flex justify-between text-[8px] text-slate-400"><span>Week 1</span><span>Week 2</span><span>Week 3</span><span>Week 4</span></div></article>
+                  <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><h2 className="text-xs font-bold sm:text-sm">Today’s priorities</h2><p className="mt-1 text-[9px] text-slate-400">Keep good conversations moving</p>{tasksByIndustry.map((task, i) => <button key={`${industryIndex}-${task}`} type="button" onClick={() => setDoneTasks((current) => current.includes(i) ? current.filter((x) => x !== i) : [...current, i])} className="mt-3 flex w-full items-start gap-2 text-left"><span className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded border text-[9px] ${doneTasks.includes(i) ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-300 text-transparent'}`}>✓</span><span className={`text-[9px] leading-relaxed ${doneTasks.includes(i) ? 'text-slate-400 line-through' : 'text-slate-700'}`}>{task}<small className="mt-0.5 block text-[8px] text-slate-400">{['10:30 AM · Call', '1:00 PM · Follow-up', '4:00 PM · Review'][i]}</small></span></button>)}</article></div>
+                <article className="mt-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div className="mb-3 flex items-center justify-between"><div><h2 className="text-xs font-bold sm:text-sm">Recent {industry.focus.toLowerCase()}</h2><p className="mt-1 text-[9px] text-slate-400">Sample contacts across your channels</p></div><button type="button" onClick={() => setView('Leads')} className="text-[9px] font-bold text-orange-600">View all →</button></div><LeadTable leads={leads.slice(0, 4)} onMove={moveLead} compact/></article>
+              </>}
+              {view === 'Leads' && <article className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4"><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><div><h2 className="text-sm font-bold">All leads</h2><p className="mt-1 text-[9px] text-slate-400">{filtered.length} sample records · {industry.focus}</p></div><select value={stageFilter} onChange={(e) => setStageFilter(e.target.value)} className="rounded-lg border border-slate-200 px-2 py-2 text-[9px]"><option>All leads</option>{stages.map((stage) => <option key={stage}>{stage}</option>)}</select></div><LeadTable leads={filtered} onMove={moveLead}/></article>}
+              {view === 'Pipeline' && <div className="flex gap-3 overflow-x-auto pb-3">{stages.map((stage) => <div key={stage} className="w-64 shrink-0 rounded-xl border border-slate-200 bg-slate-100/70 p-2.5"><div className="flex items-center justify-between px-1 py-1.5"><h2 className="text-[10px] font-bold">{stage}</h2><span className="rounded-full bg-white px-2 py-0.5 text-[8px] text-slate-500">{leads.filter((lead) => lead.stage === stage).length}</span></div>{leads.filter((lead) => lead.stage === stage && `${lead.name} ${lead.company}`.toLowerCase().includes(search.toLowerCase())).map((lead) => <motion.article layout key={lead.name} className="mt-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"><div className="flex items-center gap-2"><span className="grid h-7 w-7 place-items-center rounded-full text-[8px] font-bold" style={{ backgroundColor: lead.color }}>{lead.initials}</span><div className="min-w-0"><b className="block truncate text-[9px]">{lead.name}</b><span className="block truncate text-[8px] text-slate-400">{lead.company}</span></div></div><div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2"><span className="text-[9px] font-bold">{lead.value}</span><button type="button" onClick={() => moveLead(lead.name)} disabled={stage === 'Won'} className="text-[8px] font-bold text-orange-600 disabled:text-slate-300">{stage === 'Won' ? 'Complete' : 'Move →'}</button></div></motion.article>)}</div>)}</div>}
+              {view === 'Tasks' && <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><h2 className="text-sm font-bold">Follow-up tasks</h2><p className="mt-1 text-[9px] text-slate-400">A simple list to keep every conversation warm</p>{[...tasksByIndustry, 'Review new enquiries from today', 'Prepare notes for the team'].map((task, i) => <button key={`${industryIndex}-${task}`} type="button" onClick={() => setDoneTasks((current) => current.includes(i + 3) ? current.filter((x) => x !== i + 3) : [...current, i + 3])} className="flex w-full items-center gap-3 border-b border-slate-100 py-3 text-left last:border-0"><span className={`grid h-5 w-5 place-items-center rounded border text-[10px] ${doneTasks.includes(i + 3) ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-300 text-transparent'}`}>✓</span><span className={`flex-1 text-[10px] ${doneTasks.includes(i + 3) ? 'text-slate-400 line-through' : 'font-medium'}`}>{task}<small className="mt-1 block text-[8px] text-slate-400">{['Today · 10:30 AM', 'Today · 1:00 PM', 'Today · 3:15 PM', 'Tomorrow · 9:00 AM', 'Friday · 11:00 AM'][i]}</small></span><span className="rounded-full bg-orange-50 px-2 py-1 text-[8px] font-semibold text-orange-700">{i < 3 ? 'Today' : 'Upcoming'}</span></button>)}</article>}
+              <p className="mt-3 text-center text-[8px] text-slate-400">This interactive preview uses sample records only; it does not connect to a CRM account.</p>
+            </section>
+          </section>
+          <AnimatePresence>{showAdd && <motion.div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/45 p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><motion.form onSubmit={addLead} initial={{ y: 12, scale: .98 }} animate={{ y: 0, scale: 1 }} exit={{ y: 8, scale: .98 }} className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl sm:p-6"><div className="flex items-start justify-between"><div><h2 className="text-lg font-bold">Add a lead</h2><p className="mt-1 text-xs text-slate-500">Add a sample {industry.focus.toLowerCase()} record.</p></div><button type="button" onClick={() => setShowAdd(false)} aria-label="Close" className="rounded-lg px-2 py-1 text-slate-400 hover:bg-slate-100">✕</button></div><label className="mt-5 block text-xs font-semibold">Contact name<input autoFocus required value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Jamie Lee" className="mt-1.5 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-orange-400"/></label><label className="mt-3 block text-xs font-semibold">{industry.entity} or company<input value={newCompany} onChange={(e) => setNewCompany(e.target.value)} placeholder="e.g. Northstar Group" className="mt-1.5 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-orange-400"/></label><div className="mt-5 flex justify-end gap-2"><button type="button" onClick={() => setShowAdd(false)} className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold">Cancel</button><button type="submit" className="rounded-lg bg-orange-500 px-4 py-2 text-xs font-bold text-white">Save lead</button></div></motion.form></motion.div>}</AnimatePresence>
+        </motion.div>}
+      </AnimatePresence>
+    </>
+  )
+}
+
+function LeadTable({ leads, onMove, compact = false }: { leads: DemoLead[]; onMove: (name: string) => void; compact?: boolean }) {
+  return <div className="overflow-x-auto"><table className="w-full min-w-[560px] border-collapse text-left"><thead><tr className="text-[8px] font-semibold uppercase tracking-wider text-slate-400"><th className="pb-2 pl-2">Contact</th><th className="pb-2">Source</th><th className="pb-2">Status</th><th className="pb-2">Value</th><th className="pb-2 text-right">Next step</th></tr></thead><tbody>{leads.map((lead) => <tr key={lead.name} className="border-t border-slate-100 text-[9px]"><td className="py-2.5 pl-2"><div className="flex items-center gap-2"><span className="grid h-7 w-7 place-items-center rounded-full text-[8px] font-bold" style={{ backgroundColor: lead.color }}>{lead.initials}</span><span><b className="block">{lead.name}</b><small className="text-slate-400">{lead.company}</small></span></div></td><td className="py-2.5 text-slate-500">{lead.source}</td><td className="py-2.5"><span className="rounded-full bg-slate-100 px-2 py-1 text-[8px] font-semibold">{lead.stage}</span></td><td className="py-2.5 font-semibold">{lead.value}</td><td className="py-2.5 text-right"><button type="button" onClick={() => onMove(lead.name)} disabled={lead.stage === 'Won'} className="rounded-md px-2 py-1 font-bold text-orange-600 hover:bg-orange-50 disabled:text-slate-300">{compact ? 'Open →' : lead.stage === 'Won' ? 'Done' : 'Move stage →'}</button></td></tr>)}</tbody></table>{leads.length === 0 && <p className="py-8 text-center text-xs text-slate-400">No matching leads. Try another search or stage.</p>}</div>
 }
 
 function AudienceSection() {
@@ -573,6 +754,7 @@ export function PrivyrPage() {
   return (
     <>
       <HeroSection />
+      <CrmLiveDashboard />
       <AudienceSection />
       <StatsSection />
       <FeaturesSection />

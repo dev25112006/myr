@@ -4,9 +4,9 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 
-const SITE = process.env.SITE_ORIGIN || process.env.APP_ORIGIN || 'http://localhost:3000'
+const SITE = process.env.SITE_ORIGIN || process.env.APP_ORIGIN || 'https://www.myradvancesolution.com'
 const NOINDEX = new Set([
-  '/myr/', '/cart/', '/checkout/', '/my-account/', '/my-account/lost-password/',
+  '/myr/', '/shop/', '/cart/', '/checkout/', '/my-account/', '/my-account/lost-password/',
   '/not-found/', '/lets-keep-in-touch/', '/product-category/networking-devices/',
   '/services/web-development/',
   '/crm-dashboard/', '/my-leads/', '/crm-reports/', '/crm-tasks/', '/my-profile/',

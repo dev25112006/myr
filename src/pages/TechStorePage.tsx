@@ -76,6 +76,9 @@ export function TechStorePage() {
   const { pathname } = useLocation()
   const reduceMotion = useReducedMotion()
   const shownProducts = useMemo(() => products.filter((p) => `${p.name} ${p.category}`.toLowerCase().includes(query.toLowerCase())), [query])
+  const normalizedQuery = query.trim().toLowerCase()
+  const showHrm = !normalizedQuery || 'hrm human resource management'.includes(normalizedQuery)
+  const showCrm = !normalizedQuery || 'crm customer relationship lead management'.includes(normalizedQuery)
   useEffect(() => {
     if (reduceMotion) return
     const timer = window.setInterval(() => setSlideIndex((index) => (index + 1) % storeSlides.length), 6500)
@@ -143,7 +146,33 @@ export function TechStorePage() {
 
       <section id="store-products" className="bg-white py-14 sm:py-16">
         <div className="container-page"><div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-rose-600">Shop our best sellers</p><h2 className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">Popular products & plans</h2></div><Link to="/website-development/" className="btn btn-sm border border-slate-300 bg-white text-slate-800 hover:bg-slate-50">Explore all services</Link></div>
-          {shownProducts.length ? <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">{shownProducts.map((p) => <ProductCard key={p.id} product={p} />)}</div> : <p className="mt-8 rounded-xl border border-slate-200 bg-white p-6 text-slate-500">No products match “{query}”. Try another search.</p>}
+          {shownProducts.length || showHrm || showCrm ? <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {showHrm && <article className="group flex flex-col overflow-hidden rounded-2xl border border-indigo-100 bg-white transition duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl">
+              <Link to="/hrm-solutions/" aria-label="Explore HRM Solutions" className="relative flex h-52 items-center justify-center overflow-hidden bg-slate-950 p-5">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_25%,rgba(99,102,241,.48),transparent_55%),linear-gradient(135deg,#111827,#090b16)]" />
+                <div className="relative w-full max-w-[240px] rounded-xl border border-white/15 bg-white/[.08] p-4 shadow-2xl backdrop-blur-sm transition duration-500 group-hover:rotate-1 group-hover:scale-[1.03]">
+                  <div className="flex items-center justify-between"><span className="text-[10px] font-bold uppercase tracking-[.16em] text-indigo-200">MYR · People</span><span className="rounded-full bg-emerald-400/15 px-2 py-1 text-[9px] font-semibold text-emerald-300">All systems ready</span></div>
+                  <div className="mt-5 grid grid-cols-3 gap-2">{[['PEOPLE','248'],['ON LEAVE','08'],['OPEN ROLES','12']].map(([label,value])=><div key={label} className="rounded-lg border border-white/10 bg-slate-950/50 p-2"><p className="text-[8px] text-slate-400">{label}</p><p className="mt-1 text-lg font-bold text-white">{value}</p></div>)}</div>
+                  <div className="mt-3 flex items-end gap-1.5">{[34,54,43,76,58,92,68,100,73,86,62,95].map((height,index)=><span key={index} className="flex-1 rounded-t-sm bg-gradient-to-t from-indigo-600 to-cyan-300 opacity-80" style={{height:`${height}px`}} />)}</div>
+                </div>
+                <span className="absolute right-4 top-4 rounded-full border border-white/20 bg-black/20 px-3 py-1 text-[9px] font-bold tracking-wide text-white">LIVE HRM PREVIEW</span>
+              </Link>
+              <div className="flex flex-1 flex-col p-5"><p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">HRM Solutions</p><h3 className="mt-2 text-lg font-bold text-slate-900">Human Resource Management</h3><p className="mt-2 text-sm leading-relaxed text-slate-500">People, attendance, leave, onboarding and team operations in one workspace.</p><div className="mt-4 flex items-baseline gap-2"><span className="text-xl font-bold text-slate-900">{inr(34999, { paise: false })}</span><span className="text-sm text-slate-400 line-through">{inr(44999, { paise: false })}</span><span className="rounded-full bg-rose-50 px-2 py-1 text-[10px] font-bold text-rose-600">OFFER</span></div><Link to="/hrm-solutions/" className="btn btn-sm mt-5 w-full bg-indigo-600 text-center text-white hover:bg-indigo-700">Explore HRM</Link></div>
+            </article>}
+            {showCrm && <article className="group flex flex-col overflow-hidden rounded-2xl border border-lime-200 bg-white transition duration-200 hover:-translate-y-1 hover:border-lime-300 hover:shadow-xl">
+              <Link to="/privyr/#privyrpricing" aria-label="Explore CRM Solutions and pricing" className="relative flex h-52 items-center justify-center overflow-hidden bg-[#10120f] p-5">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_72%_18%,rgba(190,242,100,.24),transparent_55%),linear-gradient(135deg,#151812,#090b09)]" />
+                <div className="relative w-full max-w-[240px] rounded-xl border border-white/10 bg-[#171a15] p-4 shadow-2xl transition duration-500 group-hover:-rotate-1 group-hover:scale-[1.03]">
+                  <div className="flex items-center justify-between"><span className="text-[10px] font-bold uppercase tracking-[.16em] text-lime-300">MYR · Sales CRM</span><span className="rounded-full bg-lime-300/10 px-2 py-1 text-[9px] font-semibold text-lime-300">Live pipeline</span></div>
+                  <div className="mt-4 flex items-end justify-between"><div><p className="text-[9px] text-slate-400">Qualified leads</p><p className="mt-1 text-2xl font-bold text-white">1,284</p></div><p className="text-[9px] font-semibold text-lime-300">↑ 18.6%</p></div>
+                  <div className="mt-4 space-y-2">{[['New enquiries', '72%'], ['Follow-ups', '54%'], ['Won deals', '86%']].map(([label, width]) => <div key={label}><div className="mb-1 flex justify-between text-[8px] text-slate-400"><span>{label}</span><span>{width}</span></div><div className="h-1 rounded-full bg-white/10"><span className="block h-full rounded-full bg-lime-300" style={{width}} /></div></div>)}</div>
+                </div>
+                <span className="absolute right-4 top-4 rounded-full border border-white/15 bg-black/20 px-3 py-1 text-[9px] font-bold tracking-wide text-white">CRM WORKSPACE</span>
+              </Link>
+              <div className="flex flex-1 flex-col p-5"><p className="text-xs font-semibold uppercase tracking-wide text-lime-700">All-in-One CRM</p><h3 className="mt-2 text-lg font-bold text-slate-900">Customer Relationship Management</h3><p className="mt-2 text-sm leading-relaxed text-slate-500">Capture leads, organize follow-ups and track sales across your team.</p><div className="mt-4"><p className="text-xl font-bold text-slate-900">From ₹1,305<span className="text-sm font-medium text-slate-500">/month</span></p><p className="mt-1 text-xs leading-relaxed text-slate-500">Annual plan rate. Per-team-account fee applies; see plan details.</p></div><Link to="/privyr/#privyrpricing" className="btn btn-sm mt-5 w-full bg-lime-600 text-center text-white hover:bg-lime-700">View CRM plans</Link></div>
+            </article>}
+            {shownProducts.map((p) => <ProductCard key={p.id} product={p} />)}
+          </div> : <p className="mt-8 rounded-xl border border-slate-200 bg-white p-6 text-slate-500">No products match “{query}”. Try another search.</p>}
         </div>
       </section>
       <section id="store-categories" className="bg-[#f7f7f7] py-12 sm:py-14">

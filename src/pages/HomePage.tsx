@@ -56,6 +56,12 @@ const SERVICES = [
     desc: 'Unlock unparalleled customer engagement with our exclusive 1-800 toll-free number service.',
     to: '/1800-number/',
   },
+  {
+    title: 'Education ERP',
+    desc: 'Connected systems for school, college and coaching institute operations.',
+    to: '/education-erp/',
+    badge: 'SCHOOLS · COLLEGES · COACHING',
+  },
 ]
 
 const PARTNER_LOGOS = [
@@ -600,6 +606,9 @@ function ServiceScreen({ serviceIndex }: { serviceIndex: number }) {
           )}
           {serviceIndex === 6 && (
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 to-slate-900 p-[5%] text-[clamp(6px,.7vw,9px)] text-white"><div className="flex justify-between"><div><span className="font-bold text-cyan-300">MYR CONNECT</span><h3 className="mt-2 text-[1.7em] font-bold">One number. Every customer.</h3></div><span className="h-fit rounded-full bg-emerald-400/15 px-2 py-1 text-emerald-300">● Active</span></div><div className="mt-[5%] flex items-center justify-between gap-2"><div className="rounded-lg border border-cyan-400/30 bg-white/5 p-3 text-center"><span className="text-cyan-300">☎</span><b className="mt-1 block">1800 XXX 8899</b><small className="text-slate-400">Toll-free</small></div><div className="flex-1"><div className="h-0.5 bg-gradient-to-r from-cyan-400 to-emerald-400" /><p className="mt-1 text-center text-slate-400">Smart call routing</p></div><div className="space-y-2">{['Sales team', 'Support team', 'WhatsApp'].map((item) => <div key={item} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2"><span className="mr-2 text-emerald-300">●</span>{item}</div>)}</div></div></div>
+          )}
+          {serviceIndex === 7 && (
+            <div className="absolute inset-0 bg-[#f7faf9] p-[4%] text-[clamp(6px,.68vw,9px)]"><div className="flex h-full gap-[3%]"><aside className="w-[19%] rounded-lg bg-[#112d32] p-[3%] text-white"><b className="text-cyan-200">CAMPUS</b>{['Overview','Students','Academics','Fees','Reports'].map((item,i)=><div key={item} className={`mt-3 rounded px-1.5 py-1 ${i===0?'bg-white/15 text-white':'text-white/60'}`}>{item}</div>)}</aside><div className="flex-1"><div className="flex items-center justify-between"><div><b className="text-[1.5em]">Campus overview</b><p className="text-slate-500">Monday · Term 2</p></div><span className="rounded bg-cyan-800 px-2 py-1 text-white">All campuses</span></div><div className="mt-[3%] grid grid-cols-3 gap-2">{[['Students','2,486'],['Attendance','94.2%'],['Fee collection','82%']].map(([label,value])=><div key={label} className="rounded-lg bg-white p-2 shadow-sm"><span className="text-slate-500">{label}</span><b className="mt-1 block text-[1.5em]">{value}</b></div>)}</div><div className="mt-[3%] rounded-lg bg-white p-2 shadow-sm"><b>Today · Class 10 A</b>{[['Mathematics','09:00','Present'],['Physics','10:15','In progress'],['English','11:30','Upcoming']].map(([subject,time,status])=><div key={subject} className="mt-2 flex justify-between border-t border-slate-100 pt-1.5 text-slate-600"><span>{subject}</span><span>{time}</span><span className="text-emerald-700">{status}</span></div>)}</div></div></div></div>
           )}
         </div>
       </div>
