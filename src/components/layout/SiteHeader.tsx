@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
@@ -62,15 +62,18 @@ export function SiteHeader() {
   const { setOpen } = usePopup()
 
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
   const [servicesOpen, setServicesOpen] = useState(false)
   const [megaOpen, setMegaOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const accountMenuRef = useRef<HTMLDivElement>(null)
 
   // Close transient panels when the route changes (adjust-during-render pattern).
   const [lastPath, setLastPath] = useState(location.pathname)
   if (lastPath !== location.pathname) {
     setLastPath(location.pathname)
     setMobileOpen(false)
+    setAccountOpen(false)
     setServicesOpen(false)
     setMegaOpen(false)
   }
@@ -81,6 +84,22 @@ export function SiteHeader() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  useEffect(() => {
+    if (!accountOpen) return
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!accountMenuRef.current?.contains(event.target as Node)) setAccountOpen(false)
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setAccountOpen(false)
+    }
+    document.addEventListener('pointerdown', closeOnOutsideClick)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [accountOpen])
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : ''
@@ -100,9 +119,9 @@ export function SiteHeader() {
     >
       <div
         className="container-page relative flex h-16 items-center justify-between gap-2 sm:h-[72px] lg:gap-3"
-        onMouseEnter={() => setMegaOpen(true)}
+        onMouseEnter={(event) => { if ((event.target as HTMLElement).closest('nav[aria-label="Primary"]')) setMegaOpen(true) }}
         onMouseLeave={() => setMegaOpen(false)}
-        onFocusCapture={() => setMegaOpen(true)}
+        onFocusCapture={(event) => { if ((event.target as HTMLElement).closest('nav[aria-label="Primary"]')) setMegaOpen(true) }}
         onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setMegaOpen(false) }}
       >
         {/* Logo */}
@@ -223,19 +242,41 @@ export function SiteHeader() {
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 lg:gap-3">
           {user ? (
-            <div className="hidden items-center gap-2 xl:flex">
-              <Link to="/my-account/" className="max-w-40 truncate rounded-full border border-line bg-ink-950/[0.04] px-3 py-1.5 text-xs text-ink-300" title={`${user.email} (demo session)`}>
-                {user.email}
-              </Link>
-              {user.role === 'admin' && <Link to="/admin/" className="text-xs font-semibold text-accent-600 transition hover:text-accent-500">Admin</Link>}
-              {(user.role === 'admin' || user.role === 'manager') && <Link to="/manager/" className="text-xs font-semibold text-ink-300 transition hover:text-accent-600">Inbox</Link>}
+            <div className="relative" ref={accountMenuRef}>
               <button
                 type="button"
-                onClick={logout}
-                className="text-xs font-semibold text-ink-300 transition hover:text-accent-600"
+                onClick={() => { setAccountOpen((open) => !open); setMobileOpen(false) }}
+                className="flex max-w-[7.5rem] items-center gap-1.5 rounded-full border border-line bg-ink-950/[0.04] px-2.5 py-2 text-xs font-semibold text-ink-200 transition hover:border-accent-400/50 hover:text-accent-600 sm:max-w-40 sm:px-3"
+                aria-expanded={accountOpen}
+                aria-controls="account-menu"
+                aria-label={`Open ${user.role} account menu`}
               >
-                Log out
+                <span className="truncate">{user.email.split('@')[0]}</span>
+                <svg className={cn('h-3 w-3 shrink-0 transition-transform', accountOpen && 'rotate-180')} viewBox="0 0 12 12" aria-hidden>
+                  <path d="m2 4 4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
               </button>
+              <AnimatePresence>
+                {accountOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ duration: 0.14 }}
+                    className="absolute right-0 top-full z-[60] mt-2 w-[min(18rem,calc(100vw-1.5rem))] rounded-2xl border border-line bg-white p-2 shadow-card"
+                    id="account-menu"
+                  >
+                    <div className="border-b border-line px-3 py-2.5">
+                      <p className="truncate text-sm font-semibold text-ink-950">{user.email}</p>
+                      <p className="mt-0.5 text-xs capitalize text-ink-400">{user.role} account</p>
+                    </div>
+                    <Link to="/my-account/" onClick={() => setAccountOpen(false)} className="mt-1 flex min-h-11 items-center rounded-xl px-3 py-2.5 text-sm text-ink-200 hover:bg-paper hover:text-accent-600">My account</Link>
+                    {user.role === 'admin' && <Link to="/admin/" onClick={() => setAccountOpen(false)} className="flex min-h-11 items-center rounded-xl px-3 py-2.5 text-sm font-semibold text-accent-600 hover:bg-accent-400/10">Admin dashboard</Link>}
+                    {(user.role === 'admin' || user.role === 'manager') && <Link to="/manager/" onClick={() => setAccountOpen(false)} className="flex min-h-11 items-center rounded-xl px-3 py-2.5 text-sm text-ink-200 hover:bg-paper hover:text-accent-600">Manager inbox</Link>}
+                    <button type="button" onClick={() => { setAccountOpen(false); logout() }} className="mt-1 flex min-h-11 w-full items-center rounded-xl border-t border-line px-3 py-2.5 text-left text-sm text-ink-300 hover:bg-paper hover:text-accent-600">Log out</button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ) : (
             <button
@@ -353,10 +394,6 @@ export function SiteHeader() {
                   Log in
                 </button>
               )}
-              {user && <Link to="/my-account/" onClick={() => setMobileOpen(false)} className="rounded-xl px-3 py-3 text-left text-base font-medium text-ink-200">My account · {user.email}</Link>}
-              {user?.role === 'admin' && <Link to="/admin/" onClick={() => setMobileOpen(false)} className="rounded-xl px-3 py-3 text-left text-base font-medium text-accent-600">Admin dashboard</Link>}
-              {(user?.role === 'admin' || user?.role === 'manager') && <Link to="/manager/" onClick={() => setMobileOpen(false)} className="rounded-xl px-3 py-3 text-left text-base font-medium text-ink-200">Manager inbox</Link>}
-              {user && <button type="button" onClick={() => { logout(); setMobileOpen(false) }} className="rounded-xl px-3 py-3 text-left text-base font-medium text-ink-300">Log out</button>}
             </nav>
           </motion.div>
         )}

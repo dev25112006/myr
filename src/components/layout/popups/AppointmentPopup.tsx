@@ -8,6 +8,8 @@ import { SmartForm, type FormConfig } from '@/components/forms/SmartForm'
  */
 export const APPOINTMENT_FORM: FormConfig = {
   id: 'appointment',
+  inboxType: 'lead',
+  inboxSubject: 'Appointment request',
   submitLabel: 'Request appointment',
   successMessage: 'Your appointment request has been sent. Our team will contact you to confirm the slot.',
   fields: [

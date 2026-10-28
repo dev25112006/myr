@@ -16,23 +16,23 @@ export type FormField =
   | { kind: 'select'; name: string; label: string; required?: boolean; options: string[]; half?: boolean }
   | { kind: 'checkbox-group'; name: string; label: string; options: string[]; required?: boolean; min?: number }
   | { kind: 'radio'; name: string; label: string; options: string[]; required?: boolean }
-  | { kind: 'file'; name: string; label: string; required?: boolean; hint?: string }
 
 export type FormConfig = {
   id: string
+  inboxType?: 'lead' | 'ticket' | 'form'
+  inboxSubject?: string
   fields: FormField[]
   submitLabel?: string
   /** Shown after the submission has been saved by the backend. */
   successMessage?: string
 }
 
-type Values = Record<string, string | string[] | FileList | undefined>
+type Values = Record<string, string | string[] | undefined>
 
 function initialValues(fields: FormField[]): Values {
   const v: Values = {}
   for (const f of fields) {
     if (f.kind === 'checkbox-group') v[f.name] = []
-    else if (f.kind === 'file') v[f.name] = undefined
     else v[f.name] = ''
   }
   return v
@@ -45,11 +45,6 @@ function validate(cfg: FormConfig, values: Values): Record<string, string> {
     if (f.kind === 'checkbox-group') {
       const arr = (val as string[]) ?? []
       if (f.required && arr.length < (f.min ?? 1)) errors[f.name] = 'Please select at least one option.'
-      continue
-    }
-    if (f.kind === 'file') {
-      const files = val as FileList | undefined
-      if (f.required && (!files || files.length === 0)) errors[f.name] = 'This field is required.'
       continue
     }
     const s = (val ?? '') as string
@@ -82,7 +77,7 @@ export function SmartForm({
   const [submitError, setSubmitError] = useState('')
   const { submitInbox } = useAuth()
 
-  const set = (name: string, v: string | string[] | FileList | undefined) => {
+  const set = (name: string, v: string | string[] | undefined) => {
     setValues((prev) => ({ ...prev, [name]: v }))
     setErrors((prev) => (prev[name] ? { ...prev, [name]: '' } : prev))
   }
@@ -99,18 +94,18 @@ export function SmartForm({
     setSending(true)
     const fields = config.fields.flatMap((field) => {
       const value = values[field.name]
-      if (field.kind === 'file') return []
       if (field.kind === 'checkbox-group') return value && (value as string[]).length ? [`${field.label}: ${(value as string[]).join(', ')}`] : []
       return typeof value === 'string' && value.trim() ? [`${field.label}: ${value.trim()}`] : []
     })
     const emailField = config.fields.find((field) => field.kind === 'email')
-    const nameField = config.fields.find((field) => /name/i.test(field.name + field.label))
+    const nameField = config.fields.find((field) => field.name === 'name')
+      ?? config.fields.find((field) => /^(your|full|contact)\s+name$/i.test(field.label.trim()))
     const email = emailField ? String(values[emailField.name] ?? '') : ''
     const name = nameField ? String(values[nameField.name] ?? '') : email || 'Website visitor'
-    const type = /support|ticket/i.test(config.id) ? 'ticket' : /lead|contact|appointment|partner/i.test(config.id) ? 'lead' : 'form'
+    const type = config.inboxType ?? (/support|ticket|refund/i.test(config.id) ? 'ticket' : /lead|contact|appointment|partner|sales|booking|privyr/i.test(config.id) ? 'lead' : 'form')
     setSubmitError('')
     try {
-      await submitInbox({ type, subject: config.id.replace(/[-_]/g, ' '), name, email, message: fields.join('\n'), source: window.location.pathname })
+      await submitInbox({ type, subject: config.inboxSubject ?? config.id.replace(/[-_]/g, ' '), name, email, message: fields.join('\n'), source: window.location.pathname })
       setDone(true)
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Unable to submit this form. Please try again.')
@@ -143,7 +138,7 @@ export function SmartForm({
       {config.fields.map((f) => {
         const err = errors[f.name]
         const id = `${config.id}-${f.name}`
-        const full = f.kind === 'textarea' || f.kind === 'checkbox-group' || f.kind === 'radio' || f.kind === 'file' || !('half' in f && f.half)
+      const full = f.kind === 'textarea' || f.kind === 'checkbox-group' || f.kind === 'radio' || !('half' in f && f.half)
 
         const label = (
           <span className={lblCls}>
@@ -258,23 +253,6 @@ export function SmartForm({
                   </option>
                 ))}
               </select>
-              {err && <p className={errCls}>{err}</p>}
-            </div>
-          )
-        }
-
-        if (f.kind === 'file') {
-          return (
-            <div key={f.name} className="sm:col-span-2">
-              <label htmlFor={id}>{label}</label>
-              <input
-                id={id}
-                type="file"
-                className={cn(inputCls, 'file:mr-3 file:rounded-lg file:border-0 file:bg-ink-950/[0.06] file:px-3 file:py-1.5 file:text-xs')}
-                onChange={(e) => set(f.name, e.target.files ?? undefined)}
-                aria-invalid={!!err}
-              />
-              {f.hint && <p className="mt-1 text-[11px] text-ink-400">{f.hint}</p>}
               {err && <p className={errCls}>{err}</p>}
             </div>
           )

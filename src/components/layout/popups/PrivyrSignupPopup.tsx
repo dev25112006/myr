@@ -8,6 +8,8 @@ import { SmartForm, type FormConfig } from '@/components/forms/SmartForm'
  */
 export const PRIVYR_SIGNUP_FORM: FormConfig = {
   id: 'privyr-signup',
+  inboxType: 'lead',
+  inboxSubject: 'Privyr signup request',
   submitLabel: 'Get Started',
   successMessage: 'Thanks! Your request has been received by our team.',
   fields: [

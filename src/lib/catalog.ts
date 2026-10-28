@@ -96,16 +96,16 @@ export const CATALOG: Record<number, CatalogProduct> = {
   },
   2768: {
     id: 2768,
-    name: 'Digital Marketing',
+    name: 'AI Digital Marketing',
     slug: '/product/digital-marketing/',
     price: 6999,
     type: 'variable',
     category: 'Digital Marketing',
   },
-  2773: { id: 2773, name: 'Digital Marketing — Standard', slug: '/product/digital-marketing/', price: 7999, type: 'simple', category: 'Digital Marketing' },
-  2774: { id: 2774, name: 'Digital Marketing — Pro+', slug: '/product/digital-marketing/', price: 16999, type: 'simple', category: 'Digital Marketing' },
-  2775: { id: 2775, name: 'Digital Marketing — Standard', slug: '/product/digital-marketing/', price: 6999, type: 'simple', category: 'Digital Marketing' },
-  2776: { id: 2776, name: 'Digital Marketing — Pro+', slug: '/product/digital-marketing/', price: 14999, type: 'simple', category: 'Digital Marketing' },
+  2773: { id: 2773, name: 'AI Digital Marketing — Standard', slug: '/product/digital-marketing/', price: 7999, type: 'simple', category: 'Digital Marketing' },
+  2774: { id: 2774, name: 'AI Digital Marketing — Pro+', slug: '/product/digital-marketing/', price: 16999, type: 'simple', category: 'Digital Marketing' },
+  2775: { id: 2775, name: 'AI Digital Marketing — Standard', slug: '/product/digital-marketing/', price: 6999, type: 'simple', category: 'Digital Marketing' },
+  2776: { id: 2776, name: 'AI Digital Marketing — Pro+', slug: '/product/digital-marketing/', price: 14999, type: 'simple', category: 'Digital Marketing' },
 }
 
 /** Resolve `?add-to-cart=ID` style links. Returns undefined for unknown ids. */

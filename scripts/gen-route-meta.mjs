@@ -5,7 +5,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 
-const SITE = 'https://www.myradvancesolution.com'
+const SITE = process.env.SITE_ORIGIN || process.env.APP_ORIGIN || 'http://localhost:3000'
 const inv = JSON.parse(readFileSync('audit/inventory.json', 'utf8'))
 const routes = Array.isArray(inv) ? inv : Object.values(inv)
 

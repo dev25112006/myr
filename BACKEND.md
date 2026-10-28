@@ -6,9 +6,23 @@
 2. In one terminal run `npm run dev:api`.
 3. In another terminal run `npm run dev` and open the Vite URL (port 3000).
 
-For a production-style run, build the frontend with `npm run build`, then run `npm start`. The API server serves `dist/` and the API on the same origin. Set `NODE_ENV=production`, configure persistent storage, and terminate TLS at the hosting platform so secure session cookies are enabled. Without `DATABASE_URL`, existing `myr.json` data is imported on first startup into `myr.sqlite`. With `DATABASE_URL`, the service creates a PostgreSQL state table and uses a transaction lock to serialize API state changes across instances.
+For a production-style run, build the frontend with `npm run build`, then run `npm start`. The API server serves `dist/` and the API on the same origin. Set `NODE_ENV=production`, configure `MONGODB_URI`, and terminate TLS at the hosting platform so secure session cookies are enabled. MongoDB is the production database. Local development can still use SQLite when no MongoDB URI is set; legacy SQLite or JSON data is imported into MongoDB on first startup if its state document is empty.
+
+## Production operations (Render)
+
+The project includes a Render Blueprint in `render.yaml`. It creates a paid Node web service, builds the frontend, runs the combined API/site service, checks `/api/health`, and prompts for `MONGODB_URI` without storing the URI in the repository. MongoDB Atlas stores application state, so the app does not need a Render disk. Keep the service at one instance because requests are serialized around the app's single state document. The app handles `SIGTERM` by stopping new traffic and closing database connections cleanly.
+
+To prepare the service, connect this repository in Render and create a Blueprint from `render.yaml`. Enter `MONGODB_URI`, a working `ADMIN_EMAIL`, and a unique `ADMIN_PASSWORD` (12+ characters); Render generates `TOKEN_PEPPER`. In Atlas, allow the Render service to connect and use a database user with access only to the `myr` database. Deploy and confirm `/api/health` returns `{ "ok": true }`. The app detects the Render service hostname for account emails and sitemap URLs. When adding a custom domain, configure it in Render, point the DNS records Render provides, wait for TLS provisioning, and set both `APP_ORIGIN` and `SITE_ORIGIN` to the final `https://your-domain` origin. Set the matching origin in Razorpay webhook configuration after the domain is live.
+
+Run `npm run backup` from a machine with MongoDB Database Tools installed to create a compressed archive under `DATA_DIR/backups` (or set `BACKUP_DIR`). It uses a temporary, permission-restricted config file so the URI is not exposed in the `mongodump` command line, and keeps the newest 14 archive files. Restore into a separate/empty database with `mongorestore --config <private-config.yml> --archive=<backup.archive.gz> --gzip`; configure `uri` in that private file and restrict its permissions. For ongoing protection, enable Atlas backups for the cluster if the selected Atlas tier supports them, and periodically copy a `mongodump` archive to separate storage. Restore a backup in a separate environment before relying on it.
+
+Atlas backup retention depends on the cluster tier and is configured in the Atlas project; it has not been changed by this code. The local `mongodump` command is available for portable exports, but no offsite archive destination or schedule has been configured yet.
 
 To enable Razorpay, set `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET` from the Razorpay dashboard and configure the webhook URL as `/api/payments/webhook` for `order.paid` and `payment.captured`. Use test keys first. Set `APP_ORIGIN` to the canonical site origin. To enable email, set a Resend API key and verified sender in `RESEND_API_KEY` and `EMAIL_FROM`; only then set `EMAIL_VERIFICATION_REQUIRED=true`.
+
+Local test checkout can be enabled with `COMMERCE_TEST_MODE=true` only when `NODE_ENV` is not `production` and the configured Razorpay key starts with `rzp_test_`. The checkout and account screens identify simulated payments, and no real charge is made. This override does not approve tax or shipping for production; verify those business values before enabling live checkout. The Render Blueprint does not enable this override.
+
+Set `SITE_ORIGIN` to the clone's public origin before running `npm run seo`; generated canonical metadata and sitemap URLs use that value. The client also uses the current host for canonical URLs at runtime. Do not set it to the reference website.
 
 ## Included
 
@@ -17,13 +31,26 @@ To enable Razorpay, set `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_
 - Login/logout through opaque, random, HttpOnly, SameSite=Lax cookies. Session records are stored server-side and expire after seven days.
 - Admin-only role assignment for existing accounts (`customer`, `manager`, `admin`); role changes revoke that account's sessions.
 - Admin account listing and manager/admin shared inbox with server-side status updates.
+- Public website inquiry, sales, booking, partnership, newsletter preference, CRM lead, and refund forms save labelled field values to the shared inbox. Sales/booking/partnership inquiries are leads; refund requests are tickets; preference updates are forms.
+- Staff tasks with assignment to active admin/manager accounts, due dates, status changes, deletion, persistence, and audit events.
+- Signed-in user profile details (name, phone, timezone), plus staff-only shared team chat with bounded message history.
+- CSV lead import is staff-only, validated on the server, batched into inbox records, and audited.
+- Product reviews are limited to verified buyers, stored pending moderation, publicly returned only when approved, and moderated by admins.
 - Server-side catalog price editing for admins, order requests priced against the current server catalog, manager/admin order status updates, and customer order history.
 - Customer support tickets linked to the signed-in account and shown in the shared manager inbox.
 - Razorpay order creation, checkout signature verification, signed and idempotent webhook processing, and full refund requests for captured payments.
 - Password reset and email verification token flows with one-time, expiring tokens. Delivery uses the configured Resend email API.
 - Staff replies on inbox requests and customer support tickets, with email delivery when configured.
-- Persistent SQLite state by default, or shared PostgreSQL state when `DATABASE_URL` is set. Both include the team roster and a bounded admin audit trail; legacy JSON data is imported on first startup.
-- Signed-in customer carts persist across devices. Orders include configurable tax and physical-product shipping, shipping address, and optional inventory checks/reservations. Admin can configure tax, flat shipping, and stock in the panel.
+- Refund requests currently accept text fields only. Attachments are not accepted or stored; if evidence is needed, staff request it in a reply and arrange a supported transfer channel.
+- MongoDB Atlas persistence in production, with local SQLite fallback for development. State includes the team roster and bounded admin audit trail; existing SQLite or legacy JSON data is imported on first startup when the MongoDB state document is empty.
+- Signed-in customer carts persist across devices. Order quantities are not limited by inventory; orders include configurable tax, physical-product shipping, and shipping address. Checkout stays paused until an admin verifies the business tax and shipping settings.
 - Request size limits, same-origin checks on mutations, generic login errors, login throttling, and basic browser security headers.
 
-PostgreSQL mode currently stores the application state as a JSONB document and serializes API operations with a database lock. This supports multiple instances but limits throughput; migrate the entities to normalized tables before high-volume use. SQLite is intended for one process on persistent storage. If Razorpay credentials are absent, checkout creates a pending-payment order request; if Resend credentials are absent, password reset and verification emails cannot be delivered. Configure actual tax and shipping rates in the admin panel before accepting orders. Back up PostgreSQL with `pg_dump`; back up SQLite using its online backup mechanism rather than copying a live database file.
+MongoDB currently stores application state in one document and serializes API requests within one server process. Keep one server instance and migrate entities into separate collections before higher traffic; MongoDB limits a document to 16 MB. If Razorpay credentials are absent, checkout creates a pending-payment order request; if Resend credentials are absent, password reset and verification emails cannot be delivered. Configure actual tax and shipping rates in the admin panel before accepting orders. Use Atlas backups and periodic `mongodump` exports for recovery.
+
+## Remaining implementation and launch work
+Deploy the Render Blueprint with the rotated MongoDB URI, production admin credentials, and chosen public domain; configure DNS/origins and enable Atlas backups plus a separate offsite archive schedule.
+Configure real services: set and verify live Razorpay and email credentials, then configure actual tax and shipping values.
+Plan for backend growth: MongoDB currently stores the whole application state as one document. Before higher traffic, migrate the entities to separate collections and use per-entity updates.
+Add secured attachment storage before enabling file uploads. Define allowed types and sizes, retention, malware scanning, and staff-only download access.
+Run end-to-end checks: payment and email providers still need production environment-backed verification.

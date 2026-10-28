@@ -8,20 +8,20 @@ import { useCatalogPrice } from '@/lib/useCatalogPrice'
 
 const categories = [
   { name: 'Website Development', image: '/assets/2024-09-website-development.jpg', href: '/product-category/website-development/' },
-  { name: 'Digital Marketing', image: '/assets/2024-09-digital-marketing.jpg', href: '/digital-marketing/' },
+  { name: 'AI Digital Marketing', image: '/assets/2024-09-digital-marketing.jpg', href: '/digital-marketing/' },
   { name: 'CCTV & Security', image: '/assets/2024-08-buy-cctv.png', href: '/cctv-solution/' },
   { name: 'Networking', image: '/assets/2024-10-network-category.jpg', href: '/product-category/it-products/' },
   { name: 'PBX & IP Telephone', image: '/assets/2024-10-ip-telephone-category.jpg', href: '/product-category/pbx/' },
 ]
 
-const products: CatalogProduct[] = [CATALOG[2765], CATALOG[2766], CATALOG[2767], CATALOG[3056], CATALOG[2773]]
+const products: CatalogProduct[] = [CATALOG[2424], CATALOG[2768], CATALOG[2765], CATALOG[2766], CATALOG[2767], CATALOG[3056]]
 
 const storeNavItems = [
   { label: 'Website Development', href: '/product-category/website-development/', icon: 'M3 4h18v13H3z M8 21h8 M12 17v4' },
   { label: 'PBX', href: '/product-category/pbx/', icon: 'M7 3h10v18H7z M10 6h4 M11 18h2' },
   { label: 'IT Products', href: '/product-category/it-products/', icon: 'M3 5h18v12H3z M8 21h8 M12 17v4' },
   { label: 'IP PBX Solution', href: '/ipbx-solution/', icon: 'M5 8a7 7 0 0 1 14 0v7 M5 11H3v5h4v-5H5z M19 11h2v5h-4v-5h2z M17 19c-1 1-3 1-5 1' },
-  { label: 'Digital Marketing', href: '/digital-marketing/', icon: 'M3 10v4h4l9 5V5l-9 5H3z M7 14l2 6h4l-3-5 M19 9a4 4 0 0 1 0 6' },
+  { label: 'AI Digital Marketing', href: '/digital-marketing/', icon: 'M3 10v4h4l9 5V5l-9 5H3z M7 14l2 6h4l-3-5 M19 9a4 4 0 0 1 0 6' },
 ]
 
 const promotions = [
@@ -39,7 +39,7 @@ function PromotionCard({ promo }: { promo: (typeof promotions)[number] }) {
 const storeSlides = [
   { eyebrow: 'WEBSITE DEVELOPMENT', title: 'Transforming Your Vision into a Digital Reality with Speed and Precision', action: 'Choose Plan', href: '/website-development/', image: '/assets/2024-09-website-development.jpg' },
   { eyebrow: 'ALL-IN-ONE LEAD CRM', title: 'Your Business, Your CRM – Tailored for Success.', action: 'Sign Up', href: '/privyr/', image: '/assets/2024-09-crm-development.png' },
-  { eyebrow: 'DIGITAL MARKETING', title: 'Digital Marketing Solutions to Drive Growth and Results', action: 'Choose Plan', href: '/digital-marketing/', image: '/assets/2024-09-digital-marketing.jpg' },
+  { eyebrow: 'AI DIGITAL MARKETING', title: 'AI Digital Marketing Solutions to Drive Growth and Results', action: 'Choose Plan', href: '/digital-marketing/', image: '/assets/2024-09-digital-marketing.jpg' },
   { eyebrow: 'SMART IP PBX', title: 'Your Business, Connected: Advanced IP PBX for Smarter Communication', action: 'Buy Now', href: '/ipbx-solution/', image: '/assets/2024-09-myrlink-ip-pbx.png' },
 ]
 
@@ -47,6 +47,7 @@ function ProductCard({ product }: { product: CatalogProduct }) {
   const { add } = useCart()
   const navigate = useNavigate()
   const price = useCatalogPrice(product.id, product.price)
+  const isVariable = product.type === 'variable'
   const image = product.image ?? (product.category === 'Digital Marketing' ? '/assets/2024-09-digital-marketing.jpg' : '/assets/2024-09-website-development.jpg')
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-200 hover:border-slate-300 hover:shadow-lg">
@@ -54,15 +55,15 @@ function ProductCard({ product }: { product: CatalogProduct }) {
         <img src={image} alt={product.name} className="h-full w-full object-contain transition duration-500 group-hover:scale-[1.04]" loading="lazy" />
       </Link>
       <div className="flex flex-1 flex-col p-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-rose-600">{product.category}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-rose-600">{product.category === 'Digital Marketing' ? 'AI Digital Marketing' : product.category}</p>
         <h3 className="mt-2 text-lg font-bold text-slate-900">{product.name}</h3>
         <div className="mt-4 flex items-baseline gap-2">
-          <span className="text-xl font-bold text-slate-900">{product.id === 2773 ? 'From ' : ''}{inr(price, { paise: false })}</span>
+          <span className="text-xl font-bold text-slate-900">{isVariable ? 'From ' : ''}{inr(price, { paise: false })}</span>
           {product.compareAt && <span className="text-sm text-ink-400 line-through">{inr(product.compareAt, { paise: false })}</span>}
         </div>
         <div className="mt-5 flex gap-2">
-          <button className="btn btn-sm flex-1 bg-rose-600 text-white hover:bg-rose-700" onClick={() => { add({ id: product.id, price }); navigate('/cart/') }}>Add to cart</button>
-          <Link to={product.slug} className="btn btn-outline-light btn-sm">Details</Link>
+          {isVariable ? <Link to={product.slug} className="btn btn-sm flex-1 bg-rose-600 text-center text-white hover:bg-rose-700">Select options</Link> : <button className="btn btn-sm flex-1 bg-rose-600 text-white hover:bg-rose-700" onClick={() => { add({ id: product.id, price }); navigate('/cart/') }}>Add to cart</button>}
+          {!isVariable && <Link to={product.slug} className="btn btn-outline-light btn-sm">Details</Link>}
         </div>
       </div>
     </article>

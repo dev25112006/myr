@@ -10,6 +10,8 @@ import type { FormConfig } from '@/components/forms/SmartForm'
  */
 export const LEAD_FORM_4500: FormConfig = {
   id: 'lead-4500',
+  inboxType: 'lead',
+  inboxSubject: 'Website inquiry',
   submitLabel: 'Submit',
   successMessage: 'Thank you! Your request has been received by our team.',
   fields: [

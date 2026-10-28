@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { CHAT_SUPPORT } from '@/components/layout/nav'
+import { CHAT_SALES, CHAT_SUPPORT } from '@/components/layout/nav'
 import { FaqAccordion, Reveal, SectionHeading, SupportBlock } from '@/components/ui'
 import { RichText } from '@/components/ui/RichText'
 import { PricingPlans } from '@/components/sections/PricingPlans'
@@ -366,7 +366,7 @@ function HeroSection() {
               <span className="text-gradient">Website Development + Marketing</span> Solutions
             </h1>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a href={CHAT_SUPPORT} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-md">
+              <a href={CHAT_SALES} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-md">
                 Talk to sales
               </a>
               <a href={CHAT_SUPPORT} target="_blank" rel="noopener noreferrer" className="btn btn-ghost-dark btn-md">

@@ -3,7 +3,7 @@
  * Site-wide: Organization + WebSite. Per-route: Breadcrumb, Service, FAQ, Product.
  */
 
-const SITE = 'https://www.myradvancesolution.com'
+const SITE = typeof window !== 'undefined' ? window.location.origin : ''
 const WHATSAPP = '+917408443341'
 
 export const ORGANIZATION_LD = {

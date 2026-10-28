@@ -15,4 +15,4 @@ Disallow: /checkout/
 Disallow: /my-account/
 Disallow: /lets-keep-in-touch/
 
-Sitemap: https://www.myradvancesolution.com/sitemap.xml
+Sitemap: http://localhost:3000/sitemap.xml

@@ -79,7 +79,7 @@ const PARTNER_LOGOS = [
 const TESTIMONIALS = [
   {
     image:
-      'https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/Prabhat-Tripathi.jpeg?fit=600%2C568&ssl=1',
+      '/assets/2024-08-Prabhat-Tripathi.jpeg',
     name: 'Dr. Prabhat Tripathi',
     role: 'Chairman Tirupati College of Engineering',
     quote:
@@ -87,7 +87,7 @@ const TESTIMONIALS = [
   },
   {
     image:
-      'https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/Abhishek-Khare.jpg?fit=588%2C588&ssl=1',
+      '/assets/2024-08-Abhishek-Khare.jpg',
     name: "Abhishek Khare",
     role: "Owner Khare's Kitchen Restaurant",
     quote:
@@ -95,7 +95,7 @@ const TESTIMONIALS = [
   },
   {
     image:
-      'https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/male-icon.jpg?fit=751%2C751&ssl=1',
+      '/assets/2024-08-male-icon.jpg',
     name: 'Mohammad Ali Khan',
     role: 'Loyaltech Management Services Pvt. Ltd.',
     quote:
@@ -103,7 +103,7 @@ const TESTIMONIALS = [
   },
   {
     image:
-      'https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/female-icon.jpg?fit=760%2C751&ssl=1',
+      '/assets/2024-08-female-icon.jpg',
     name: 'Riya Tiwari',
     role: 'Owner Fashion Store.',
     quote:
@@ -374,7 +374,7 @@ function HeroHeading() {
   return (
     <h1
       aria-label="IT Solutions, IT Products, IT Services"
-      className="text-4xl font-bold leading-[1.1] text-ink-950 sm:text-5xl lg:text-6xl"
+      className="text-4xl font-bold leading-[1.1] text-black sm:text-5xl lg:text-6xl"
     >
       <span aria-hidden="true">{text}</span>
       <span aria-hidden="true" className="ml-1 inline-block h-[0.9em] border-r-2 border-accent-500 align-middle animate-pulse" />
@@ -383,86 +383,45 @@ function HeroHeading() {
 }
 
 function AnimatedWebsitePreview() {
-  const [phase, setPhase] = useState(0)
-
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setPhase(9)
-      return
-    }
-
-    const interval = window.setInterval(() => {
-      setPhase((current) => (current >= 25 ? 0 : current + 1))
-    }, 1050)
-    return () => window.clearInterval(interval)
-  }, [])
-
-  const websiteParts = [
-    { name: 'DenTrak logo', at: 1, clip: 'inset(2% 58% 90% 31%)' },
-    { name: 'Partner navigation', at: 2, clip: 'inset(2% 50% 90% 41%)' },
-    { name: 'Menu navigation', at: 3, clip: 'inset(2% 38% 90% 51%)' },
-    { name: 'Reserve button', at: 4, clip: 'inset(2% 30% 90% 61%)' },
-    { name: 'First headline line', at: 5, clip: 'inset(25% 1% 52% 2%)' },
-    { name: 'Second headline line', at: 6, clip: 'inset(44% 17% 36% 16%)' },
-    { name: 'Dental scanner', at: 7, clip: 'inset(14% 17% 0 32%)' },
-    { name: 'Product specifications', at: 8, clip: 'inset(59% 1% 7% 81%)' },
-    { name: 'Reservation panel', at: 9, clip: 'inset(74% 65% 7% 2%)' },
-  ]
-
-  const scrollStarted = phase >= 10 && phase < 19
-
   return (
-    <div className="relative w-full max-w-xl">
-      <img
-        src="/assets/homepage-desktop-frame.png"
-        alt=""
-        className="relative z-10 block h-auto w-full rounded-[2%]"
-      />
-      <div className="absolute left-[1.63%] top-[2.7%] z-20 h-[94.5%] w-[96.5%] overflow-hidden rounded-[0.4%]">
-        <div
-          className="absolute inset-0 overflow-hidden"
-          style={{
-            backgroundImage: 'radial-gradient(ellipse 45% 65% at 83% 18%, #f4876d 0 99%, transparent 100%), linear-gradient(180deg, #1d6175 0%, #747275 52%, #fa8b6f 100%)',
-          }}
-        >
-          <div
-            className="absolute inset-0"
-            style={{
-              opacity: phase >= 19 ? 0 : 1,
-              transform: scrollStarted ? 'scale(1.12) translateY(-16%)' : 'scale(1) translateY(0)',
-              willChange: 'transform, opacity',
-              transition: 'transform 9s cubic-bezier(.22,.61,.36,1), opacity 1100ms ease-in-out',
-            }}
-          >
-            {websiteParts.map((part) => (
-              <img
-                key={part.name}
-                src="/assets/homepage-dentrak-screen.png"
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 h-full w-full object-fill"
-                style={{
-                  clipPath: part.clip,
-                  opacity: phase >= part.at && phase < 19 ? 1 : 0,
-                  willChange: 'opacity',
-                  transition: 'opacity 1100ms ease-in-out',
-                }}
-              />
-            ))}
+    <div className="dental-ad-shell" aria-hidden="true">
+      <div className="dental-ad-screen">
+        <div className="dental-ad-backdrop">
+          <div className="dental-ad-sun" />
+          <div className="dental-ad-horizon" />
+        </div>
+        <div className="dental-ad-content">
+          <header className="dental-ad-nav">
+            <span className="dental-ad-brand"><i aria-hidden="true">✣</i> DenTrak</span>
+            <span className="dental-ad-nav-button">Become a Partner</span>
+            <span className="dental-ad-menu">Menu <i aria-hidden="true"><b /><b /></i></span>
+            <span className="dental-ad-nav-button dental-ad-reserve">Reserve Now</span>
+          </header>
+          <h2 className="dental-ad-title">
+            <span className="dental-ad-title-line dental-ad-title-first">EVERY DETAIL</span>
+            <span className="dental-ad-title-line dental-ad-title-second">CAPTURED</span>
+          </h2>
+          <div className="dental-ad-scanner" aria-hidden="true">
+            <div className="dental-ad-scanner-art">
+              <img src="/assets/dental-scanner-hero.svg" alt="" />
+              <span className="dental-ad-scanner-glint" />
+            </div>
           </div>
-          <div
-            className="absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-[#0d524e] text-white"
-            style={{
-              opacity: phase >= 19 && phase < 24 ? 1 : 0,
-              transform: phase >= 19 && phase < 24 ? 'scale(1)' : 'scale(.96)',
-              willChange: 'opacity, transform',
-              transition: 'opacity 1400ms ease-in-out, transform 1400ms ease-in-out',
-            }}
-          >
-            <img src="/assets/2024-09-MYR-MOBILE-LOGO.png" alt="MYR" className="h-[42%] max-w-[55%] object-contain" />
+          <div className="dental-ad-specs">
+            <div className="dental-ad-spec dental-ad-spec-one"><i /><span><strong>20MM</strong><small>Accuracy</small></span></div>
+            <div className="dental-ad-spec dental-ad-spec-two"><i /><span><strong>45S</strong><small>Full-arch scan</small></span></div>
+            <div className="dental-ad-spec dental-ad-spec-three"><i /><span><strong>COLOR</strong><small>Real-time images</small></span></div>
+          </div>
+          <div className="dental-ad-info">
+            <p>Fast, precise intraoral scanning designed to make digital dentistry simpler, from chairside capture to treatment planning.</p>
+            <span className="dental-ad-info-button">Reserve Now</span>
           </div>
         </div>
+        <div className="dental-ad-endcard">
+          <img src="/assets/2024-08-MYR-LOGO.png" alt="" />
+        </div>
       </div>
+      <div className="dental-ad-bezel" />
     </div>
   )
 }
@@ -471,7 +430,7 @@ function HeroSection() {
   return (
     <section className="section-dark relative overflow-hidden">
       <div className="container-page py-12 sm:py-16 lg:py-20">
-        <div className="grid items-center gap-10 sm:grid-cols-2">
+        <div className="grid items-center gap-10 sm:grid-cols-2 xl:grid-cols-[.812fr_1fr]">
           <div>
             <HeroHeading />
             <p className="mt-4 text-sm leading-relaxed text-ink-400 sm:text-base">
@@ -791,7 +750,7 @@ function WhoWeAreSection() {
             transition={{ duration: 0.7, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
           >
             <img
-              src="https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2025/02/it-expert-2.png?fit=600%2C651&ssl=1"
+              src="/assets/2025-02-it-expert-2.png"
               alt=""
               loading="lazy"
               className="w-full max-w-md rounded-[2rem] object-contain"
@@ -876,7 +835,7 @@ function MissionSection() {
           </div>
           <div className="flex justify-center">
             <img
-              src="https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/buy-toll-free-number-768x644-1.png?fit=768%2C644&ssl=1"
+              src="/assets/2024-08-buy-toll-free-number-768x644-1.png"
               alt=""
               loading="lazy"
               className="w-full max-w-md rounded-[2rem] object-contain drop-shadow-[0_30px_60px_rgba(2,6,23,0.25)]"
@@ -1338,7 +1297,7 @@ function SupportBlockSection() {
               aria-hidden
             />
             <img
-              src="https://i0.wp.com/www.myradvancesolution.com/wp-content/uploads/2024/08/Live-Support-Chat.png?fit=1080%2C1080&ssl=1"
+              src="/assets/2024-08-Live-Support-Chat.png"
               alt=""
               loading="lazy"
               className="relative mx-auto max-h-72 w-auto object-contain drop-shadow-[0_24px_48px_rgba(45,226,230,0.25)]"

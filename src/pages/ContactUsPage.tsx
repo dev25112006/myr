@@ -3,6 +3,7 @@ import { Reveal, SectionHeading } from '@/components/ui'
 import { SmartForm } from '@/components/forms/SmartForm'
 import { LEAD_FORM_4500 } from '@/content/leadForms'
 import { CHAT_ABUSE, CHAT_SALES, CHAT_SUPPORT, WHATSAPP } from '@/components/layout/nav'
+import { usePopup } from '@/lib/stores'
 
 const contacts = [
   { title: 'Customer support', text: 'Get help from our customer success team, around the clock.', action: 'Chat with support', href: CHAT_SUPPORT, external: true, icon: '◌' },
@@ -10,7 +11,6 @@ const contacts = [
   { title: 'Media & press', text: 'For media enquiries and press related questions.', action: 'press@myradvancesolution.com', href: 'mailto:press@myradvancesolution.com', external: true, icon: '✉' },
   { title: 'Report abuse', text: 'Report misuse or a security concern to our team.', action: 'Contact abuse team', href: CHAT_ABUSE, external: true, icon: '!' },
   { title: 'Account recovery', text: 'Need help restoring access to your account?', action: 'account-recovery@myradvancesolution.com', href: 'mailto:account-recovery@myradvancesolution.com', external: true, icon: '⌑' },
-  { title: 'WhatsApp', text: 'Message our team directly for quick assistance.', action: 'Chat on WhatsApp', href: WHATSAPP, external: true, icon: '◉' },
 ]
 
 const locations = [
@@ -21,6 +21,7 @@ const locations = [
 ]
 
 export function ContactUsPage() {
+  const { setOpen } = usePopup()
   return (
     <>
       <section className="relative overflow-hidden bg-[#101b2b] text-white">
@@ -46,7 +47,7 @@ export function ContactUsPage() {
             {contacts.map((item) => <article key={item.title} className="flex min-h-52 flex-col rounded-3xl border border-ink-900/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-card">
               <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent-400/15 text-xl font-bold text-accent-700" aria-hidden>{item.icon}</span>
               <h2 className="mt-4 text-lg font-bold text-ink-950">{item.title}</h2><p className="mt-2 flex-1 text-sm leading-relaxed text-ink-500">{item.text}</p>
-              <a className="mt-4 text-sm font-bold text-accent-700 hover:text-accent-800" href={item.href} target={item.external && item.href.startsWith('http') ? '_blank' : undefined} rel={item.href.startsWith('http') ? 'noreferrer' : undefined}>{item.action} <span aria-hidden>→</span></a>
+              {item.title === 'Customer support' ? <button type="button" className="mt-4 self-start text-sm font-bold text-accent-700 hover:text-accent-800" onClick={() => setOpen('login')}>{item.action} <span aria-hidden>→</span></button> : <a className="mt-4 text-sm font-bold text-accent-700 hover:text-accent-800" href={item.href} target={item.external && item.href.startsWith('http') ? '_blank' : undefined} rel={item.href.startsWith('http') ? 'noreferrer' : undefined}>{item.action} <span aria-hidden>→</span></a>}
             </article>)}
           </div>
           <div className="mt-12 grid gap-4 rounded-3xl bg-[#f5f6f7] p-6 sm:grid-cols-2 lg:grid-cols-4">

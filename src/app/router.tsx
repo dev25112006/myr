@@ -12,71 +12,16 @@ import { Number1800Page } from '@/pages/Number1800Page'
 import { PrivyrPage } from '@/pages/PrivyrPage'
 import { ContactUsPage } from '@/pages/ContactUsPage'
 import { TechStorePage } from '@/pages/TechStorePage'
-import { DigitalMarketingProductPage, Ip100ProductPage, ProductCategoryPage } from '@/pages/StoreCatalogPages'
+import { DigitalMarketingProductPage, Ip100ProductPage, ProductCategoryPage, WebsitePlanProductPage } from '@/pages/StoreCatalogPages'
 import { NotFoundPage } from '@/pages/NotFoundPage'
-import { Pending } from '@/pages/Pending'
 import { AccountPage } from '@/pages/AccountPage'
 import { AdminPage } from '@/pages/AdminPage'
 import { ManagerPage } from '@/pages/ManagerPage'
 import { CheckoutPage } from '@/pages/CheckoutPage'
 import { AccountRecoveryPage, VerifyEmailPage } from '@/pages/AccountRecoveryPage'
-
-/** Segment ownership hints for pending routes (see prompts/00-PROMPT-MAP.md). */
-const SEGMENT: Record<string, string> = {
-  '/network-solution/': 'S06',
-  '/ipbx-solution/': 'S07',
-  '/cctv-solution/': 'S08',
-  '/1800-number/': 'S09',
-  '/privyr/': 'S10',
-  '/about-us/': 'S11',
-  '/roadmap/': 'S11',
-  '/contact-us/': 'S12',
-  '/talk-to-sales/': 'S12',
-  '/booking/': 'S12',
-  '/how-we-help-your-business/': 'S13',
-  '/our-products-benefit/': 'S13',
-  '/knowledge-base/': 'S13',
-  '/lets-keep-in-touch/': 'S13',
-  '/evercompare/': 'S13',
-  '/tech-store/': 'S14',
-  '/shop/': 'S14',
-  '/product/website-development/': 'S15',
-  '/product/newbiz-essentials/': 'S15',
-  '/product/revampcommerce-lite/': 'S15',
-  '/product/elitecustom-suite/': 'S15',
-  '/product/digital-marketing/': 'S15',
-  '/product/myrlink-ip-pbx-ip100-v3/': 'S15',
-  '/product-category/website-development/': 'S15',
-  '/product-category/website-development/website/': 'S15',
-  '/product-category/website-development/website-design/': 'S15',
-  '/product-category/digital-marketing/': 'S15',
-  '/product-category/ip-pbx/': 'S15',
-  '/product-category/it-products/': 'S15',
-  '/product-category/pbx/': 'S15',
-  '/cart/': 'S16',
-  '/checkout/': 'S16',
-  '/my-account/': 'S16',
-  '/my-account/lost-password/': 'S16',
-  '/privacy-policy/': 'S17',
-  '/shipping-policy/': 'S17',
-  '/terms-and-conditions/': 'S17',
-  '/refund-and-return-policy/': 'S17',
-  '/refund-request-form/': 'S17',
-  '/crm-dashboard/': 'S18',
-  '/my-leads/': 'S18',
-  '/crm-reports/': 'S18',
-  '/crm-tasks/': 'S18',
-  '/my-profile/': 'S18',
-  '/import-leads/': 'S18',
-  '/crm-login/': 'S18',
-  '/team-chat/': 'S18',
-  '/team-panel/': 'S18',
-  '/customer-panel/': 'S18',
-}
-
-function pending(path: keyof typeof SEGMENT) {
-  return <Pending segment={SEGMENT[path]} />
-}
+import { CartPage } from '@/pages/CartPage'
+import { PolicyPage } from '@/pages/PolicyPages'
+import { AboutPage, BookingPage, CRMPanelPage, CustomerPanelPage, InformationPage, RoadmapPage, TalkToSalesPage } from '@/pages/RemainingPages'
 
 /** All verified routes from audit/inventory.json. Order: exact → dynamic 404. */
 export function AppRoutes() {
@@ -101,34 +46,34 @@ export function AppRoutes() {
         <Route path="/privyr/" element={<PrivyrPage />} />
 
         {/* Phase 4 */}
-        <Route path="/about-us/" element={pending('/about-us/')} />
-        <Route path="/roadmap/" element={pending('/roadmap/')} />
+        <Route path="/about-us/" element={<AboutPage />} />
+        <Route path="/roadmap/" element={<RoadmapPage />} />
         <Route path="/contact-us/" element={<ContactUsPage />} />
-        <Route path="/talk-to-sales/" element={pending('/talk-to-sales/')} />
-        <Route path="/booking/" element={pending('/booking/')} />
-        <Route path="/how-we-help-your-business/" element={pending('/how-we-help-your-business/')} />
-        <Route path="/our-products-benefit/" element={pending('/our-products-benefit/')} />
-        <Route path="/knowledge-base/" element={pending('/knowledge-base/')} />
-        <Route path="/lets-keep-in-touch/" element={pending('/lets-keep-in-touch/')} />
-        <Route path="/evercompare/" element={pending('/evercompare/')} />
+        <Route path="/talk-to-sales/" element={<TalkToSalesPage />} />
+        <Route path="/booking/" element={<BookingPage />} />
+        <Route path="/how-we-help-your-business/" element={<InformationPage pathname="/how-we-help-your-business/" />} />
+        <Route path="/our-products-benefit/" element={<InformationPage pathname="/our-products-benefit/" />} />
+        <Route path="/knowledge-base/" element={<InformationPage pathname="/knowledge-base/" />} />
+        <Route path="/lets-keep-in-touch/" element={<InformationPage pathname="/lets-keep-in-touch/" />} />
+        <Route path="/evercompare/" element={<InformationPage pathname="/evercompare/" />} />
 
         {/* Phase 5 */}
         <Route path="/tech-store/" element={<TechStorePage />} />
-        <Route path="/shop/" element={pending('/shop/')} />
-        <Route path="/product/website-development/" element={pending('/product/website-development/')} />
-        <Route path="/product/newbiz-essentials/" element={pending('/product/newbiz-essentials/')} />
-        <Route path="/product/revampcommerce-lite/" element={pending('/product/revampcommerce-lite/')} />
-        <Route path="/product/elitecustom-suite/" element={pending('/product/elitecustom-suite/')} />
+        <Route path="/shop/" element={<TechStorePage />} />
+        <Route path="/product/website-development/" element={<ProductCategoryPage kind="website" />} />
+        <Route path="/product/newbiz-essentials/" element={<WebsitePlanProductPage productId={2765} />} />
+        <Route path="/product/revampcommerce-lite/" element={<WebsitePlanProductPage productId={2766} />} />
+        <Route path="/product/elitecustom-suite/" element={<WebsitePlanProductPage productId={2767} />} />
         <Route path="/product/digital-marketing/" element={<DigitalMarketingProductPage />} />
         <Route path="/product/myrlink-ip-pbx-ip100-v3/" element={<Ip100ProductPage />} />
         <Route path="/product-category/website-development/" element={<ProductCategoryPage kind="website" />} />
-        <Route path="/product-category/website-development/website/" element={pending('/product-category/website-development/website/')} />
-        <Route path="/product-category/website-development/website-design/" element={pending('/product-category/website-development/website-design/')} />
-        <Route path="/product-category/digital-marketing/" element={pending('/product-category/digital-marketing/')} />
-        <Route path="/product-category/ip-pbx/" element={pending('/product-category/ip-pbx/')} />
+        <Route path="/product-category/website-development/website/" element={<ProductCategoryPage kind="website" />} />
+        <Route path="/product-category/website-development/website-design/" element={<ProductCategoryPage kind="website" />} />
+        <Route path="/product-category/digital-marketing/" element={<ProductCategoryPage kind="digital" />} />
+        <Route path="/product-category/ip-pbx/" element={<ProductCategoryPage kind="pbx" />} />
         <Route path="/product-category/it-products/" element={<ProductCategoryPage kind="it" />} />
         <Route path="/product-category/pbx/" element={<ProductCategoryPage kind="pbx" />} />
-        <Route path="/cart/" element={pending('/cart/')} />
+        <Route path="/cart/" element={<CartPage />} />
         <Route path="/checkout/" element={<CheckoutPage />} />
         <Route path="/my-account/" element={<AccountPage />} />
         <Route path="/admin/" element={<AdminPage />} />
@@ -138,21 +83,21 @@ export function AppRoutes() {
         <Route path="/my-account/verify-email/" element={<VerifyEmailPage />} />
 
         {/* Phase 6 */}
-        <Route path="/privacy-policy/" element={pending('/privacy-policy/')} />
-        <Route path="/shipping-policy/" element={pending('/shipping-policy/')} />
-        <Route path="/terms-and-conditions/" element={pending('/terms-and-conditions/')} />
-        <Route path="/refund-and-return-policy/" element={pending('/refund-and-return-policy/')} />
-        <Route path="/refund-request-form/" element={pending('/refund-request-form/')} />
-        <Route path="/crm-dashboard/" element={pending('/crm-dashboard/')} />
-        <Route path="/my-leads/" element={pending('/my-leads/')} />
-        <Route path="/crm-reports/" element={pending('/crm-reports/')} />
-        <Route path="/crm-tasks/" element={pending('/crm-tasks/')} />
-        <Route path="/my-profile/" element={pending('/my-profile/')} />
-        <Route path="/import-leads/" element={pending('/import-leads/')} />
-        <Route path="/crm-login/" element={pending('/crm-login/')} />
-        <Route path="/team-chat/" element={pending('/team-chat/')} />
-        <Route path="/team-panel/" element={pending('/team-panel/')} />
-        <Route path="/customer-panel/" element={pending('/customer-panel/')} />
+        <Route path="/privacy-policy/" element={<PolicyPage pathname="/privacy-policy/" />} />
+        <Route path="/shipping-policy/" element={<PolicyPage pathname="/shipping-policy/" />} />
+        <Route path="/terms-and-conditions/" element={<PolicyPage pathname="/terms-and-conditions/" />} />
+        <Route path="/refund-and-return-policy/" element={<PolicyPage pathname="/refund-and-return-policy/" />} />
+        <Route path="/refund-request-form/" element={<PolicyPage pathname="/refund-request-form/" />} />
+        <Route path="/crm-dashboard/" element={<CRMPanelPage pathname="/crm-dashboard/" />} />
+        <Route path="/my-leads/" element={<CRMPanelPage pathname="/my-leads/" />} />
+        <Route path="/crm-reports/" element={<CRMPanelPage pathname="/crm-reports/" />} />
+        <Route path="/crm-tasks/" element={<CRMPanelPage pathname="/crm-tasks/" />} />
+        <Route path="/my-profile/" element={<CRMPanelPage pathname="/my-profile/" />} />
+        <Route path="/import-leads/" element={<CRMPanelPage pathname="/import-leads/" />} />
+        <Route path="/crm-login/" element={<CRMPanelPage pathname="/crm-login/" />} />
+        <Route path="/team-chat/" element={<CRMPanelPage pathname="/team-chat/" />} />
+        <Route path="/team-panel/" element={<CRMPanelPage pathname="/team-panel/" />} />
+        <Route path="/customer-panel/" element={<CustomerPanelPage />} />
 
         {/* Source 404s + catch-all (Phase 7 keeps verifying) */}
         <Route path="/not-found/" element={<NotFoundPage />} />

@@ -16,11 +16,13 @@
     "preview": "vite preview",
     "smoke": "node scripts/smoke.mjs",
     "verify": "npm run build && node scripts/smoke.mjs",
+    "backup": "node --env-file-if-exists=.env scripts/backup.mjs",
     "seo": "node scripts/gen-route-meta.mjs && node scripts/gen-sitemap.mjs",
     "shots": "node scripts/shot-route.mjs"
   },
   "dependencies": {
     "framer-motion": "^14.5.0",
+    "mongodb": "^7.7.0",
     "pg": "^8.23.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

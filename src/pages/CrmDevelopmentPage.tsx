@@ -57,6 +57,8 @@ const PROCESS = [
 /** Extended lead form — exact fields from crm-development.links.md + original form HTML. */
 const LEAD_FORM: FormConfig = {
   id: 'crm-dev-lead',
+  inboxType: 'lead',
+  inboxSubject: 'CRM development inquiry',
   submitLabel: 'Submit',
   successMessage:
     'Thank you! Your request was received on this demo build. UNVERIFIED: the original site stores submissions via WPForms on the live server.',
@@ -266,8 +268,7 @@ function ProcessSection() {
         />
         <Stagger as="ol" className="mt-12 space-y-5" stagger={0.07}>
           {PROCESS.map((step, i) => (
-            <StaggerItem as="li" key={step.title}>
-              <li className="card flex gap-5 p-6 sm:p-7">
+            <StaggerItem as="li" key={step.title} className="card flex gap-5 p-6 sm:p-7">
                 <span
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent-400/15 font-display text-lg font-bold text-accent-600"
                   aria-hidden
@@ -278,7 +279,6 @@ function ProcessSection() {
                   <h3 className="text-lg font-bold text-ink-950">{step.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-ink-300">{step.body}</p>
                 </div>
-              </li>
             </StaggerItem>
           ))}
         </Stagger>

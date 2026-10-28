@@ -90,15 +90,17 @@ export function LoginRegisterPopup() {
             <form onSubmit={onLogin} className="space-y-4" noValidate>
               <div>
                 <label className="label" htmlFor="lg-user">
-                  Username or email address <span className="text-flame-600">*</span>{' '}
+                  Email address <span className="text-flame-600">*</span>{' '}
                   <span className="text-[11px] font-normal text-ink-400">Required</span>
                 </label>
                 <input
                   id="lg-user"
+                  type="email"
                   className="input"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   autoComplete="username"
+                  required
                 />
               </div>
               <div>

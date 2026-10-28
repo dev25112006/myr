@@ -4,6 +4,8 @@ import { SmartForm, type FormConfig } from '@/components/forms/SmartForm'
 /** Partner form — footer popup (Elementor id 4499). Fields verbatim from audit. */
 export const PARTNER_FORM: FormConfig = {
   id: 'partner',
+  inboxType: 'lead',
+  inboxSubject: 'Partnership inquiry',
   submitLabel: 'Submit',
   successMessage: 'Thank you for your interest in partnering with MYR ADVANCE SOLUTION! Our team will be in touch.',
   fields: [

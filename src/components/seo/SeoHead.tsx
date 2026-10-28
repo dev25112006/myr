@@ -3,9 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { getRouteMeta } from '@/content/routeMeta'
 import { ORGANIZATION_LD, WEBSITE_LD, breadcrumbLd, pageLd } from '@/lib/seoLd'
 
-void ORGANIZATION_LD // ships statically in index.html
-
-const SITE = 'https://www.myradvancesolution.com'
+const SITE = typeof window !== 'undefined' ? window.location.origin : ''
 const DEFAULT_OG = `${SITE}/assets/2025-01-website-front-hero-image.png`
 
 function upsertMeta(attr: 'name' | 'property', key: string, content: string) {
@@ -54,7 +52,9 @@ export function SeoHead() {
       meta?.meta ||
       'MyR Advance Solution delivers IT solutions: PBX, CCTV, CRM development, website design, networking, digital marketing and more.'
     const keywords = meta?.keywords || 'MyR Advance Solution, IT solutions'
-    const canonical = meta?.canonical || `${SITE}${pathname}`
+    // This is a clone deployment: canonical URLs must use the current host,
+    // never the reference site's host embedded in the audit inventory.
+    const canonical = `${SITE}${pathname}`
     const robots = meta?.robots === false ? 'noindex, nofollow' : 'index, follow'
     const isHome = pathname === '/'
 
@@ -81,6 +81,7 @@ export function SeoHead() {
     upsertMeta('name', 'twitter:image', DEFAULT_OG)
 
     /* JSON-LD — Organization ships statically in index.html (no-JS crawlers). */
+    setLd('ld-organization-static', ORGANIZATION_LD)
     setLd('ld-website', WEBSITE_LD)
     if (meta?.robots !== false) {
       setLd('ld-page', [breadcrumbLd(pathname, title), ...pageLd(pathname)])

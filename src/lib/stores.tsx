@@ -42,6 +42,13 @@ function load<T>(key: string, fallback: T): T {
   }
 }
 
+
+function normalizeCartQuantity(value: number, unitPrice = 1) {
+  if (!Number.isFinite(value)) return 1
+  const maxByAmount = Math.floor(Number.MAX_SAFE_INTEGER / Math.max(1, unitPrice))
+  return Math.max(1, Math.min(maxByAmount, Math.floor(value)))
+}
+
 function save(key: string, value: unknown) {
   try {
     localStorage.setItem(key, JSON.stringify(value))
@@ -78,6 +85,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => save(CART_KEY, items), [items])
   useEffect(() => {
+    const clearOnLogout = () => {
+      setItems([])
+      try { localStorage.removeItem(CART_KEY); localStorage.removeItem(CART_OWNER_KEY) } catch {}
+    }
+    window.addEventListener('myr:cart-logout', clearOnLogout)
+    return () => window.removeEventListener('myr:cart-logout', clearOnLogout)
+  }, [])
+  useEffect(() => {
     if (!user) { setCartLoadedFor(null); try { localStorage.removeItem(CART_OWNER_KEY) } catch {}; return }
     let cancelled = false; setCartLoadedFor(null)
     const priorOwner = (() => { try { return localStorage.getItem(CART_OWNER_KEY) } catch { return null } })()
@@ -85,7 +100,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (cancelled || !data) return
       const remote: CartItem[] = data.items.flatMap((row: { id: number; qty: number; variant?: string }) => { const product = resolveAddToCart(row.id); return product ? [{ ...product, qty: row.qty, variant: row.variant || undefined }] : [] })
       if (priorOwner !== null) setItems(remote)
-      else if (remote.length) setItems((local) => { const merged = [...remote]; for (const item of local) { const at = merged.findIndex((existing) => existing.id === item.id && existing.variant === item.variant); if (at < 0) merged.push(item); else merged[at] = { ...merged[at], qty: Math.min(50, merged[at].qty + item.qty) } }; return merged })
+      else if (remote.length) setItems((local) => { const merged = [...remote]; for (const item of local) { const at = merged.findIndex((existing) => existing.id === item.id && existing.variant === item.variant); if (at < 0) merged.push(item); else merged[at] = { ...merged[at], qty: normalizeCartQuantity(merged[at].qty + item.qty, merged[at].price) } }; return merged })
       try { localStorage.setItem(CART_OWNER_KEY, user.id) } catch {}
     }).catch(() => {}).finally(() => { if (!cancelled) setCartLoadedFor(user.id) })
     return () => { cancelled = true }
@@ -102,7 +117,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const key = (i: CartItem) => i.id === id && i.variant === variant
       const existing = prev.find(key)
       if (existing) {
-        return prev.map((i) => (key(i) ? { ...i, qty: i.qty + qty } : i))
+        return prev.map((i) => (key(i) ? { ...i, qty: normalizeCartQuantity(i.qty + qty, i.price) } : i))
       }
       return [
         ...prev,
@@ -113,7 +128,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           compareAt: product?.compareAt,
           slug: product?.slug,
           image: product?.image,
-          qty,
+          qty: normalizeCartQuantity(qty, price ?? product!.price),
           variant,
         },
       ]
@@ -125,7 +140,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) =>
       qty <= 0
         ? prev.filter((i) => !(i.id === id && i.variant === variant))
-        : prev.map((i) => (i.id === id && i.variant === variant ? { ...i, qty } : i)),
+        : prev.map((i) => (i.id === id && i.variant === variant ? { ...i, qty: normalizeCartQuantity(qty, i.price) } : i)),
     )
   }, [])
 
@@ -235,7 +250,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshInbox,
       submitInbox,
       setServerInboxStatus,
-      logout: async () => { await api('/api/auth/logout', { method: 'POST', body: '{}' }); setUser(null); setUsers([]) },
+      logout: async () => { await api('/api/auth/logout', { method: 'POST', body: '{}' }); setUser(null); setUsers([]); window.dispatchEvent(new Event('myr:cart-logout')) },
     }),
     [user, authLoading, authError, users, serverInbox, api, refreshUsers, setUserRole, refreshInbox, submitInbox, setServerInboxStatus],
   )

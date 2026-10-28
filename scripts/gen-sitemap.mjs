@@ -4,7 +4,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 
-const SITE = 'https://www.myradvancesolution.com'
+const SITE = process.env.SITE_ORIGIN || process.env.APP_ORIGIN || 'http://localhost:3000'
 const NOINDEX = new Set([
   '/myr/', '/cart/', '/checkout/', '/my-account/', '/my-account/lost-password/',
   '/not-found/', '/lets-keep-in-touch/', '/product-category/networking-devices/',
@@ -32,4 +32,6 @@ const xml = [
 ].join('\n')
 
 writeFileSync('public/sitemap.xml', xml)
+const robots = readFileSync('public/robots.txt', 'utf8').replace(/^Sitemap:.*$/m, `Sitemap: ${SITE}/sitemap.xml`)
+writeFileSync('public/robots.txt', robots)
 console.log(`sitemap.xml — ${routes.length} URLs`)

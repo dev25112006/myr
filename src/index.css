@@ -435,3 +435,264 @@
     opacity: 1 !important;
   }
 }
+
+/* Layered Dentrak-inspired product film used in the home hero. */
+@keyframes dental-ad-shell {
+  0%, 4% { opacity: 0; transform: scale(.96); }
+  10%, 97% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.01); }
+}
+@keyframes dental-ad-endcard {
+  0%, 83% { opacity: 0; transform: scale(1.025); }
+  90%, 96% { opacity: 1; transform: scale(1); }
+  99%, 100% { opacity: 0; transform: scale(.99); }
+}
+@keyframes dental-ad-backdrop {
+  0%, 4% { opacity: 0; transform: scale(1.04); }
+  12%, 84% { opacity: 1; transform: scale(1); }
+  94%, 100% { opacity: 0; transform: scale(1.08); }
+}
+@keyframes dental-ad-sun {
+  0%, 8% { opacity: 0; transform: scale(.76) translate(5%, -4%); }
+  22%, 82% { opacity: 1; transform: scale(1) translate(0, 0); }
+  94%, 100% { opacity: 0; transform: scale(1.08) translate(-3%, 5%); }
+}
+@keyframes dental-ad-nav {
+  0%, 9% { opacity: 0; transform: translateY(-1.2cqw); }
+  14%, 84% { opacity: 1; transform: translateY(0); }
+  94%, 100% { opacity: 0; transform: translateY(-.4cqw); }
+}
+@keyframes dental-ad-brand {
+  0%, 8% { opacity: 0; transform: translateY(-.6cqw); }
+  12%, 84% { opacity: 1; transform: translateY(0); }
+  94%, 100% { opacity: 0; transform: translateY(-.3cqw); }
+}
+@keyframes dental-ad-partner {
+  0%, 9% { opacity: 0; transform: translateY(-.6cqw); }
+  13%, 84% { opacity: 1; transform: translateY(0); }
+  94%, 100% { opacity: 0; transform: translateY(-.3cqw); }
+}
+@keyframes dental-ad-menu {
+  0%, 10% { opacity: 0; transform: translateY(-.6cqw); }
+  14%, 84% { opacity: 1; transform: translateY(0); }
+  94%, 100% { opacity: 0; transform: translateY(-.3cqw); }
+}
+@keyframes dental-ad-reserve {
+  0%, 11% { opacity: 0; transform: translateY(-.6cqw); }
+  15%, 84% { opacity: 1; transform: translateY(0); }
+  94%, 100% { opacity: 0; transform: translateY(-.3cqw); }
+}
+@keyframes dental-ad-title-first {
+  0%, 12% { opacity: 0; clip-path: inset(0 100% 0 0); transform: translateY(1.2cqw); }
+  24%, 82% { opacity: 1; clip-path: inset(0 0 0 0); transform: translateY(0); }
+  94%, 100% { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateY(-.8cqw); }
+}
+@keyframes dental-ad-title-second {
+  0%, 17% { opacity: 0; clip-path: inset(0 100% 0 0); transform: translateY(1.2cqw); }
+  29%, 82% { opacity: 1; clip-path: inset(0 0 0 0); transform: translateY(0); }
+  94%, 100% { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateY(-.8cqw); }
+}
+@keyframes dental-ad-scanner {
+  0%, 24% { opacity: 0; transform: translate(6%, 18%) scale(.78); }
+  43%, 82% { opacity: 1; transform: translate(0, 0) scale(1); }
+  94%, 100% { opacity: 0; transform: translate(3%, -8%) scale(1.04); }
+}
+@keyframes dental-ad-idle {
+  0%, 100% { transform: rotate(35deg) translateY(0); }
+  50% { transform: rotate(35deg) translateY(-.55cqw); }
+}
+@keyframes dental-ad-glint {
+  0%, 52% { opacity: 0; transform: translateX(-150%) skewX(-12deg); }
+  56% { opacity: .75; }
+  64% { opacity: 0; transform: translateX(160%) skewX(-12deg); }
+  100% { opacity: 0; transform: translateX(160%) skewX(-12deg); }
+}
+@keyframes dental-ad-card {
+  0%, 38% { opacity: 0; transform: translateY(1.2cqw); }
+  49%, 82% { opacity: 1; transform: translateY(0); }
+  94%, 100% { opacity: 0; transform: translateY(-.5cqw); }
+}
+@keyframes dental-ad-card-button {
+  0%, 46% { opacity: 0; transform: translateY(.5cqw); }
+  54%, 82% { opacity: 1; transform: translateY(0); }
+  94%, 100% { opacity: 0; transform: translateY(-.3cqw); }
+}
+@keyframes dental-ad-spec-one {
+  0%, 38% { opacity: 0; transform: translateX(1cqw); }
+  48%, 82% { opacity: 1; transform: translateX(0); }
+  94%, 100% { opacity: 0; transform: translateX(-.5cqw); }
+}
+@keyframes dental-ad-spec-two {
+  0%, 42% { opacity: 0; transform: translateX(1cqw); }
+  52%, 82% { opacity: 1; transform: translateX(0); }
+  94%, 100% { opacity: 0; transform: translateX(-.5cqw); }
+}
+@keyframes dental-ad-spec-three {
+  0%, 46% { opacity: 0; transform: translateX(1cqw); }
+  56%, 82% { opacity: 1; transform: translateX(0); }
+  94%, 100% { opacity: 0; transform: translateX(-.5cqw); }
+}
+@keyframes dental-ad-spec-copy {
+  0%, 44% { opacity: 0; transform: translateX(.5cqw); }
+  50%, 82% { opacity: 1; transform: translateX(0); }
+  94%, 100% { opacity: 0; transform: translateX(-.3cqw); }
+}
+@keyframes dental-ad-camera {
+  0%, 66% { transform: translateY(0) scale(1); }
+  83% { transform: translateY(-5%) scale(1.035); }
+  92%, 100% { transform: translateY(-9%) scale(1.055); }
+}
+@keyframes dental-ad-ground-drift {
+  0%, 66% { transform: translateY(0) scale(1); }
+  84% { transform: translateY(-2%) scale(1.04); }
+  94%, 100% { transform: translateY(-4%) scale(1.06); }
+}
+
+@layer components {
+  .dental-ad-shell {
+    position: relative;
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 1.62;
+    container-type: inline-size;
+    padding: clamp(2px, .75%, 6px);
+    overflow: hidden;
+    border: clamp(1px, .24cqw, 2px) solid #626971;
+    border-radius: clamp(5px, 1.1cqw, 12px);
+    background: linear-gradient(145deg, #101317, #030405 65%, #1b1f23);
+    box-shadow: 0 2.4cqw 5cqw -1cqw rgb(3 8 18 / .55), inset 0 0 0 1px #24282d;
+    animation: dental-ad-shell 18s cubic-bezier(.22, 1, .36, 1) infinite;
+    will-change: transform, opacity;
+  }
+  .dental-ad-shell::before {
+    position: absolute;
+    z-index: 3;
+    top: .12cqw;
+    left: 50%;
+    width: .28cqw;
+    aspect-ratio: 1;
+    content: '';
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #76808a, #171b20 70%);
+    transform: translateX(-50%);
+  }
+  .dental-ad-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: clamp(2px, .2cqw, 4px);
+    background: #182b38;
+    box-shadow: inset 0 0 1.5cqw rgb(3 7 12 / .45);
+  }
+  .dental-ad-backdrop {
+    position: absolute;
+    inset: -3%;
+    overflow: hidden;
+    background: linear-gradient(180deg, #315c6c 0%, #506571 34%, #8d7775 60%, #fc896e 100%);
+    animation: dental-ad-backdrop 18s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+  .dental-ad-sun {
+    position: absolute;
+    top: -35%;
+    right: -3%;
+    width: 53%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ffad7e, #ff896c 67%, #f87868);
+    box-shadow: 0 0 5cqw rgb(255 139 111 / .2);
+    animation: dental-ad-sun 18s ease-in-out infinite;
+  }
+  .dental-ad-horizon {
+    position: absolute;
+    inset: 45% 0 0;
+    background: linear-gradient(180deg, rgb(246 145 119 / .04), rgb(255 141 108 / .72));
+    animation: dental-ad-ground-drift 18s cubic-bezier(.45, 0, .55, 1) infinite;
+    transform-origin: 50% 100%;
+  }
+  .dental-ad-content {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    animation: dental-ad-camera 18s cubic-bezier(.45, 0, .55, 1) infinite;
+    will-change: transform;
+  }
+  .dental-ad-nav {
+    position: absolute;
+    z-index: 4;
+    top: 3.2%;
+    left: 50%;
+    display: flex;
+    width: 39%;
+    height: 6.2%;
+    align-items: center;
+    justify-content: center;
+    gap: 1.1%;
+    color: white;
+    font-size: 1.65cqw;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    animation: dental-ad-nav 18s cubic-bezier(.22, 1, .36, 1) infinite;
+  }
+  .dental-ad-brand { display: inline-flex; align-items: center; gap: .45cqw; font-size: 2.15cqw; font-weight: 600; letter-spacing: -.04em; animation: dental-ad-brand 18s cubic-bezier(.22, 1, .36, 1) infinite; }
+  .dental-ad-brand i { font-size: 2.5cqw; font-style: normal; }
+  .dental-ad-nav-button { display: inline-flex; height: 100%; align-items: center; padding: 0 1.1cqw; background: #f1f0ed; color: #1e252a; animation: dental-ad-partner 18s cubic-bezier(.22, 1, .36, 1) infinite; }
+  .dental-ad-menu { display: inline-flex; height: 100%; align-items: center; gap: 1.5cqw; padding: 0 1.2cqw; background: rgb(35 47 54 / .3); animation: dental-ad-menu 18s cubic-bezier(.22, 1, .36, 1) infinite; }
+  .dental-ad-menu i { display: grid; width: 2.8cqw; gap: .6cqw; }
+  .dental-ad-menu b { display: block; height: .18cqw; background: rgb(255 255 255 / .75); }
+  .dental-ad-reserve { padding-inline: 2cqw; animation-name: dental-ad-reserve; }
+  .dental-ad-title { position: absolute; inset: 0; z-index: 1; margin: 0; color: #fff; font-size: 10.7cqw; font-weight: 500; letter-spacing: -.065em; line-height: .92; }
+  .dental-ad-title-line { position: absolute; display: block; white-space: nowrap; }
+  .dental-ad-title-first { top: 29%; left: 3.5%; animation: dental-ad-title-first 18s cubic-bezier(.22, 1, .36, 1) infinite; }
+  .dental-ad-title-second { top: 48%; left: 20%; animation: dental-ad-title-second 18s cubic-bezier(.22, 1, .36, 1) infinite; }
+  .dental-ad-scanner { position: absolute; z-index: 2; top: -11%; left: 37%; width: 38%; height: 119%; transform-origin: 50% 48%; animation: dental-ad-scanner 18s cubic-bezier(.22, 1, .36, 1) infinite; will-change: transform, opacity; }
+  .dental-ad-scanner-art { position: absolute; inset: 0; transform-origin: 50% 48%; transform: rotate(35deg); animation: dental-ad-idle 5s ease-in-out 8s infinite; }
+  .dental-ad-scanner img { display: block; width: 100%; height: 100%; max-width: none; object-fit: contain; filter: drop-shadow(.7cqw 1.2cqw 1.1cqw rgb(20 27 32 / .28)); }
+  .dental-ad-scanner-glint { position: absolute; top: 9%; bottom: 9%; left: 18%; width: 23%; background: linear-gradient(90deg, transparent, rgb(255 255 255 / .64), transparent); clip-path: polygon(42% 0, 100% 0, 60% 100%, 0 100%); mix-blend-mode: screen; animation: dental-ad-glint 18s ease-in-out infinite; }
+  .dental-ad-specs { position: absolute; z-index: 3; top: 52%; right: 3%; display: grid; gap: 2.2cqw; width: 23%; color: white; }
+  .dental-ad-spec { display: flex; min-width: 0; align-items: center; gap: 1.2cqw; }
+  .dental-ad-spec i { display: block; width: 1.4cqw; height: 6.8cqw; flex: 0 0 auto; border-left: .35cqw solid rgb(255 255 255 / .78); border-right: .35cqw solid rgb(255 255 255 / .78); }
+  .dental-ad-spec strong { display: block; font-size: 4.7cqw; font-weight: 500; letter-spacing: -.04em; line-height: .95; }
+  .dental-ad-spec small { display: block; margin-top: .45cqw; font-size: 1.55cqw; line-height: 1; opacity: .8; }
+  .dental-ad-spec-one { animation: dental-ad-spec-one 18s cubic-bezier(.22, 1, .36, 1) infinite; }
+  .dental-ad-spec-two { animation: dental-ad-spec-two 18s cubic-bezier(.22, 1, .36, 1) infinite; }
+  .dental-ad-spec-three { animation: dental-ad-spec-three 18s cubic-bezier(.22, 1, .36, 1) infinite; }
+  .dental-ad-spec-one span { animation: dental-ad-spec-copy 18s cubic-bezier(.22, 1, .36, 1) infinite; }
+  .dental-ad-spec-two span { animation: dental-ad-spec-copy 18s cubic-bezier(.22, 1, .36, 1) 4% both infinite; }
+  .dental-ad-spec-three span { animation: dental-ad-spec-copy 18s cubic-bezier(.22, 1, .36, 1) 8% both infinite; }
+  .dental-ad-info { position: absolute; z-index: 3; bottom: 8%; left: 3%; width: 30%; padding: 1.5cqw; border: .22cqw solid rgb(255 255 255 / .42); background: rgb(168 99 79 / .32); box-shadow: 0 .5cqw 1.5cqw rgb(64 40 42 / .09); color: white; backdrop-filter: blur(.5cqw); animation: dental-ad-card 18s cubic-bezier(.22, 1, .36, 1) infinite; }
+  .dental-ad-info p { margin: 0; font-size: 1.8cqw; line-height: 1.25; }
+  .dental-ad-info-button { display: inline-flex; margin-top: 1cqw; min-height: 4.2cqw; align-items: center; padding: 0 2.5cqw; background: #ffe84a; color: #14191b; font-size: 1.5cqw; font-weight: 700; animation: dental-ad-card-button 18s cubic-bezier(.22, 1, .36, 1) infinite; }
+  .dental-ad-bezel { position: absolute; right: 2%; bottom: .35%; left: 2%; height: .35%; border-radius: 99px; background: linear-gradient(90deg, transparent, rgb(255 255 255 / .16), transparent); pointer-events: none; }
+  .dental-ad-endcard { position: absolute; z-index: 8; inset: 0; display: grid; place-items: center; background: radial-gradient(circle at 78% 18%, #ffe2d4, transparent 42%), linear-gradient(145deg, #f6f7fb, #fffaf5 58%, #f6c4ad); animation: dental-ad-endcard 18s cubic-bezier(.22, 1, .36, 1) infinite; }
+  .dental-ad-endcard img { display: block; width: 56%; max-height: 42%; object-fit: contain; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dental-ad-shell,
+  .dental-ad-backdrop,
+  .dental-ad-horizon,
+  .dental-ad-sun,
+  .dental-ad-nav,
+  .dental-ad-title-first,
+  .dental-ad-title-second,
+  .dental-ad-scanner,
+  .dental-ad-scanner-glint,
+  .dental-ad-info,
+  .dental-ad-info-button,
+  .dental-ad-brand,
+  .dental-ad-nav-button,
+  .dental-ad-menu,
+  .dental-ad-spec-one,
+  .dental-ad-spec-two,
+  .dental-ad-spec-three,
+  .dental-ad-content {
+    animation: none !important;
+    clip-path: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .dental-ad-scanner-art { animation: none !important; transform: rotate(35deg) !important; }
+  .dental-ad-endcard { display: none !important; }
+}
