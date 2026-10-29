@@ -64,7 +64,8 @@ export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [accountOpen, setAccountOpen] = useState(false)
   const [servicesOpen, setServicesOpen] = useState(false)
-  const [megaOpen, setMegaOpen] = useState(false)
+  const [megaOpen, setMegaOpen] = useState<string | null>(null)
+  const [pinnedMenu, setPinnedMenu] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
   const accountMenuRef = useRef<HTMLDivElement>(null)
 
@@ -75,7 +76,8 @@ export function SiteHeader() {
     setMobileOpen(false)
     setAccountOpen(false)
     setServicesOpen(false)
-    setMegaOpen(false)
+    setMegaOpen(null)
+    setPinnedMenu(null)
   }
 
   useEffect(() => {
@@ -119,10 +121,8 @@ export function SiteHeader() {
     >
       <div
         className="container-page relative flex h-16 items-center justify-between gap-2 sm:h-[72px] lg:gap-3"
-        onMouseEnter={(event) => { if ((event.target as HTMLElement).closest('nav[aria-label="Primary"]')) setMegaOpen(true) }}
-        onMouseLeave={() => setMegaOpen(false)}
-        onFocusCapture={(event) => { if ((event.target as HTMLElement).closest('nav[aria-label="Primary"]')) setMegaOpen(true) }}
-        onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setMegaOpen(false) }}
+        onMouseLeave={() => { if (!pinnedMenu) setMegaOpen(null) }}
+        onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null) && !pinnedMenu) setMegaOpen(null) }}
       >
         {/* Logo */}
         <Link to="/" className="flex shrink-0 items-center" aria-label="MyR Advance Solution — Home">
@@ -133,24 +133,38 @@ export function SiteHeader() {
         <nav
           className="hidden min-w-0 flex-nowrap items-center gap-0.5 whitespace-nowrap xl:flex xl:gap-1"
           aria-label="Primary"
-          onMouseEnter={() => setMegaOpen(true)}
-          onFocus={() => setMegaOpen(true)}
         >
           {nav.filter((item) => item.label !== 'Contact Us').map((item) => (
-            <NavLink
+            <Link
               key={item.to}
               to={item.to}
-              className="whitespace-nowrap rounded-full px-2 py-2 text-xs font-medium text-ink-200 transition-colors hover:text-accent-600 xl:px-2.5 xl:text-sm"
+              onMouseEnter={() => {
+                if (!pinnedMenu) { setMegaOpen(item.to); setServicesOpen(false) }
+              }}
+              onFocus={() => {
+                if (!pinnedMenu) { setMegaOpen(item.to); setServicesOpen(false) }
+              }}
+              onClick={() => {
+                setMegaOpen(null)
+                setPinnedMenu(null)
+                setServicesOpen(false)
+              }}
+              className="whitespace-nowrap rounded-full px-2 py-2 text-xs font-medium text-ink-200 transition-colors hover:text-accent-600 focus-visible:text-accent-600 xl:px-2.5 xl:text-sm"
             >
               {item.label}
-            </NavLink>
+            </Link>
           ))}
 
           {/* All Services dropdown */}
-          <div className="relative" onMouseEnter={() => setServicesOpen(true)} onMouseLeave={() => setServicesOpen(false)}>
+          <div className="relative" onMouseEnter={() => { if (!pinnedMenu) { setServicesOpen(true); setMegaOpen(null) } }} onMouseLeave={() => { if (pinnedMenu !== 'services') setServicesOpen(false) }}>
             <button
                 type="button"
-                onClick={() => setServicesOpen((v) => !v)}
+                onClick={() => {
+                  const next = !servicesOpen
+                  setServicesOpen(next)
+                  setPinnedMenu(next ? 'services' : null)
+                  setMegaOpen(null)
+                }}
                 className={cn(
                   'flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-2 text-xs font-medium transition xl:px-3 xl:text-sm',
                   variant === 'primary'
@@ -173,19 +187,28 @@ export function SiteHeader() {
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.16 }}
                     id="all-services-menu"
-                    className="absolute left-0 top-full z-50 mt-2 w-72 rounded-2xl border border-line bg-white p-2 shadow-card backdrop-blur-xl"
+                    className="fixed left-1/2 top-[calc(var(--header-height,4.5rem)+0.5rem)] z-50 max-h-[min(80vh,48rem)] w-[min(96vw,82rem)] -translate-x-1/2 overflow-y-auto rounded-2xl border border-line bg-white p-4 shadow-card backdrop-blur-xl sm:p-6"
                   >
-                    {OFFCANVAS_SERVICES.map((s) => (
-                      <Link
-                        key={s.to + s.label}
-                        to={s.to}
-                        onClick={() => setServicesOpen(false)}
-                        className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-ink-200 transition hover:bg-ink-950/[0.07] hover:text-accent-600"
-                      >
-                        {s.label}
-                        {s.badge && <span className="rounded-full bg-accent-400/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-accent-600">{s.badge}</span>}
-                      </Link>
-                    ))}
+                    <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-4">
+                    {[
+                      { title: 'Home', to: '/', links: [['Services', '/#services'], ['Shop', '/#E-Commerce'], ['Plans', '/#pricing'], ['Contact', '/#contact']] },
+                      { title: 'Shop', to: '/tech-store/', links: [['Browse categories', '/tech-store/#store-browse'], ['Popular products & plans', '/tech-store/#store-products'], ['IP telephony', '/tech-store/#store-categories'], ['Contact our team', '/tech-store/#store-contact']] },
+                      { title: 'Launch Your Website', to: '/website-development/', links: [['Website solutions', '/website-development/#website-solutions'], ['Development process', '/website-development/#development-process'], ['Included features', '/website-development/#viewallfeatures'], ['Pricing plans', '/website-development/#Pricing']] },
+                      { title: 'All-in-One Lead CRM', to: '/privyr/', links: [['Lead management', '/privyr/#lead-management'], ['Features', '/privyr/#crm-features'], ['30-second setup', '/privyr/#quick-setup'], ['Plans & pricing', '/privyr/#privyrpricing']] },
+                      { title: 'HRM Solutions', to: '/hrm-solutions/', links: [['People management', '/hrm-solutions/#hrm-workspace'], ['Attendance & leave', '/hrm-solutions/#hrm-workspace'], ['Payroll & hiring', '/hrm-solutions/#hrm-workspace'], ['Talk to our team', '/contact-us/?interest=hrm#contact-form']] },
+                      { title: 'Education ERP', to: '/education-erp/', links: [['School ERP', '/education-erp/?type=school#institution-types'], ['College ERP', '/education-erp/?type=college#institution-types'], ['Coaching ERP', '/education-erp/?type=coaching#institution-types'], ['Modules & features', '/education-erp/#erp-modules']] },
+                      { title: 'Contact Us', to: '/contact-us/', links: [['Contact options', '/contact-us/#contact-options'], ['Send us a message', '/contact-us/#contact-form'], ['Our offices', '/contact-us/#our-offices']] },
+                    ].map((page) => <section key={page.to}><Link to={page.to} onClick={() => { setServicesOpen(false); setPinnedMenu(null) }} className="text-sm font-bold text-ink-950 hover:text-accent-600">{page.title} ↗</Link><div className="mt-2 flex flex-col gap-1">{page.links.map(([label, href]) => <Link key={href} to={href} onClick={() => { setServicesOpen(false); setPinnedMenu(null) }} className="rounded-lg px-2 py-2 text-sm text-ink-300 hover:bg-paper hover:text-accent-600">{label}</Link>)}</div></section>)}
+                    </div>
+                    <div className="mt-5 border-t border-line pt-4">
+                      <h2 className="text-sm font-bold text-ink-950">All Services &amp; Solutions</h2>
+                      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+                        {[
+                          ['Website Development', '/website-development/'], ['CRM Solutions', '/crm-development/'], ['HRM Solutions', '/hrm-solutions/'], ['E-Commerce Solutions', '/ecommerce-solutions/'], ['WhatsApp Automation', '/privyr/#quick-setup'], ['AI Digital Marketing', '/digital-marketing/'], ['Networking Solutions', '/network-solution/'], ['IPBX Solutions', '/ipbx-solution/'], ['CCTV Solutions', '/cctv-solution/'], ['Toll-Free 1800 Numbers', '/1800-number/'], ['Other Software Solutions', '/contact-us/?interest=software#contact-form'], ['Browse All Services', '/services/'],
+                        ].map(([label, href]) => <Link key={label} to={href} onClick={() => { setServicesOpen(false); setPinnedMenu(null) }} className="flex min-h-12 items-center rounded-xl border border-line bg-paper/50 px-3 py-2 text-sm text-ink-300 hover:border-accent-400/40 hover:bg-accent-400/10 hover:text-accent-600">{label}</Link>)}
+                      </div>
+                    </div>
+                    {/* Keep the compact service list available in the mobile menu only. */}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -194,6 +217,8 @@ export function SiteHeader() {
             <NavLink
               key={item.to}
               to={item.to}
+              onMouseEnter={() => { if (!pinnedMenu) { setMegaOpen(item.to); setServicesOpen(false) } }}
+              onFocus={() => { if (!pinnedMenu) { setMegaOpen(item.to); setServicesOpen(false) } }}
               className="whitespace-nowrap rounded-full px-2 py-2 text-xs font-medium text-ink-200 transition-colors hover:text-accent-600 xl:px-2.5 xl:text-sm"
             >
               {item.label}
@@ -202,55 +227,26 @@ export function SiteHeader() {
         </nav>
 
         <AnimatePresence>
-          {megaOpen && (
+          {megaOpen && megaOpen !== '/services/' && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 8 }}
               transition={{ duration: 0.16 }}
+              onMouseLeave={() => { if (!pinnedMenu) setMegaOpen(null) }}
               className="absolute left-0 right-0 top-full z-50 hidden pt-2 xl:block"
             >
               <div className="max-h-[calc(100vh-6rem)] overflow-y-auto rounded-2xl border border-line bg-white p-6 shadow-card">
-                <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-4">
-                {[
-                  { title: 'Home', to: '/', links: [['Services', '/#services'], ['Shop', '/#E-Commerce'], ['Plans', '/#pricing'], ['Contact', '/#contact']] },
-                  { title: 'Shop', to: '/tech-store/', links: [['Browse categories', '/tech-store/#store-browse'], ['Popular products & plans', '/tech-store/#store-products'], ['IP telephony', '/tech-store/#store-categories'], ['Contact our team', '/tech-store/#store-contact']] },
-                  { title: 'Launch Your Website', to: '/website-development/', links: [['Website solutions', '/website-development/#website-solutions'], ['Development process', '/website-development/#development-process'], ['Included features', '/website-development/#viewallfeatures'], ['Pricing plans', '/website-development/#Pricing']] },
-                  { title: 'All-in-One Lead CRM', to: '/privyr/', links: [['Lead management', '/privyr/#lead-management'], ['Features', '/privyr/#crm-features'], ['30-second setup', '/privyr/#quick-setup'], ['Plans & pricing', '/privyr/#privyrpricing']] },
-                  { title: 'HRM Solutions', to: '/hrm-solutions/', links: [['People management', '/hrm-solutions/#hrm-workspace'], ['Attendance & leave', '/hrm-solutions/#hrm-workspace'], ['Payroll & hiring', '/hrm-solutions/#hrm-workspace'], ['Talk to our team', '/contact-us/?interest=hrm#contact-form']] },
-                  { title: 'Education ERP', to: '/education-erp/', links: [['School ERP', '/education-erp/?type=school#institution-types'], ['College ERP', '/education-erp/?type=college#institution-types'], ['Coaching ERP', '/education-erp/?type=coaching#institution-types'], ['Modules & features', '/education-erp/#erp-modules']] },
-                  { title: 'Contact Us', to: '/contact-us/', links: [['Contact options', '/contact-us/#contact-options'], ['Send us a message', '/contact-us/#contact-form'], ['Our offices', '/contact-us/#our-offices']] },
-                ].map((page) => (
-                  <section key={page.to}>
-                    <Link to={page.to} onClick={() => setMegaOpen(false)} className="text-sm font-bold text-ink-950 hover:text-accent-600">{page.title} <span aria-hidden>↗</span></Link>
-                    <div className="mt-3 flex flex-col gap-1">
-                      {page.links.map(([label, href]) => (
-                        <Link key={href} to={href} onClick={() => setMegaOpen(false)} className="rounded-lg px-2 py-2 text-sm text-ink-300 transition hover:bg-paper hover:text-accent-600">{label}</Link>
-                      ))}
-                    </div>
-                  </section>
-                ))}
-                </div>
-                <div className="mt-5 border-t border-line pt-4">
-                  <h2 className="text-sm font-bold text-ink-950">All Services &amp; Solutions</h2>
-                  <div className="mt-3 grid grid-cols-6 gap-2">
-                    {[
-                      ['Website Development', '/website-development/'],
-                      ['CRM Solutions', '/crm-development/'],
-                      ['HRM Solutions', '/hrm-solutions/'],
-                      ['E-Commerce Solutions', '/ecommerce-solutions/'],
-                      ['WhatsApp Automation', '/privyr/#quick-setup'],
-                      ['AI Digital Marketing', '/digital-marketing/'],
-                      ['Networking Solutions', '/network-solution/'],
-                      ['IPBX Solutions', '/ipbx-solution/'],
-                      ['CCTV Solutions', '/cctv-solution/'],
-                      ['Toll-Free 1800 Numbers', '/1800-number/'],
-                      ['Other Software Solutions', '/contact-us/?interest=software#contact-form'],
-                      ['Browse All Services', '/services/'],
-                    ].map(([label, href]) => (
-                      <Link key={label} to={href} onClick={() => setMegaOpen(false)} className="flex min-h-12 items-center rounded-xl border border-line bg-paper/50 px-3 py-2 text-sm font-medium text-ink-300 transition hover:border-accent-400/40 hover:bg-accent-400/10 hover:text-accent-600">{label}</Link>
-                    ))}
-                  </div>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  {[
+                    { title: 'Home', to: '/', links: [['Services', '/#services'], ['Shop', '/#E-Commerce'], ['Plans', '/#pricing'], ['Contact', '/#contact']] },
+                    { title: 'Shop', to: '/tech-store/', links: [['Browse categories', '/tech-store/#store-browse'], ['Popular products & plans', '/tech-store/#store-products'], ['IP telephony', '/tech-store/#store-categories'], ['Contact our team', '/tech-store/#store-contact']] },
+                    { title: 'Launch Your Website', to: '/website-development/', links: [['Website solutions', '/website-development/#website-solutions'], ['Development process', '/website-development/#development-process'], ['Included features', '/website-development/#viewallfeatures'], ['Pricing plans', '/website-development/#Pricing']] },
+                    { title: 'All-in-One Lead CRM', to: '/privyr/', links: [['Lead management', '/privyr/#lead-management'], ['Features', '/privyr/#crm-features'], ['30-second setup', '/privyr/#quick-setup'], ['Plans & pricing', '/privyr/#privyrpricing']] },
+                    { title: 'HRM', to: '/hrm-solutions/', links: [['People management', '/hrm-solutions/#hrm-workspace'], ['Attendance & leave', '/hrm-solutions/#hrm-workspace'], ['Payroll & hiring', '/hrm-solutions/#hrm-workspace'], ['Talk to our team', '/contact-us/?interest=hrm#contact-form']] },
+                    { title: 'Education ERP', to: '/education-erp/', links: [['School ERP', '/education-erp/?type=school#institution-types'], ['College ERP', '/education-erp/?type=college#institution-types'], ['Coaching ERP', '/education-erp/?type=coaching#institution-types'], ['Modules & features', '/education-erp/#erp-modules']] },
+                    { title: 'Contact Us', to: '/contact-us/', links: [['Contact options', '/contact-us/#contact-options'], ['Send us a message', '/contact-us/#contact-form'], ['Our offices', '/contact-us/#our-offices']] },
+                  ].filter((page) => page.to === megaOpen).map((page) => <section key={page.to}><Link to={page.to} onClick={() => { setMegaOpen(null); setPinnedMenu(null) }} className="text-sm font-bold text-ink-950 hover:text-accent-600">{page.title} ↗</Link><div className="mt-3 flex flex-col gap-1">{page.links.map(([label, href]) => <Link key={href} to={href} onClick={() => { setMegaOpen(null); setPinnedMenu(null) }} className="rounded-lg px-2 py-2 text-sm text-ink-300 transition hover:bg-paper hover:text-accent-600">{label}</Link>)}</div></section>)}
                 </div>
               </div>
             </motion.div>
@@ -300,7 +296,7 @@ export function SiteHeader() {
             <button
               type="button"
               onClick={() => setOpen('login')}
-              className="hidden whitespace-nowrap rounded-full px-2 py-2 text-xs font-medium text-ink-200 transition hover:text-accent-600 xl:block"
+              className="hidden whitespace-nowrap rounded-full px-2 py-2 text-xs font-medium text-ink-200 transition hover:text-accent-600 lg:block"
             >
               Log in
             </button>
@@ -417,7 +413,7 @@ export function SiteHeader() {
                     setMobileOpen(false)
                     setOpen('login')
                   }}
-                  className="rounded-xl px-3 py-3 text-left text-base font-medium text-ink-200"
+              className="flex min-h-11 items-center rounded-xl px-3 py-3 text-left text-base font-medium text-ink-200"
                 >
                   Log in
                 </button>
