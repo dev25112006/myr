@@ -398,7 +398,7 @@ function AnimatedWebsitePreview() {
         </div>
         <div className="dental-ad-content">
           <header className="dental-ad-nav">
-            <span className="dental-ad-brand"><i aria-hidden="true">✣</i> DenTrak</span>
+            <span className="dental-ad-brand"><i aria-hidden="true">✣</i> MYR</span>
             <span className="dental-ad-nav-button">Become a Partner</span>
             <span className="dental-ad-menu">Menu <i aria-hidden="true"><b /><b /></i></span>
             <span className="dental-ad-nav-button dental-ad-reserve">Reserve Now</span>
