@@ -111,7 +111,7 @@ export function SimDashboard({ screen, compact = false }: { screen: SimScreen; c
 /** Compact preview used inside module showcase cards. */
 export function PreviewSurface({ preview }: { preview: SimPreview }) {
   return (
-    <div className="rounded-xl border border-line bg-paper/40 p-3.5 text-left">
+    <div className="overflow-x-auto rounded-xl border border-line bg-paper/40 p-3.5 text-left">
       {preview.kind === 'stats' && (
         <div className="grid grid-cols-3 gap-2">
           {preview.items.map((s) => (

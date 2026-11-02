@@ -496,12 +496,12 @@ function FeaturesSection() {
             key={f.title}
             className={`grid items-center gap-8 lg:grid-cols-2 ${i % 2 === 1 ? 'lg:[&>*:first-child]:order-2' : ''}`}
           >
-            <Reveal variant={i % 2 === 0 ? 'left' : 'right'}>
+            <Reveal variant={i % 2 === 0 ? 'left' : 'right'} className="min-w-0">
               <h3 className="text-2xl font-bold text-ink-950 sm:text-3xl">{f.title}</h3>
               <p className="mt-4 text-base leading-relaxed text-ink-300">{f.body}</p>
               <p className="mt-4 text-base font-semibold text-accent-600">{f.closer}</p>
             </Reveal>
-            <Reveal delay={0.1} duration={0.8} once={false} variant={i % 2 === 0 ? 'right' : 'left'}>
+            <Reveal delay={0.1} duration={0.8} once={false} variant={i % 2 === 0 ? 'right' : 'left'} className="min-w-0">
               {f.title === 'Manage Leads from your Phone' ? (
                 <CrmPhoneMockup />
               ) : (

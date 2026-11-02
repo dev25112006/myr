@@ -156,18 +156,18 @@ export function ModuleShowcase({ modules, eyebrow, title, sub }: {
         />
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {modules.map((m) => (
-            <Reveal key={m.id}>
-              <article className="card flex h-full flex-col p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-base font-bold leading-snug text-ink-950">{m.title}</h3>
+            <Reveal key={m.id} className="min-w-0">
+              <article className="card flex h-full min-w-0 flex-col p-5">
+                <div className="flex min-w-0 items-start justify-between gap-3">
+                  <h3 className="min-w-0 text-base font-bold leading-snug text-ink-950">{m.title}</h3>
                   <StatusChip status={m.status} className="shrink-0" />
                 </div>
                 <p className="mt-2.5 text-sm leading-relaxed text-ink-500">{m.body}</p>
-                <div className="mt-4 flex-1">
+                <div className="mt-4 min-w-0 flex-1">
                   <PreviewSurface preview={m.preview} />
                 </div>
-                <div className="mt-3 flex items-center justify-between gap-2">
-                  {m.note && <p className="text-[11px] leading-relaxed text-ink-400">{m.note}</p>}
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                  {m.note && <p className="min-w-0 flex-1 text-[11px] leading-relaxed text-ink-400">{m.note}</p>}
                   <DemoBadge className="shrink-0" />
                   <button
                     type="button"

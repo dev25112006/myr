@@ -97,16 +97,13 @@ const filters = ['All', 'ERP', 'CRM', 'HRM', 'E-commerce', 'Billing', 'Website',
 /** Product card with admin-controlled live price + add-to-cart. */
 function ProductCard({ product, index, reduceMotion }: { product: StoreProduct; index: number; reduceMotion: boolean }) {
   const price = useCatalogPrice(product.id, product.fallbackPrice)
-  const { add } = useCart()
-  const [added, setAdded] = useState(false)
+  const { add, items, remove } = useCart()
+  const inCart = items.some((item) => item.id === product.id)
   const onSale = product.compareAt != null && price < product.compareAt
 
-  const addToCart = () => {
-    const ok = add({ id: product.id, price, name: product.name })
-    if (ok) {
-      setAdded(true)
-      window.setTimeout(() => setAdded(false), 1600)
-    }
+  const toggleCart = () => {
+    if (inCart) remove(product.id)
+    else add({ id: product.id, price, name: product.name })
   }
 
   return (
@@ -154,15 +151,27 @@ function ProductCard({ product, index, reduceMotion }: { product: StoreProduct; 
         <div className="mt-4 flex gap-2">
           <button
             type="button"
-            onClick={addToCart}
-            className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-lg border text-xs font-bold transition ${
-              added
-                ? 'border-emerald-600 bg-emerald-600 text-white'
+            onClick={toggleCart}
+            aria-pressed={inCart}
+            className={`inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border text-xs font-bold transition ${
+              inCart
+                ? 'border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700'
                 : 'border-flame-500 text-flame-600 group-hover:bg-flame-500 group-hover:text-white'
             }`}
           >
-            {added ? '✓ Added' : 'Add to cart'}
+            {inCart ? '✓ Added' : 'Add to cart'}
           </button>
+          {inCart && (
+            <button
+              type="button"
+              onClick={() => remove(product.id)}
+              aria-label={`Remove ${product.name} from cart`}
+              title="Remove from cart"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line text-ink-400 transition hover:border-red-500 hover:bg-red-50 hover:text-red-600"
+            >
+              ✕
+            </button>
+          )}
           <Link
             to={product.to}
             aria-label={`View ${product.name}`}
@@ -171,6 +180,11 @@ function ProductCard({ product, index, reduceMotion }: { product: StoreProduct; 
             ↗
           </Link>
         </div>
+        {inCart && (
+          <p className="mt-2 text-center text-[10px] font-semibold uppercase tracking-wide text-emerald-600">
+            In your cart · <button type="button" onClick={() => remove(product.id)} className="underline hover:text-red-600">Remove</button>
+          </p>
+        )}
       </div>
     </motion.article>
   )
