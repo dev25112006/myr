@@ -7,6 +7,10 @@ import { CrmDevelopmentPage } from '@/pages/CrmDevelopmentPage'
 import { HRMSolutionsPage } from '@/pages/HRMSolutionsPage'
 import { EcommerceSolutionsPage } from '@/pages/EcommerceSolutionsPage'
 import { EducationErpPage } from '@/pages/EducationErpPage'
+import { SchoolErpPage } from '@/pages/education/SchoolErpPage'
+import { CollegeErpPage } from '@/pages/education/CollegeErpPage'
+import { CoachingErpPage } from '@/pages/education/CoachingErpPage'
+import { ModulesPage } from '@/pages/education/ModulesPage'
 import { DigitalMarketingPage } from '@/pages/DigitalMarketingPage'
 import { NetworkSolutionPage } from '@/pages/NetworkSolutionPage'
 import { IpBxSolutionPage } from '@/pages/IpBxSolutionPage'
@@ -36,12 +40,20 @@ export function AppRoutes() {
         <Route path="/myr" element={<HomePage />} />
 
         {/* Phase 2 */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/myr" element={<HomePage />} />
+
+        {/* Phase 2 */}
         <Route path="/services/" element={<ServicesPage />} />
         <Route path="/website-development/" element={<WebsiteDevelopmentPage />} />
         <Route path="/crm-development/" element={<CrmDevelopmentPage />} />
         <Route path="/hrm-solutions/" element={<HRMSolutionsPage />} />
         <Route path="/ecommerce-solutions/" element={<EcommerceSolutionsPage />} />
         <Route path="/education-erp/" element={<EducationErpPage />} />
+        <Route path="/education-erp/school/" element={<SchoolErpPage />} />
+        <Route path="/education-erp/college/" element={<CollegeErpPage />} />
+        <Route path="/education-erp/coaching/" element={<CoachingErpPage />} />
+        <Route path="/education-erp/modules/" element={<ModulesPage />} />
         <Route path="/digital-marketing/" element={<DigitalMarketingPage />} />
 
         {/* Phase 3 */}
