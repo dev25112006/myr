@@ -87,3 +87,45 @@ export const LEAD_FORM_4500: FormConfig = {
     },
   ],
 }
+
+/** Partner enquiry form — white-label / reseller / distribution segments. */
+export const PARTNER_FORM: FormConfig = {
+  id: 'partner-enquiry',
+  inboxType: 'lead',
+  inboxSubject: 'Partnership enquiry',
+  submitLabel: 'Request partnership details',
+  successMessage: 'Thank you! Our partnership team will contact you within one business day.',
+  fields: [
+    { kind: 'text', name: 'name', label: 'Your Name', required: true, placeholder: 'Your Name', autocomplete: 'name' },
+    { kind: 'email', name: 'email', label: 'Email', required: true, placeholder: 'Email', autocomplete: 'email' },
+    { kind: 'tel', name: 'phone', label: 'Contact Number', required: true, placeholder: 'Contact Number', autocomplete: 'tel' },
+    { kind: 'text', name: 'business', label: 'Business / Firm Name', placeholder: 'Business Name', half: true },
+    { kind: 'text', name: 'location', label: 'Your Location (City/State)', required: true, placeholder: 'City / State', half: true },
+    {
+      kind: 'checkbox-group',
+      name: 'segments',
+      label: 'Products you want to white-label / resell',
+      options: [
+        'White Label School ERP',
+        'White Label College ERP',
+        'White Label Coaching ERP',
+        'White Label CRM',
+        'White Label HRM',
+        'White Label E-commerce Website',
+        'White Label Billing Software',
+        'White Label Website Development',
+        'White Label Digital Marketing',
+        'IP PBX & Telephony',
+        'CCTV & Security',
+        'Other',
+      ],
+    },
+    {
+      kind: 'select',
+      name: 'partnershipType',
+      label: 'Preferred partnership type',
+      options: ['White Label Partnership', 'Reseller Partnership', 'Distribution Partnership'],
+    },
+    { kind: 'textarea', name: 'message', label: 'Tell us about your business (Optional)', placeholder: 'Your market, customers and what you are looking for…', rows: 4 },
+  ],
+}

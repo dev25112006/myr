@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { CHAT_SALES } from '@/components/layout/nav'
 import { Reveal, SectionHeading, Stagger, StaggerItem, StatCounters, type Stat } from '@/components/ui'
+import { SmartForm } from '@/components/forms/SmartForm'
+import { PARTNER_FORM } from '@/content/leadForms'
 
 /* ------------------------------- source data ------------------------------ */
 
@@ -51,6 +53,18 @@ const WHY_PARTNER = [
   { icon: '📣', title: 'Marketing Support', body: 'Get co-branded marketing materials, sales collateral, and campaign support to help you succeed.' },
   { icon: '🧪', title: 'Technical Excellence', body: 'Our team provides technical support, training, and ongoing assistance to ensure your success.' },
   { icon: '🚀', title: 'Fast Onboarding', body: 'Get certified and revenue-ready in days, not months — with guided enablement at every step.' },
+]
+
+const WHITE_LABEL_PRODUCTS = [
+  { icon: '🏫', title: 'White Label School ERP', body: 'Admissions, attendance, exams, fees and campus operations — branded as yours.', price: '₹5,000/mo', to: '/education-erp/school/' },
+  { icon: '🎓', title: 'White Label College ERP', body: 'Departments, semesters, placements and institutional oversight under your brand.', price: '₹7,000/mo', to: '/education-erp/college/' },
+  { icon: '📚', title: 'White Label Coaching ERP', body: 'Enquiries, batches, test series and fee follow-ups for coaching institutes.', price: '₹4,000/mo', to: '/education-erp/coaching/' },
+  { icon: '🤝', title: 'White Label CRM', body: 'Pipeline management, lead tracking and sales automation — your logo, your pricing.', price: '₹8,000/mo', to: '/crm-development/' },
+  { icon: '👥', title: 'White Label HRM', body: 'Onboarding, attendance, payroll and performance management for any workforce.', price: '₹3,000/mo', to: '/hrm-solutions/' },
+  { icon: '🛒', title: 'White Label E-commerce', body: 'Full online stores with catalogue, cart, checkout and payment gateway.', price: '₹24,999', to: '/ecommerce-solutions/' },
+  { icon: '🧾', title: 'White Label Billing Software', body: 'GST billing, invoicing, stock and reports for retail and restaurants.', price: '₹4,999', to: '/contact-us/' },
+  { icon: '🌐', title: 'White Label Website Development', body: 'Responsive, SEO-ready websites delivered under your agency brand.', price: '₹14,499', to: '/website-development/' },
+  { icon: '📣', title: 'White Label Digital Marketing', body: 'SEO, social and paid campaigns your clients will thank you for.', price: '₹6,999/mo', to: '/digital-marketing/' },
 ]
 
 /* --------------------------------- sections -------------------------------- */
@@ -199,26 +213,73 @@ function WhySection() {
   )
 }
 
-function CtaSection() {
+function WhiteLabelSection() {
   return (
-    <section className="section-deep py-20 sm:py-24">
+    <section id="white-label" className="section-deep scroll-mt-20 py-20 sm:py-24">
       <div className="container-page">
-        <Reveal className="relative overflow-hidden rounded-[2rem] border border-flame-500/25 bg-gradient-to-br from-flame-500/10 via-white to-accent-400/10 p-8 text-center sm:p-12">
-          <p className="eyebrow">Ready when you are</p>
-          <h2 className="mx-auto mt-3 max-w-2xl text-2xl font-bold text-ink-950 sm:text-3xl">
-            Start the partnership conversation today
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-ink-500 sm:text-base">
-            Tell us about your business and the partnership model you prefer — our team will get back
-            with a tailored proposal.
+        <SectionHeading
+          title="Get a White Label solution under your own brand"
+          sub="Pick any product below — we deliver it fully white-labelled with your logo, your domain and your pricing."
+        />
+        <Stagger className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {WHITE_LABEL_PRODUCTS.map((p) => (
+            <StaggerItem key={p.title} className="card group flex h-full flex-col p-6 transition hover:-translate-y-1 hover:shadow-xl">
+              <div className="flex items-start justify-between gap-3">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-flame-500/10 text-2xl transition group-hover:bg-flame-500/20" aria-hidden>
+                  {p.icon}
+                </span>
+                <span className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-flame-600">{p.price}</span>
+              </div>
+              <h3 className="mt-4 text-base font-bold text-ink-950">{p.title}</h3>
+              <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-400">{p.body}</p>
+              <Link to={p.to} className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-flame-600 group-hover:underline">
+                View product →
+              </Link>
+            </StaggerItem>
+          ))}
+        </Stagger>
+        <Reveal className="mt-10 rounded-2xl border border-flame-500/25 bg-gradient-to-br from-flame-500/10 to-transparent p-6 text-center">
+          <p className="text-sm leading-relaxed text-ink-500">
+            Need a custom bundle or volume pricing? <strong className="text-ink-950">Tell us in the form below</strong> and we will put together a partner quote.
           </p>
-          <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <Link to="/contact-us/?interest=partnership#contact-form" className="btn btn-primary btn-md">
-              Start Partnership Conversation
-            </Link>
-            <a href={CHAT_SALES} target="_blank" rel="noopener noreferrer" className="btn btn-ghost-dark btn-md">
-              Talk to sales ↗
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+function ContactSection() {
+  return (
+    <section id="partner-contact" className="section-dark scroll-mt-20 border-t border-line py-20 sm:py-24">
+      <div className="container-page grid gap-10 lg:grid-cols-[.8fr_1.2fr]">
+        <Reveal>
+          <p className="eyebrow">Contact our partnership team</p>
+          <h2 className="mt-3 text-2xl font-bold text-ink-950 sm:text-3xl">
+            Tell us which segments you want to sell
+          </h2>
+          <p className="mt-4 text-sm leading-relaxed text-ink-500 sm:text-base">
+            Fill in the form and select the white-label products you are interested in — School ERP,
+            College ERP, Coaching ERP, CRM, HRM and more. Our team responds within one business day
+            with margin details and onboarding steps.
+          </p>
+          <ul className="mt-6 space-y-3 text-sm text-ink-500">
+            <li className="flex gap-3"><span className="text-flame-600">✓</span> Protected partner margins</li>
+            <li className="flex gap-3"><span className="text-flame-600">✓</span> Full white-label branding — your logo, your domain</li>
+            <li className="flex gap-3"><span className="text-flame-600">✓</span> Sales enablement & marketing collateral</li>
+            <li className="flex gap-3"><span className="text-flame-600">✓</span> Dedicated technical & onboarding support</li>
+          </ul>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <a href={CHAT_SALES} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-md">
+              Chat on WhatsApp ↗
             </a>
+            <Link to="/contact-us/" className="btn btn-ghost-dark btn-md">
+              General contact
+            </Link>
+          </div>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <div className="rounded-3xl border border-line bg-paper p-5 shadow-card sm:p-8">
+            <SmartForm config={PARTNER_FORM} light />
           </div>
         </Reveal>
       </div>
@@ -234,8 +295,9 @@ export function PartnershipPage() {
       <HeroSection />
       <StatsSection />
       <JourneySection />
+      <WhiteLabelSection />
       <WhySection />
-      <CtaSection />
+      <ContactSection />
     </>
   )
 }

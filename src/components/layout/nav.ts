@@ -7,6 +7,7 @@ export const PRIMARY_NAV: NavLink[] = [
   { label: 'CRM', to: '/privyr/' },
   { label: 'HRM Solutions', to: '/hrm-solutions/' },
   { label: 'Smart IPBX Solutions', to: '/ipbx-solution/' },
+  { label: 'Partner', to: '/partner/' },
   { label: 'Contact Us', to: '/contact-us/' },
 ]
 
@@ -18,6 +19,7 @@ export const INNER_NAV: NavLink[] = [
   { label: 'CRM', to: '/privyr/' },
   { label: 'HRM', to: '/hrm-solutions/' },
   { label: 'Education ERP', to: '/education-erp/' },
+  { label: 'Partner', to: '/partner/' },
   { label: 'Contact Us', to: '/contact-us/' },
 ]
 
