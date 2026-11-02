@@ -28,7 +28,7 @@ const heroSlides = [
 const categories = [
   { title: 'Digital Marketing', cta: 'Choose Plan', to: '/digital-marketing/', icon: '📊' },
   { title: 'CCTV Solution', cta: 'Shop Now', to: '/cctv-solutions/', icon: '📹' },
-  { title: 'Network Product', cta: 'Shop Now', to: '/tech-store/#store-products', icon: '🌐' },
+  { title: 'Network Product', cta: 'Shop Now', to: '/network-product/', icon: '🌐' },
   { title: 'PBX & IP Telephone', cta: 'Shop Now', to: '/ip-pbx/', icon: '📞' },
 ]
 

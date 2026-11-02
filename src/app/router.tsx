@@ -15,6 +15,8 @@ import { DigitalMarketingPage } from '@/pages/DigitalMarketingPage'
 import { NetworkSolutionPage } from '@/pages/NetworkSolutionPage'
 import { IpBxSolutionPage } from '@/pages/IpBxSolutionPage'
 import { CctvSolutionPage } from '@/pages/CctvSolutionPage'
+import { NetworkProductsPage } from '@/pages/NetworkProductsPage'
+import { PartnershipPage } from '@/pages/PartnershipPage'
 import { Number1800Page } from '@/pages/Number1800Page'
 import { PrivyrPage } from '@/pages/PrivyrPage'
 import { ContactUsPage } from '@/pages/ContactUsPage'
@@ -58,8 +60,13 @@ export function AppRoutes() {
 
         {/* Phase 3 */}
         <Route path="/network-solution/" element={<NetworkSolutionPage />} />
+        <Route path="/network-product/" element={<NetworkProductsPage />} />
         <Route path="/ipbx-solution/" element={<IpBxSolutionPage />} />
+        <Route path="/ip-pbx/" element={<IpBxSolutionPage />} />
         <Route path="/cctv-solution/" element={<CctvSolutionPage />} />
+        <Route path="/cctv-solutions/" element={<CctvSolutionPage />} />
+        <Route path="/partner/" element={<PartnershipPage />} />
+        <Route path="/partnership/" element={<PartnershipPage />} />
         <Route path="/1800-number/" element={<Number1800Page />} />
         <Route path="/privyr/" element={<PrivyrPage />} />
 
