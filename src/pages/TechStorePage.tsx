@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { useCart } from '@/lib/stores'
+import { useCatalogPrice } from '@/lib/useCatalogPrice'
+import { inr } from '@/lib/format'
 
 /* ------------------------------- slide data ------------------------------- */
 
@@ -57,70 +60,121 @@ const promos = [
   { badge: '', title: 'Effortless Connectivity, Delivered Fast', desc: 'Buy MYRLINK IPBX Now & Transform Communication', price: '₹65,499.00', original: '₹150,000.00', to: '/ip-pbx/', cta: 'BUY NOW', image: '/assets/2024-09-ip-pbx-1.png' },
 ]
 
-const products = [
-  {
-    name: 'Website Development',
-    category: 'Website',
-    price: 'From ₹14,499.00',
-    original: null as string | null,
-    sale: false,
-    to: '/website-development/',
-    image: '/assets/2024-09-website-development.jpg',
-    desc: 'Responsive, SEO-ready websites crafted to convert visitors into customers.',
-  },
-  {
-    name: 'Digital Marketing',
-    category: 'Digital Marketing',
-    price: 'From ₹7,999.00',
-    original: null as string | null,
-    sale: false,
-    to: '/digital-marketing/',
-    image: '/assets/2024-09-digital-marketing.jpg',
-    desc: 'Search, social and paid campaigns managed for measurable growth.',
-  },
-  {
-    name: 'NewBiz Essentials',
-    category: 'Website',
-    price: '₹14,499.00',
-    original: '₹30,000.00',
-    sale: true,
-    to: '/website-development/',
-    image: '/assets/2024-08-gradient-responsive-website-design.png',
-    desc: 'Everything a new business needs to launch a professional online presence.',
-  },
-  {
-    name: 'RevampCommerce Lite',
-    category: 'Website',
-    price: '₹24,499.00',
-    original: '₹60,999.00',
-    sale: true,
-    to: '/website-development/',
-    image: '/assets/2025-02-website-design-MyR-Advance-Solution-3.png',
-    desc: 'Refresh your storefront with a fast, mobile-first e-commerce redesign.',
-  },
-  {
-    name: 'EliteCustom Suite',
-    category: 'Website',
-    price: '₹59,499.00',
-    original: '₹75,000.00',
-    sale: true,
-    to: '/website-development/',
-    image: '/assets/2025-02-website-expert.jpg',
-    desc: 'Bespoke design, custom functionality and priority build for premium brands.',
-  },
-  {
-    name: 'MYRLINK IP PBX IP100 V3',
-    category: 'PBX',
-    price: '₹65,499.00',
-    original: '₹1,50,000.00',
-    sale: true,
-    to: '/ip-pbx/',
-    image: '/assets/2024-09-myrlink-ip-pbx.png',
-    desc: 'Business phone system with IVR, call recording and up to 600 users.',
-  },
+type StoreProduct = {
+  id: number
+  name: string
+  category: string
+  fallbackPrice: number
+  compareAt?: number
+  to: string
+  image: string
+  desc: string
+  badge?: string
+  monthly?: boolean
+}
+
+const products: StoreProduct[] = [
+  // ERP
+  { id: 6001, name: 'School ERP', category: 'ERP', fallbackPrice: 5000, monthly: true, to: '/education-erp/school/', image: '/assets/2024-09-website-designing-service-7.png', desc: 'Admissions, attendance, exams, fees and campus operations for schools.', badge: 'Popular' },
+  { id: 6002, name: 'College ERP', category: 'ERP', fallbackPrice: 7000, monthly: true, to: '/education-erp/college/', image: '/assets/2025-02-it-expert-2.png', desc: 'Departments, semesters, placements and institutional oversight in one view.' },
+  { id: 6003, name: 'Coaching ERP', category: 'ERP', fallbackPrice: 4000, monthly: true, to: '/education-erp/coaching/', image: '/assets/2024-08-start-mission-success-strategy-beginning-concept.png', desc: 'Enquiries, batches, test series and fee follow-ups for coaching institutes.' },
+  // CRM / HRM / E-commerce / Billing
+  { id: 6004, name: 'CRM Software', category: 'CRM', fallbackPrice: 8000, monthly: true, to: '/crm-development/', image: '/assets/2024-09-customized-crm-development.png', desc: 'Tailored CRM — pipeline management, customer tracking and sales automation.', badge: 'Custom build' },
+  { id: 6005, name: 'HRM Software', category: 'HRM', fallbackPrice: 3000, monthly: true, to: '/hrm-solutions/', image: '/assets/2024-08-buy-time-attendance.png', desc: 'Employee onboarding, attendance, payroll and performance management.' },
+  { id: 6006, name: 'E-commerce Website', category: 'E-commerce', fallbackPrice: 24999, to: '/ecommerce-solutions/', image: '/assets/2024-08-gradient-responsive-website-design.png', desc: 'Full online store with product catalogue, cart, checkout and payments.' },
+  { id: 6007, name: 'Billing Software', category: 'Billing', fallbackPrice: 4999, to: '/contact-us/', image: '/assets/2024-08-buy-restaurant-billing-software.png', desc: 'GST billing, invoices, stock and reports for retail and restaurants.' },
+  // Website / Digital / PBX
+  { id: 2424, name: 'Website Development', category: 'Website', fallbackPrice: 14499, to: '/website-development/', image: '/assets/2024-09-website-development.jpg', desc: 'Responsive, SEO-ready websites crafted to convert visitors into customers.' },
+  { id: 2768, name: 'Digital Marketing', category: 'Digital Marketing', fallbackPrice: 6999, to: '/digital-marketing/', image: '/assets/2024-09-digital-marketing.jpg', desc: 'Search, social and paid campaigns managed for measurable growth.' },
+  { id: 2765, name: 'NewBiz Essentials', category: 'Website', fallbackPrice: 14499, compareAt: 30000, to: '/website-development/', image: '/assets/2024-08-gradient-responsive-website-design.png', desc: 'Everything a new business needs to launch a professional online presence.', badge: 'Sale' },
+  { id: 2766, name: 'RevampCommerce Lite', category: 'Website', fallbackPrice: 24499, compareAt: 60999, to: '/website-development/', image: '/assets/2025-02-website-design-MyR-Advance-Solution-3.png', desc: 'Refresh your storefront with a fast, mobile-first e-commerce redesign.', badge: 'Sale' },
+  { id: 2767, name: 'EliteCustom Suite', category: 'Website', fallbackPrice: 59499, compareAt: 75000, to: '/website-development/', image: '/assets/2025-02-website-expert.jpg', desc: 'Bespoke design, custom functionality and priority build for premium brands.', badge: 'Sale' },
+  { id: 3056, name: 'MYRLINK IP PBX IP100 V3', category: 'PBX', fallbackPrice: 65499, compareAt: 150000, to: '/ip-pbx/', image: '/assets/2024-09-myrlink-ip-pbx.png', desc: 'Business phone system with IVR, call recording and up to 600 users.', badge: 'Best deal' },
 ]
 
-const filters = ['All', 'Website', 'Digital Marketing', 'PBX', 'IT Products']
+const filters = ['All', 'ERP', 'CRM', 'HRM', 'E-commerce', 'Billing', 'Website', 'Digital Marketing', 'PBX']
+
+/** Product card with admin-controlled live price + add-to-cart. */
+function ProductCard({ product, index, reduceMotion }: { product: StoreProduct; index: number; reduceMotion: boolean }) {
+  const price = useCatalogPrice(product.id, product.fallbackPrice)
+  const { add } = useCart()
+  const [added, setAdded] = useState(false)
+  const onSale = product.compareAt != null && price < product.compareAt
+
+  const addToCart = () => {
+    const ok = add({ id: product.id, price, name: product.name })
+    if (ok) {
+      setAdded(true)
+      window.setTimeout(() => setAdded(false), 1600)
+    }
+  }
+
+  return (
+    <motion.article
+      layout
+      initial={{ opacity: 0, scale: 0.94 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.94 }}
+      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.25) }}
+      whileHover={reduceMotion ? undefined : { y: -6 }}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-card transition hover:border-flame-400/50 hover:shadow-xl"
+    >
+      {/* Product image on top */}
+      <div className="relative h-44 overflow-hidden bg-paper">
+        <img src={product.image} alt={product.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+        <div className="absolute left-3 top-3 flex gap-2">
+          {(onSale || product.badge === 'Sale') && (
+            <span className="rounded-full bg-flame-500 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow">
+              Sale!
+            </span>
+          )}
+          {product.badge && product.badge !== 'Sale' && (
+            <span className="rounded-full bg-ink-950/80 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white backdrop-blur">
+              {product.badge}
+            </span>
+          )}
+          <span className="rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-ink-500 backdrop-blur">
+            {product.category}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col p-5">
+        <h3 className="text-base font-bold text-ink-950">{product.name}</h3>
+        <p className="mt-1.5 flex-1 text-xs leading-relaxed text-ink-400">{product.desc}</p>
+        <div className="mt-3 flex items-baseline gap-2">
+          {product.compareAt != null && price < product.compareAt && (
+            <span className="text-xs text-ink-400 line-through">{inr(product.compareAt)}</span>
+          )}
+          <span className="text-lg font-bold text-flame-600">{inr(price)}</span>
+          {product.monthly && (
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-400">/ month</span>
+          )}
+        </div>
+        <div className="mt-4 flex gap-2">
+          <button
+            type="button"
+            onClick={addToCart}
+            className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-lg border text-xs font-bold transition ${
+              added
+                ? 'border-emerald-600 bg-emerald-600 text-white'
+                : 'border-flame-500 text-flame-600 group-hover:bg-flame-500 group-hover:text-white'
+            }`}
+          >
+            {added ? '✓ Added' : 'Add to cart'}
+          </button>
+          <Link
+            to={product.to}
+            aria-label={`View ${product.name}`}
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line text-ink-400 transition hover:border-flame-500 hover:text-flame-600"
+          >
+            ↗
+          </Link>
+        </div>
+      </div>
+    </motion.article>
+  )
+}
 
 /* --------------------------------- page ---------------------------------- */
 
@@ -370,55 +424,7 @@ export function TechStorePage() {
         <motion.div layout className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="popLayout">
             {filtered.map((p, i) => (
-              <motion.article
-                key={p.name}
-                layout
-                initial={{ opacity: 0, scale: 0.94 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.94 }}
-                transition={{ duration: 0.3, delay: Math.min(i * 0.05, 0.25) }}
-                whileHover={reduceMotion ? undefined : { y: -6 }}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-card transition hover:border-flame-400/50 hover:shadow-xl"
-              >
-                {/* Product image on top */}
-                <div className="relative h-44 overflow-hidden bg-paper">
-                  <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                  <div className="absolute left-3 top-3 flex gap-2">
-                    {p.sale && (
-                      <span className="rounded-full bg-flame-500 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow">
-                        Sale!
-                      </span>
-                    )}
-                    <span className="rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-ink-500 backdrop-blur">
-                      {p.category}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-1 flex-col p-5">
-                  <h3 className="text-base font-bold text-ink-950">{p.name}</h3>
-                  <p className="mt-1.5 flex-1 text-xs leading-relaxed text-ink-400">{p.desc}</p>
-                  <div className="mt-3 flex items-baseline gap-2">
-                    {p.original && <span className="text-xs text-ink-400 line-through">{p.original}</span>}
-                    <span className="text-lg font-bold text-flame-600">{p.price}</span>
-                  </div>
-                  <div className="mt-4 flex gap-2">
-                    <Link
-                      to={p.to}
-                      className="inline-flex min-h-10 flex-1 items-center justify-center rounded-lg border border-flame-500 text-xs font-bold text-flame-600 transition group-hover:bg-flame-500 group-hover:text-white"
-                    >
-                      {p.sale ? 'Add to cart' : 'Select options'}
-                    </Link>
-                    <Link
-                      to={p.to}
-                      aria-label={`View ${p.name}`}
-                      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line text-ink-400 transition hover:border-flame-500 hover:text-flame-600"
-                    >
-                      ↗
-                    </Link>
-                  </div>
-                </div>
-              </motion.article>
+              <ProductCard key={p.id} product={p} index={i} reduceMotion={!!reduceMotion} />
             ))}
           </AnimatePresence>
         </motion.div>

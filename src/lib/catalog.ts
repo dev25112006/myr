@@ -106,6 +106,13 @@ export const CATALOG: Record<number, CatalogProduct> = {
   2774: { id: 2774, name: 'AI Digital Marketing — Pro+', slug: '/product/digital-marketing/', price: 16999, type: 'simple', category: 'Digital Marketing' },
   2775: { id: 2775, name: 'AI Digital Marketing — Standard', slug: '/product/digital-marketing/', price: 6999, type: 'simple', category: 'Digital Marketing' },
   2776: { id: 2776, name: 'AI Digital Marketing — Pro+', slug: '/product/digital-marketing/', price: 14999, type: 'simple', category: 'Digital Marketing' },
+  6001: { id: 6001, name: 'School ERP', slug: '/education-erp/school/', price: 5000, type: 'simple', category: 'ERP', image: '/assets/2024-09-website-designing-service-7.png' },
+  6002: { id: 6002, name: 'College ERP', slug: '/education-erp/college/', price: 7000, type: 'simple', category: 'ERP', image: '/assets/2025-02-it-expert-2.png' },
+  6003: { id: 6003, name: 'Coaching ERP', slug: '/education-erp/coaching/', price: 4000, type: 'simple', category: 'ERP', image: '/assets/2024-08-start-mission-success-strategy-beginning-concept.png' },
+  6004: { id: 6004, name: 'CRM Software', slug: '/crm-development/', price: 8000, type: 'simple', category: 'CRM', image: '/assets/2024-09-customized-crm-development.png' },
+  6005: { id: 6005, name: 'HRM Software', slug: '/hrm-solutions/', price: 3000, type: 'simple', category: 'HRM', image: '/assets/2024-08-buy-time-attendance.png' },
+  6006: { id: 6006, name: 'E-commerce Website', slug: '/ecommerce-solutions/', price: 24999, type: 'simple', category: 'E-commerce', image: '/assets/2024-08-gradient-responsive-website-design.png' },
+  6007: { id: 6007, name: 'Billing Software', slug: '/contact-us/', price: 4999, type: 'simple', category: 'Billing', image: '/assets/2024-08-buy-restaurant-billing-software.png' },
 }
 
 /** Resolve `?add-to-cart=ID` style links. Returns undefined for unknown ids. */
