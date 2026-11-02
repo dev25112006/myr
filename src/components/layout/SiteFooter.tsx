@@ -118,11 +118,11 @@ export function SiteFooter() {
           <p>{COPYRIGHT}</p>
           <p>Rebuilt independently — new visual identity, same verified content.</p>
         </div>
-        <div className="mt-6 px-4 sm:px-6 lg:px-8">
+        <div className="mt-6 flex justify-center px-4 sm:px-6">
           <img
             src="/assets/2024-08-MYR-LOGO.png"
             alt="MYR Advance Solution"
-            className="w-full h-auto rounded-xl border border-white/10 bg-white/5 p-4 shadow-lg sm:p-6"
+            className="w-1/2 max-w-[480px] h-auto rounded-xl border border-white/15 bg-white/10 p-4 shadow-xl sm:p-5"
           />
         </div>
       </div>
