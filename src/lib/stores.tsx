@@ -24,7 +24,7 @@ export type CartItem = {
   variant?: string
 }
 
-export type AuthUser = { id: string; email: string; role: 'customer' | 'admin' | 'manager'; emailVerified?: boolean; createdAt: string }
+export type AuthUser = { id: string; email: string; role: 'customer' | 'admin' | 'manager'; emailVerified?: boolean; createdAt: string; mfaEnabled?: boolean }
 export type TeamMember = { id: string; name: string; email: string; department: string; title: string; addedAt: string }
 export type InboxEntry = { id: string; type: 'lead' | 'ticket' | 'form' | 'order'; subject: string; name: string; email: string; message: string; date: string; status: 'New' | 'In progress' | 'Resolved'; source: string; replies?: Array<{ id: string; author: string; message: string; date: string }> }
 
