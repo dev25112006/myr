@@ -89,7 +89,7 @@ export function SiteFooter() {
 
           <div className="mt-6 rounded-2xl border border-accent-400/25 bg-accent-400/5 p-4">
             <p className="text-sm font-semibold text-accent-600">
-              Partner with Us &amp; Earn 40% Profit Today!
+              Partner with Us &amp; Earn Profit Today!
             </p>
             <button
               type="button"
@@ -117,6 +117,13 @@ export function SiteFooter() {
         <div className="container-page flex flex-col items-center justify-between gap-2 text-center text-xs text-ink-400 sm:flex-row sm:text-left">
           <p>{COPYRIGHT}</p>
           <p>Rebuilt independently — new visual identity, same verified content.</p>
+        </div>
+        <div className="mt-6 px-4 sm:px-6 lg:px-8">
+          <img
+            src="/assets/2024-08-MYR-LOGO.png"
+            alt="MYR Advance Solution"
+            className="w-full h-auto rounded-xl border border-white/10 bg-white/5 p-4 shadow-lg sm:p-6"
+          />
         </div>
       </div>
     </footer>

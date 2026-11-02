@@ -1,0 +1,238 @@
+import { useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { cn } from '@/lib/format'
+import { Reveal, SectionHeading, FaqAccordion } from '@/components/ui'
+import { usePopup } from '@/lib/stores'
+import { SEGMENT_LIST, SEGMENT_LINKS, MODULES_FAQ, type SegmentConfig } from '@/content/education/segments'
+import { StatusLegend } from '@/components/education/DemoBadge'
+
+const MODULES_PATH = '/education-erp/modules/'
+
+/**
+ * Education ERP hub — the front door. Pick school, college or coaching,
+ * or go straight to the modules matrix. `?type=` deep-links to a card.
+ */
+export function EducationHubPage() {
+  const [params] = useSearchParams()
+  const { setOpen } = usePopup()
+
+  useEffect(() => {
+    const type = params.get('type')
+    if (!type) return
+    document.getElementById(`segment-${type}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [params])
+
+  // Rotating taglines for the hero
+  const taglines = [
+    'One platform. Every kind of institution.',
+    'Simulate a campus. Step into real roles. Run the workflows yourself.',
+    'Pick your institution. Experience the ERP that transforms education.',
+    'From admissions to placement — manage it all in one integrated platform.',
+  ]
+  const [taglineIndex, setTaglineIndex] = useEffect(() => {
+    const interval = setInterval(() => {
+      setTaglineIndex((i) => (i + 1) % taglines.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
+  const currentTagline = taglines[taglineIndex ?? 0]
+
+  return (
+    <main>
+      {/* intro / cinematic hero */}
+      <section className="section-deep grid-noise relative overflow-hidden">
+        <div className="mx-auto max-w-5xl px-5 pb-16 pt-32 text-center sm:px-8 lg:pb-24 lg:pt-40">
+          {/* rotating tagline */}
+          <motion.p
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="eyebrow justify-center text-flame-500 mb-2">
+            MYR Education ERP
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-4 text-4xl font-bold leading-[1.06] tracking-tight text-ink-950 sm:text-5xl lg:text-[3.4rem]">
+            {currentTagline}
+          </motion.h1>
+          {/* subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.16, duration: 0.55 }}
+            className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-ink-500">
+            Walk through a simulated campus, step into real roles and run the actual workflows yourself. Pick your institution below to get started.
+          </motion.p>
+          {/* motivating CTA */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.26, duration: 0.5 }}
+            className="mt-8 flex flex-wrap justify-center gap-3">
+            <a href="#segments" className="btn btn-primary btn-md">
+              Choose your institution
+            </a>
+            <Link to={MODULES_PATH} className="btn btn-ghost-dark btn-md">
+              Modules and features
+            </Link>
+          </motion.div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.36 }} className="mt-9">
+            <StatusLegend />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* portals */}
+      <section id="segments" className="section-white px-5 py-20 sm:px-8" aria-labelledby="segments-heading">
+        <div className="mx-auto max-w-7xl">
+          <SectionHeading
+            eyebrow="Choose your experience"
+            title={<span id="segments-heading">Three institutions, <span className="text-accent-600">three doorways.</span></span>}
+            sub="Each one gets its own page with a campus tour, role-based dashboards, module previews and interactive missions."
+            tone="light"
+          />
+          <div className="mt-12 grid gap-6 lg:grid-cols-2">
+            {SEGMENT_LIST.map((seg, i) => (
+              <Reveal key={seg.id}>
+                <SegmentCard seg={seg} index={i} />
+              </Reveal>
+            ))}
+            <Reveal>
+              <ModulesCard />
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* how it works */}
+      <section className="section-deep border-y border-line px-5 py-16 sm:px-8" aria-labelledby="how-heading">
+        <div className="mx-auto max-w-5xl">
+          <SectionHeading
+            eyebrow="How the experience works"
+            title={<span id="how-heading">A product tour, not a brochure.</span>}
+            tone="light"
+          />
+          <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { t: '1 · Explore the campus', b: 'Click a building, get that department's workflow and a demo dashboard.' },
+              { t: '2 · Switch roles', b: 'Same records through an admin's, teacher's, parent's or accounts view.' },
+              { t: '3 · Run missions', b: 'Mark attendance, issue receipts, publish results. Earn XP and badges.' },
+              { t: '4 · See the real thing', b: 'Book a demo and run the actual workspace on your own scenarios.' },
+            ].map((s) => (
+              <li key={s.t} className="card p-5">
+                <p className="text-sm font-bold text-ink-950">{s.t}</p>
+                <p className="mt-2 text-sm leading-relaxed text-ink-500">{s.b}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="section-white px-5 py-20 sm:px-8" aria-labelledby="hub-faq-heading">
+        <div className="mx-auto max-w-3xl">
+          <SectionHeading eyebrow="FAQs" title={<span id="hub-faq-heading">Straight answers.</span>} tone="light" />
+          <div className="mt-8">
+            <FaqAccordion items={MODULES_FAQ} tone="light" />
+          </div>
+        </div>
+      </section>
+
+      {/* conversion */}
+      <section className="section-deep border-t border-line px-5 py-16 sm:px-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <Reveal>
+            <h2 className="text-3xl font-bold text-ink-950 sm:text-4xl">Want to see the real workspace?</h2>
+            <p className="mx-auto mt-4 max-w-xl text-ink-500">
+              The tour here runs on sample data. A live demo runs your scenarios in the actual product, and MYR quotes pricing against
+              your size and module selection.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <button type="button" onClick={() => setOpen('appointment')} className="btn btn-primary btn-md">
+                Book a live demo
+              </button>
+              <Link to="/contact-us/" className="btn btn-ghost-dark btn-md">
+                Contact the team
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+    </main>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+
+function SegmentCard({ seg, index }: { seg: SegmentConfig; index: number }) {
+  const dotClass = index === 0 ? 'bg-teal-600' : index === 1 ? 'bg-accent-500' : 'bg-flame-500'
+  const link = SEGMENT_LINKS[seg.id]
+  return (
+    <article id={`segment-${seg.id}`} className="card flex h-full flex-col p-7 sm:p-9">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-2xl font-bold text-ink-950">{seg.name}</h3>
+        <span className={cn('rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em]', seg.identity.chip)}>
+          {index === 2 ? 'Live product' : 'Campus tour'}
+        </span>
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-ink-500">{seg.story.sub}</p>
+      <ul className="mt-5 flex flex-1 flex-col gap-2">
+        {seg.groups.flatMap((g) => g.items).slice(0, 5).map((item) => (
+          <li key={item.name} className="flex items-center gap-2.5 text-sm text-ink-600">
+            <span aria-hidden className={cn('size-1.5 shrink-0 rounded-full', item.status === 'live' ? 'bg-emerald-500' : dotClass)} />
+            {item.name}
+          </li>
+        ))}
+      </ul>
+      <div className="mt-7">
+        {link.ready ? (
+          <Link to={link.href} className="btn btn-primary btn-sm">
+            Enter the {seg.shortName} experience →
+          </Link>
+        ) : (
+          <span className="inline-block rounded-full border border-line bg-paper px-4 py-2 text-sm font-semibold text-ink-400">
+            {seg.shortName} page coming soon
+          </span>
+        )}
+      </div>
+    </article>
+  )
+}
+
+function ModulesCard() {
+  return (
+    <article className="card flex h-full flex-col p-7 sm:p-9">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-2xl font-bold text-ink-950">Modules and features</h3>
+        <span className="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">
+          Honest matrix
+        </span>
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-ink-500">
+        The full capability list across coaching, CRM, HRM and the platform underneath. Everything marked either live today or
+        configurable scope. Nothing dressed up.
+      </p>
+      <ul className="mt-5 flex-1 space-y-2">
+        {[
+          'Coaching ERP workflows — live today',
+          'CRM pipeline and follow-ups — live today',
+          'HRM staff operations — live today',
+          'School and college scope — labelled as scope',
+        ].map((t) => (
+          <li key={t} className="flex items-center gap-2.5 text-sm text-ink-600">
+            <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-emerald-500" />
+            {t}
+          </li>
+        ))}
+      </ul>
+      <div className="mt-7">
+        <Link to={MODULES_PATH} className="btn btn-primary btn-sm">
+          Browse all modules →
+        </Link>
+      </div>
+    </article>
+  )
+}

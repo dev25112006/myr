@@ -1,0 +1,756 @@
+openapi: 3.1.0
+info:
+  title: MYR SaaS Platform API
+  version: 0.2.0
+  description: >-
+    Phase 1 foundation and Phase 2 commercial APIs. SaaS data endpoints use the configured app persistence layer (MongoDB in production).
+    Organization access is derived from the authenticated session and active membership.
+servers:
+  - url: /
+security:
+  - sessionCookie: []
+paths:
+  /api/saas/products:
+    get:
+      summary: List published products and enabled plans
+      security: []
+      responses:
+        '200':
+          description: Active catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [products]
+                properties:
+                  products:
+                    type: array
+                    items: { $ref: '#/components/schemas/Product' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /api/saas/email-verification/request:
+    post:
+      summary: Send a SaaS-specific verification link
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /api/saas/verify-email:
+    get:
+      summary: Redeem a single-use SaaS email verification token
+      security: []
+      parameters:
+        - in: query
+          name: token
+          required: true
+          schema: { type: string, pattern: '^[a-fA-F0-9]{64}$' }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/saas/organizations:
+    get:
+      summary: List organizations for the current active memberships
+      responses:
+        '200':
+          description: Membership-scoped organizations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  organizations: { type: array, items: { $ref: '#/components/schemas/Organization' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      summary: Create a pending organization owned by the current user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, countryCode]
+              properties:
+                name: { type: string, minLength: 2, maxLength: 180 }
+                countryCode: { type: string, pattern: '^[A-Za-z]{2}$' }
+      responses:
+        '201': { $ref: '#/components/responses/Ok' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/entitlements:
+    get:
+      summary: List current entitlements for active memberships
+      responses:
+        '200':
+          description: Tenant-scoped entitlements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entitlements: { type: array, items: { $ref: '#/components/schemas/Entitlement' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/saas/checkout:
+    post:
+      summary: Create a server-priced pending SaaS checkout and PayU hosted form
+      description: Supports approved INR monthly or annual plans. Merchant/tax settings must be configured; automatic renewal is not enabled.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [organizationId, planId]
+              properties:
+                organizationId: { type: string, format: uuid }
+                planId: { type: string, format: uuid }
+      responses:
+        '201': { $ref: '#/components/responses/Ok' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /api/saas/payments/payu/return:
+    post:
+      summary: Receive PayU hosted-checkout return and reconcile server-side
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: { type: object, additionalProperties: { type: string } }
+      responses:
+        '303': { description: Redirects to workspace with payment state }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { description: Transaction remains pending provider reconciliation }
+  /api/saas/payments/payu/webhook:
+    post:
+      summary: Receive PayU webhook, validate and reconcile the transaction idempotently
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: { type: object, additionalProperties: { type: string } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/saas/orders/{orderId}:
+    parameters:
+      - in: path
+        name: orderId
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: Read an order status for the caller's billing-authorized organization
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/saas/subscriptions:
+    get:
+      summary: List subscriptions for the current user's organizations
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+  /api/saas/subscriptions/{subscriptionId}/cancel:
+    parameters:
+      - in: path
+        name: subscriptionId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      summary: Schedule cancellation at the end of the paid term
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/BadRequest' }
+  /api/saas/subscriptions/{subscriptionId}/reactivate:
+    parameters:
+      - in: path
+        name: subscriptionId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      summary: Reverse a scheduled cancellation before the paid term ends
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/BadRequest' }
+  /api/saas/invoices:
+    get:
+      summary: List invoices for billing-authorized organization memberships
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+  /api/saas/invoices/{invoiceId}:
+    parameters:
+      - in: path
+        name: invoiceId
+        required: true
+        schema: { type: string }
+    get:
+      summary: Read a scoped invoice record
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/saas/support/knowledge:
+    get:
+      summary: Search published product help articles
+      security: []
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string, maxLength: 200 }
+        - in: query
+          name: product
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+  /api/saas/support/assistant:
+    post:
+      summary: Return cited extractive excerpts from approved help articles (no financial actions)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [question], properties: { question: { type: string, minLength: 3, maxLength: 1000 }, productSlug: { type: string } } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/saas/support/tickets:
+    get:
+      summary: List support tickets for the caller's active organizations
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      summary: Create an organization-scoped support ticket and handover summary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [organizationId, subject, message], properties: { organizationId: { type: string, format: uuid }, productSlug: { type: string }, subject: { type: string, minLength: 3, maxLength: 180 }, message: { type: string, maxLength: 12000 }, handoverSummary: { type: string, maxLength: 2000 } } }
+      responses:
+        '201': { $ref: '#/components/responses/Ok' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/saas/support/tickets/{ticketId}:
+    parameters:
+      - in: path
+        name: ticketId
+        required: true
+        schema: { type: string, pattern: '^MYR-[A-F0-9]+$' }
+    get:
+      summary: Read a ticket for an active organization member; private notes excluded
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/saas/support/tickets/{ticketId}/messages:
+    parameters:
+      - in: path
+        name: ticketId
+        required: true
+        schema: { type: string }
+    post:
+      summary: Add customer reply and validated private attachment files
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [message], properties: { message: { type: string, minLength: 2, maxLength: 12000 }, attachments: { type: array, maxItems: 3, items: { type: object } } } }
+      responses:
+        '201': { $ref: '#/components/responses/Ok' }
+        '409': { $ref: '#/components/responses/BadRequest' }
+  /api/saas/support/attachments/{attachmentId}:
+    get:
+      summary: Download a ticket attachment after organization membership verification
+      parameters:
+        - in: path
+          name: attachmentId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Private attachment bytes }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/saas/admin/support/tickets:
+    get:
+      summary: List support queue and metrics (MFA-verified admin)
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/admin/support/tickets/{ticketId}:
+    parameters:
+      - in: path
+        name: ticketId
+        required: true
+        schema: { type: string, pattern: '^MYR-[A-F0-9]+$' }
+    patch:
+      summary: Change ticket state, priority or administrator assignment with audit reason
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [reason], properties: { status: { type: string }, priority: { type: string, enum: [Low, Normal, High, Urgent] }, assigneeId: { type: [string, 'null'] }, reason: { type: string, minLength: 5, maxLength: 300 } } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/saas/admin/support/tickets/{ticketId}/messages:
+    parameters:
+      - in: path
+        name: ticketId
+        required: true
+        schema: { type: string, pattern: '^MYR-[A-F0-9]+$' }
+    post:
+      summary: Send an agent reply or save a private internal note with audit reason
+      responses:
+        '201': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/saas/admin/support/knowledge:
+    get:
+      summary: List draft, review and published knowledge articles (MFA-verified admin)
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      summary: Create a knowledge draft or reviewed article (MFA-verified admin)
+      responses:
+        '201': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/admin/support/knowledge/{articleId}:
+    parameters:
+      - in: path
+        name: articleId
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      summary: Edit or change review state of a support article
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/saas/admin/support/agents:
+    get:
+      summary: List SaaS administrators available for ticket assignment
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/admin/support/assistant-usage:
+    get:
+      summary: List minimized extractive assistant usage metadata
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/admin/support/assistant-review:
+    post:
+      summary: Review or flag an automated help interaction
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/admin/payments/reconcile:
+    post:
+      summary: Reconcile up to five pending or failed PayU transactions (administrator MFA required)
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /api/saas/notifications:
+    get:
+      summary: List notifications scoped to the current user's active organizations
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/saas/usage:
+    get:
+      summary: List tenant-scoped product record usage against configured plan limits
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/saas/organizations/{organizationId}/products/{productSlug}/launch:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+      - in: path
+        name: productSlug
+        required: true
+        schema: { type: string, pattern: '^[a-z0-9-]+$' }
+    post:
+      summary: Return product launch URL after membership, subscription and entitlement checks
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/BadRequest' }
+  /api/saas/modules/{module}/organizations/{organizationId}/{resource}:
+    parameters:
+      - in: path
+        name: module
+        required: true
+        schema: { type: string, enum: [coaching-erp, crm, hrm] }
+      - $ref: '#/components/parameters/OrganizationId'
+      - in: path
+        name: resource
+        required: true
+        schema: { type: string, enum: [students, leads, employees] }
+    get:
+      summary: List tenant-scoped product records after entitlement validation
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      summary: Create tenant-scoped product record subject to plan limits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [name], properties: { name: { type: string, minLength: 2, maxLength: 160 }, email: { type: string, format: email }, status: { type: string } }, additionalProperties: true }
+      responses:
+        '201': { $ref: '#/components/responses/Ok' }
+        '409': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/saas/modules/{module}/organizations/{organizationId}/{resource}/{recordId}:
+    parameters:
+      - in: path
+        name: module
+        required: true
+        schema: { type: string, enum: [coaching-erp, crm, hrm] }
+      - $ref: '#/components/parameters/OrganizationId'
+      - in: path
+        name: resource
+        required: true
+        schema: { type: string, enum: [students, leads, employees] }
+      - in: path
+        name: recordId
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: Read a tenant-scoped product record
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      summary: Update a tenant-scoped product record
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      summary: Delete a tenant-scoped product record
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/saas/organizations/{organizationId}/members:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+    get:
+      summary: List members after verifying caller membership in this organization
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/saas/organizations/{organizationId}/invitations:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+    post:
+      summary: Invite a verified email to an organization
+      description: Requires owner/admin membership; the raw single-use token is emailed and is not returned.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, role]
+              properties:
+                email: { type: string, format: email }
+                role: { type: string, enum: [admin, member, billing] }
+      responses:
+        '201': { $ref: '#/components/responses/Ok' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/organizations/{organizationId}/billing-profile:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+    patch:
+      summary: Update billing profile for future invoices (owner/admin/billing member)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                billingName: { type: string, maxLength: 180 }
+                billingEmail: { type: string, format: email, maxLength: 254 }
+                billingAddress: { type: string, maxLength: 300 }
+                billingCity: { type: string, maxLength: 100 }
+                billingState: { type: string, maxLength: 100 }
+                billingPostalCode: { type: string, maxLength: 24 }
+                billingCountryCode: { type: string, pattern: '^[A-Za-z]{2}$' }
+                gstin: { type: string, maxLength: 15 }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/saas/invitations/{invitationId}/accept:
+    parameters:
+      - in: path
+        name: invitationId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      summary: Accept an invitation for the matching verified account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string, minLength: 64, maxLength: 64 }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/saas/organizations/{organizationId}/members/{userId}/role:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+      - in: path
+        name: userId
+        required: true
+        schema: { type: string }
+    patch:
+      summary: Change a non-owner member role (organization owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role: { type: string, enum: [admin, member, billing] }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/organizations/{organizationId}/members/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+      - in: path
+        name: userId
+        required: true
+        schema: { type: string }
+    delete:
+      summary: Remove a non-owner member (organization owner only)
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/admin/mfa/setup:
+    post:
+      summary: Begin administrator TOTP enrollment
+      description: Admin session required. Requires TOTP_ENCRYPTION_KEY.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/admin/mfa/enable:
+    post:
+      summary: Confirm TOTP enrollment and receive recovery codes once
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string, pattern: '^\\d{6}$' }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/saas/admin/mfa/disable:
+    post:
+      summary: Disable administrator TOTP after current-code confirmation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/admin/products:
+    get:
+      summary: List all products for catalog administration
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      summary: Create a SaaS product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductInput' }
+      responses:
+        '201': { $ref: '#/components/responses/Ok' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/admin/products/{productId}:
+    parameters:
+      - in: path
+        name: productId
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      summary: Update product fields/status/features
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/admin/plans:
+    get:
+      summary: List all plans for administration
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      summary: Create a plan; starts disabled in the admin console
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PlanInput' }
+      responses:
+        '201': { $ref: '#/components/responses/Ok' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/saas/admin/plans/{planId}:
+    parameters:
+      - in: path
+        name: planId
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      summary: Update plan values, entitlements and enabled state
+      description: Enabling requires an active product and currency in SAAS_ALLOWED_CURRENCIES.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PlanInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: myr_session
+  parameters:
+    OrganizationId:
+      in: path
+      name: organizationId
+      required: true
+      schema: { type: string, format: uuid }
+  responses:
+    Ok:
+      description: Successful operation
+      content:
+        application/json:
+          schema: { type: object, additionalProperties: true }
+    BadRequest:
+      description: Invalid input or token
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Membership, verification, role or MFA requirement failed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Record is unavailable or caller is not authorized to know it exists
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unavailable:
+      description: Required storage or service is not configured
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+    Product:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        slug: { type: string }
+        name: { type: string }
+        summary: { type: string }
+        status: { type: string, enum: [draft, active, disabled] }
+        features: { type: array, items: { type: string } }
+        plans: { type: array, items: { $ref: '#/components/schemas/Plan' } }
+    ProductInput:
+      type: object
+      properties:
+        slug: { type: string, pattern: '^[a-z0-9]+(-[a-z0-9]+)*$' }
+        name: { type: string, minLength: 2, maxLength: 120 }
+        summary: { type: string, maxLength: 2000 }
+        launchUrl: { type: [string, 'null'], format: uri }
+        status: { type: string, enum: [draft, active, disabled] }
+        features: { type: array, items: { type: string, maxLength: 180 } }
+    Plan:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        productId: { type: string, format: uuid }
+        slug: { type: string }
+        name: { type: string }
+        interval: { type: string, enum: [month, year, custom] }
+        currency: { type: string, enum: [INR, USD, GBP] }
+        amountMinor: { type: [integer, 'null'], minimum: 0 }
+        trialDays: { type: integer, minimum: 0, maximum: 365 }
+        limits: { type: object, additionalProperties: { type: integer, minimum: 0 } }
+        features: { type: array, items: { type: string } }
+        regionCodes: { type: array, items: { type: string, pattern: '^[A-Z]{2}$' } }
+        enterprise: { type: boolean }
+        enabled: { type: boolean }
+    PlanInput:
+      allOf:
+        - $ref: '#/components/schemas/Plan'
+      description: For creation, include productId, slug, name, interval, currency, limits and regionCodes.
+    Organization:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        countryCode: { type: string, pattern: '^[A-Z]{2}$' }
+        billingCountryCode: { type: string, pattern: '^[A-Z]{2}$' }
+        status: { type: string, enum: [pending, active, suspended, closed] }
+        role: { type: string, enum: [owner, admin, member, billing] }
+    Entitlement:
+      type: object
+      properties:
+        organizationId: { type: string, format: uuid }
+        organizationName: { type: string }
+        productSlug: { type: string }
+        productName: { type: string }
+        featureKey: { type: string }
+        limit: { type: [integer, 'null'] }
+        validFrom: { type: string, format: date-time }
+        validUntil: { type: [string, 'null'], format: date-time }

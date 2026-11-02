@@ -1,0 +1,172 @@
+import { motion, useReducedMotion } from 'framer-motion'
+import { Link } from 'react-router-dom'
+import { cn } from '@/lib/format'
+import { StatusLegend } from './DemoBadge'
+import type { SegmentIdentity } from '@/content/education/segments'
+
+/**
+ * Product hero in the site's light style: paper background with the
+ * standard grid-noise wash, a flat campus illustration on the right,
+ * assembling piece by piece on first view. Static for reduced motion.
+ */
+export function ErpHero({
+  identity,
+  badge,
+  headline,
+  sub,
+  primaryCta,
+  secondaryCta,
+  roleCards,
+  
+}: {
+  identity: SegmentIdentity
+  badge: string
+  headline: string
+  sub: string
+  primaryCta: { label: string; to?: string; onClick?: () => void }
+  secondaryCta: { label: string; to?: string; onClick?: () => void }
+  roleCards: string[]
+  /** Draw the "digitally connected" signal animation over the campus. */
+  connected?: boolean
+}) {
+  const reduce = useReducedMotion()
+  const rise = (delay: number) =>
+    reduce
+      ? { initial: false as const }
+      : {
+          initial: { opacity: 0, y: 18 },
+          animate: { opacity: 1, y: 0 },
+          transition: { delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
+        }
+  const cta = (c: { label: string; to?: string; onClick?: () => void }, cls: string) =>
+    c.to ? (
+      <Link to={c.to} className={cls}>
+        {c.label}
+      </Link>
+    ) : (
+      <button type="button" onClick={c.onClick} className={cls}>
+        {c.label}
+      </button>
+    )
+
+  return (
+    <section className="section-deep grid-noise relative overflow-hidden">
+      <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-28 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pb-24 lg:pt-36">
+        {/* copy */}
+        <div>
+          <motion.p {...rise(0.05)} className="eyebrow">
+            {badge}
+          </motion.p>
+          <motion.h1 {...rise(0.12)} className="mt-4 text-4xl font-bold leading-[1.06] tracking-tight text-ink-950 sm:text-5xl lg:text-[3.4rem]">
+            {headline}
+          </motion.h1>
+          <motion.p {...rise(0.2)} className="mt-5 max-w-xl text-lg leading-relaxed text-ink-500">
+            {sub}
+          </motion.p>
+          <motion.div {...rise(0.28)} className="mt-8 flex flex-wrap gap-3">
+            {cta(primaryCta, 'btn btn-primary btn-md')}
+            {cta(secondaryCta, 'btn btn-ghost-dark btn-md')}
+          </motion.div>
+          <motion.div {...rise(0.36)} className="mt-8">
+            <StatusLegend />
+          </motion.div>
+        </div>
+
+        {/* flat campus assembling + floating role cards */}
+        <div className="relative mx-auto w-full max-w-lg">
+          <motion.div
+            {...(reduce
+              ? { initial: false as const }
+              : { initial: { opacity: 0, y: -24 }, animate: { opacity: 1, y: 0 }, transition: { delay: 0.4, duration: 0.55, ease: [0.22, 1, 0.36, 1] as const } })}
+            className="relative aspect-[4/3] rounded-3xl border border-line bg-white shadow-card"
+          >
+            {/* roof piece */}
+            <motion.div
+              {...(reduce
+                ? { initial: false as const }
+                : { initial: { opacity: 0, y: -24 }, animate: { opacity: 1, y: 0 }, transition: { delay: 0.4, duration: 0.55, ease: [0.22, 1, 0.36, 1] as const } })}
+              className="absolute left-[26%] top-[14%] h-[10%] w-[48%] rounded-t-md bg-ink-950"
+            />
+            {/* main block with windows lighting up */}
+            <motion.div
+              {...(reduce
+                ? { initial: false as const }
+                : { initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 }, transition: { delay: 0.5, duration: 0.55, ease: [0.22, 1, 0.36, 1] as const } })}
+              className="absolute left-[26%] top-[24%] h-[40%] w-[48%] rounded-b-lg border border-line bg-white shadow-card"
+            >
+              <div className="grid h-full grid-cols-4 grid-rows-3 gap-2.5 p-3.5">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <motion.span
+                    key={i}
+                    {...(reduce
+                      ? { initial: false as const }
+                      : {
+                          initial: { opacity: 0 },
+                          animate: { opacity: 1 },
+                          transition: { delay: 0.75 + i * 0.07, duration: 0.3 },
+                        })}
+                    className={cn('rounded-sm', identity.window)}
+                  />
+                ))}
+              </div>
+            </motion.div>
+            {/* side wings */}
+            <motion.div
+              {...(reduce
+                ? { initial: false as const }
+                : { initial: { opacity: 0, x: -20 }, animate: { opacity: 1, x: 0 }, transition: { delay: 0.6, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const } })}
+              className={cn('absolute left-[8%] top-[36%] h-[26%] w-[14%] rounded-lg border border-line bg-white shadow-card', '')}
+            />
+            <motion.div
+              {...(reduce
+                ? { initial: false as const }
+                : { initial: { opacity: 0, x: 20 }, animate: { opacity: 1, x: 0 }, transition: { delay: 0.65, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const } })}
+              className="absolute right-[8%] top-[38%] h-[24%] w-[14%] rounded-lg border border-line bg-white shadow-card"
+            />
+            {/* ground + path */}
+            <div aria-hidden className="absolute inset-x-0 bottom-0 h-[32%] rounded-b-3xl bg-paper/70" />
+            <motion.div
+              {...(reduce
+                ? { initial: false as const }
+                : { initial: { opacity: 0, scaleY: 0.4 }, animate: { opacity: 1, scaleY: 1 }, transition: { delay: 0.8, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const } })}
+              className="absolute bottom-[6%] left-[45%] h-[26%] w-[10%] rounded-t-full bg-white/80"
+              style={{ transformOrigin: 'bottom' }}
+            />
+
+            {/* role interface cards */}
+            {roleCards.map((label, i) => {
+              const pos = [
+                { left: '-4%', top: '6%' },
+                { right: '-6%', top: '24%' },
+                { left: '2%', bottom: '-3%' },
+              ][i]
+              return (
+                <motion.div
+                  key={label}
+                  {...(reduce
+                    ? { initial: false as const }
+                    : {
+                        initial: { opacity: 0, y: 12 },
+                        animate: { opacity: 1, y: [0, -5, 0] },
+                        transition: { delay: 1 + i * 0.12, duration: 5.5, repeat: Infinity, repeatType: 'mirror' as const, ease: 'easeInOut' },
+                      })}
+                  className="absolute hidden rounded-xl border border-line bg-white px-3.5 py-2.5 shadow-card sm:block"
+                  style={pos}
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-ink-400">{label}</p>
+                  <div className="mt-1.5 flex items-center gap-1.5">
+                    <span className={cn('size-1.5 rounded-full', identity.accentDot)} />
+                    <span className="h-1.5 w-14 rounded-full bg-ink-200/25" />
+                  </div>
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <span className="h-1.5 w-20 rounded-full bg-ink-200/15" />
+                  </div>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}
