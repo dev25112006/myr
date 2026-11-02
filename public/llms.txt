@@ -1,0 +1,58 @@
+# MYR Advance Solution
+
+> MYR Advance Solution (MYR ADVANCE SOLUTION PVT. LTD.) builds business software and IT solutions for India and US teams. Products include website development, ecommerce, CRM, HRMS, education ERP (school/college/coaching), digital marketing, IP PBX/VoIP, CCTV, networking, and billing. Tech store sells software plans, PBX hardware, and marketing packages.
+
+## Company
+- Name: MYR ADVANCE SOLUTION PVT. LTD.
+- Founded: 2016
+- Markets: India, United States
+- Website: https://www.myradvancesolution.com/
+- Contact (WhatsApp): +91 74084 43341
+- Chat support: https://1367.3cx.cloud/myradvancesolutionpr
+- Chat sales: https://1367.3cx.cloud/myrsolution
+
+## Key pages
+- Home: https://www.myradvancesolution.com/
+- Services: https://www.myradvancesolution.com/services/
+- Tech Store: https://www.myradvancesolution.com/tech-store/
+- Shop: https://www.myradvancesolution.com/shop/
+- Education ERP hub: https://www.myradvancesolution.com/education-erp/
+- School ERP: https://www.myradvancesolution.com/education-erp/school/
+- College ERP: https://www.myradvancesolution.com/education-erp/college/
+- Coaching ERP: https://www.myradvancesolution.com/education-erp/coaching/
+- ERP Modules: https://www.myradvancesolution.com/education-erp/modules/
+- CRM (Privyr): https://www.myradvancesolution.com/privyr/
+- CRM Development: https://www.myradvancesolution.com/crm-development/
+- HRM Solutions: https://www.myradvancesolution.com/hrm-solutions/
+- Ecommerce Solutions: https://www.myradvancesolution.com/ecommerce-solutions/
+- Website Development: https://www.myradvancesolution.com/website-development/
+- Digital Marketing: https://www.myradvancesolution.com/digital-marketing/
+- Network Solutions: https://www.myradvancesolution.com/network-solution/
+- Network Products: https://www.myradvancesolution.com/network-product/
+- IP PBX: https://www.myradvancesolution.com/ip-pbx/
+- CCTV Solutions: https://www.myradvancesolution.com/cctv-solution/
+- CCTV Solutions (alt): https://www.myradvancesolution.com/cctv-solutions/
+- 1800 Toll-Free Numbers: https://www.myradvancesolution.com/1800-number/
+- Partner / White-label: https://www.myradvancesolution.com/partner/
+- Partnership: https://www.myradvancesolution.com/partnership/
+- About: https://www.myradvancesolution.com/about-us/
+- Contact: https://www.myradvancesolution.com/contact-us/
+- Talk to Sales: https://www.myradvancesolution.com/talk-to-sales/
+- Booking: https://www.myradvancesolution.com/booking/
+- Roadmap: https://www.myradvancesolution.com/roadmap/
+
+## Policies
+- Privacy Policy: https://www.myradvancesolution.com/privacy-policy/
+- Shipping Policy: https://www.myradvancesolution.com/shipping-policy/
+- Terms & Conditions: https://www.myradvancesolution.com/terms-and-conditions/
+- Refund & Return Policy: https://www.myradvancesolution.com/refund-and-return-policy/
+
+## Products (Tech Store)
+- CRM, HRM, School ERP, College ERP, Coaching ERP, E-commerce plans, Billing, Website plans, IP PBX hardware, digital marketing packages.
+
+## Sitemap
+- https://www.myradvancesolution.com/sitemap.xml
+
+## Crawler guidance
+- Public marketing/product pages are indexable.
+- Account, CRM panel, cart, checkout, admin, and manager areas are private and should not be indexed.

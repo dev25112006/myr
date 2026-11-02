@@ -36,6 +36,15 @@ const KEYWORDS = {
   '/product/website-development/': 'website development plans, custom website package, business web design, responsive website India',
   '/product-category/website-development/': 'website development plans, business website packages, ecommerce website plan, custom web design',
   '/product-category/digital-marketing/': 'digital marketing packages, SEO plan, social media marketing plans, lead generation service',
+  '/partner/': 'white label ERP, white label CRM, white label HRM, reseller partnership India, school ERP white label, coaching ERP reseller',
+  '/partnership/': 'white label ERP, white label CRM, white label HRM, reseller partnership India, school ERP white label, coaching ERP reseller',
+  '/cctv-solutions/': 'CCTV installation India, commercial security cameras, 16 channel DVR, 32 channel NVR, remote video monitoring',
+  '/ip-pbx/': 'IP PBX India, VoIP phone system US, business phone system, IVR, call routing, call queue, MYRLINK',
+  '/network-product/': 'networking products India, business switches, routers, Wi-Fi access points, structured cabling products',
+  '/education-erp/school/': 'school ERP India, school management software, student attendance system, school fee management, school parent portal',
+  '/education-erp/college/': 'college ERP India, college management software, examination management system, college attendance, student portal',
+  '/education-erp/coaching/': 'coaching institute software India, coaching ERP, batch scheduling software, test series management, coaching fee management',
+  '/education-erp/modules/': 'education ERP modules, school management modules, attendance module, exam module, fee module, timetable module',
 }
 
 const PANEL_ROUTES = new Set([

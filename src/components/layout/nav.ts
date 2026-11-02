@@ -69,7 +69,7 @@ export const FOOTER_SERVICES: NavLink[] = [
   { label: 'IPBX Solution', to: '/ipbx-solution/' },
   { label: 'CCTV', to: '/cctv-solution/' },
   { label: 'Toll Free 1800 XXX -', to: '/1800-number/' },
-  { label: 'More', to: '/services/' },
+  { label: 'More services', to: '/services/' },
 ]
 
 export const FOOTER_COMPANY: NavLink[] = [

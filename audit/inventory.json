@@ -28790,5 +28790,104 @@
   "links": [],
   "images": [],
   "forms": []
+ },
+ "/partner/": {
+  "file": "partner.html",
+  "route": "/partner/",
+  "title": "Partner With Us — White Label ERP, CRM & HRM | MYR",
+  "meta_description": "Become an MYR partner. White-label School ERP, College ERP, Coaching ERP, CRM, HRM, e-commerce and billing software under your own brand with protected margins.",
+  "canonical": "https://www.myradvancesolution.com/partner/",
+  "headings": [],
+  "links": [],
+  "images": [],
+  "forms": []
+ },
+ "/partnership/": {
+  "file": "partnership.html",
+  "route": "/partnership/",
+  "title": "Partner With Us — White Label ERP, CRM & HRM | MYR",
+  "meta_description": "Become an MYR partner. White-label School ERP, College ERP, Coaching ERP, CRM, HRM, e-commerce and billing software under your own brand with protected margins.",
+  "canonical": "https://www.myradvancesolution.com/partnership/",
+  "headings": [],
+  "links": [],
+  "images": [],
+  "forms": []
+ },
+ "/cctv-solutions/": {
+  "file": "cctv-solutions.html",
+  "route": "/cctv-solutions/",
+  "title": "Business CCTV Systems & Installation | MYR",
+  "meta_description": "Plan CCTV for business sites with 16, 32 and 64 channel options, camera placement, recording storage, remote viewing and installation guidance.",
+  "canonical": "https://www.myradvancesolution.com/cctv-solutions/",
+  "headings": [],
+  "links": [],
+  "images": [],
+  "forms": []
+ },
+ "/ip-pbx/": {
+  "file": "ip-pbx.html",
+  "route": "/ip-pbx/",
+  "title": "IP PBX & VoIP Phone Systems for Business | MYR",
+  "meta_description": "Plan an IP PBX or VoIP business phone system with extensions, IVR, call routing, queues, voicemail and remote communication options.",
+  "canonical": "https://www.myradvancesolution.com/ip-pbx/",
+  "headings": [],
+  "links": [],
+  "images": [],
+  "forms": []
+ },
+ "/network-product/": {
+  "file": "network-product.html",
+  "route": "/network-product/",
+  "title": "Networking Products for Business | MYR Advance Solution",
+  "meta_description": "Browse switches, routers, access points and structured networking products for business LAN, Wi-Fi and IT infrastructure from MYR.",
+  "canonical": "https://www.myradvancesolution.com/network-product/",
+  "headings": [],
+  "links": [],
+  "images": [],
+  "forms": []
+ },
+ "/education-erp/school/": {
+  "file": "education-erp/school.html",
+  "route": "/education-erp/school/",
+  "title": "School ERP Software | MYR Advance Solution",
+  "meta_description": "School ERP for admissions, attendance, exams, fees, timetables and parent portals. Run the school day in one workspace.",
+  "canonical": "https://www.myradvancesolution.com/education-erp/school/",
+  "headings": [],
+  "links": [],
+  "images": [],
+  "forms": []
+ },
+ "/education-erp/college/": {
+  "file": "education-erp/college.html",
+  "route": "/education-erp/college/",
+  "title": "College ERP Software | MYR Advance Solution",
+  "meta_description": "College ERP for admissions, departments, attendance, examinations, results, fees and student portals in a single campus workspace.",
+  "canonical": "https://www.myradvancesolution.com/education-erp/college/",
+  "headings": [],
+  "links": [],
+  "images": [],
+  "forms": []
+ },
+ "/education-erp/coaching/": {
+  "file": "education-erp/coaching.html",
+  "route": "/education-erp/coaching/",
+  "title": "Coaching Institute ERP Software | MYR",
+  "meta_description": "Coaching ERP for batch scheduling, attendance, tests, fees, lead follow-up and student progress for coaching institutes.",
+  "canonical": "https://www.myradvancesolution.com/education-erp/coaching/",
+  "headings": [],
+  "links": [],
+  "images": [],
+  "forms": []
+ },
+ "/education-erp/modules/": {
+  "file": "education-erp/modules.html",
+  "route": "/education-erp/modules/",
+  "title": "Education ERP Modules | MYR Advance Solution",
+  "meta_description": "Explore the modules that power MYR Education ERP: admissions, attendance, exams, fees, timetables, staff and parent portals.",
+  "canonical": "https://www.myradvancesolution.com/education-erp/modules/",
+  "headings": [],
+  "links": [],
+  "images": [],
+  "forms": []
  }
 }

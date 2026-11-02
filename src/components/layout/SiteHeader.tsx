@@ -305,7 +305,6 @@ export function SiteHeader() {
           <Link
             to="/cart/"
             className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-ink-950/[0.04] px-2.5 py-2 text-xs font-semibold text-ink-100 transition hover:border-accent-400/50 sm:gap-2 sm:px-3 sm:text-sm"
-            aria-label={`Cart: ${inr(total)}, ${count} items`}
           >
             <CartGlyph />
             {count > 0 && <span className="hidden font-mono text-xs sm:inline">{inr(total)}</span>}
@@ -315,6 +314,9 @@ export function SiteHeader() {
               </span>
             )}
             <span className="hidden text-xs text-ink-300 sm:inline">Cart</span>
+            <span className="sr-only">
+              Cart, {count} {count === 1 ? 'item' : 'items'}, total {inr(total)}
+            </span>
           </Link>
 
           <button
