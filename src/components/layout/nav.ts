@@ -4,7 +4,7 @@ export type NavLink = { label: string; to: string; badge?: string; external?: bo
 
 export const PRIMARY_NAV: NavLink[] = [
   { label: 'Launch Your Website', to: '/website-development/' },
-  { label: 'All-in-One Lead CRM', to: '/privyr/' },
+  { label: 'CRM', to: '/privyr/' },
   { label: 'HRM Solutions', to: '/hrm-solutions/' },
   { label: 'Smart IPBX Solutions', to: '/ipbx-solution/' },
   { label: 'Contact Us', to: '/contact-us/' },
@@ -15,7 +15,7 @@ export const INNER_NAV: NavLink[] = [
   { label: 'Home', to: '/' },
   { label: 'Shop', to: '/tech-store/' },
   { label: 'Launch Your Website', to: '/website-development/' },
-  { label: 'All-in-One Lead CRM', to: '/privyr/' },
+  { label: 'CRM', to: '/privyr/' },
   { label: 'HRM', to: '/hrm-solutions/' },
   { label: 'Education ERP', to: '/education-erp/' },
   { label: 'Contact Us', to: '/contact-us/' },
