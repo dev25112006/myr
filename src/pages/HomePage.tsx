@@ -1225,48 +1225,97 @@ function SupportBlockSection() {
   )
 }
 
-function IphoneMyrAppPreview() {
+const CTA_APPS = [
+  { label: 'Mail', icon: '✉', color: 'bg-sky-500' },
+  { label: 'Photos', icon: '✿', color: 'bg-fuchsia-500' },
+  { label: 'Camera', icon: '◉', color: 'bg-slate-700' },
+  { label: 'Maps', icon: '⌖', color: 'bg-emerald-500' },
+  { label: 'Music', icon: '♫', color: 'bg-rose-500' },
+  { label: 'Notes', icon: '▤', color: 'bg-amber-400' },
+  { label: 'Wallet', icon: '▣', color: 'bg-slate-800' },
+  { label: 'Weather', icon: '☀', color: 'bg-blue-400' },
+  { label: 'Files', icon: '▰', color: 'bg-sky-600' },
+  { label: 'Chat', icon: '•••', color: 'bg-green-500' },
+  { label: 'Shop', icon: '▣', color: 'bg-violet-500' },
+  { label: 'Calendar', icon: '31', color: 'bg-red-500' },
+  { label: 'Phone', icon: '☎', color: 'bg-emerald-500' },
+  { label: 'CRM', icon: '▥', color: 'bg-indigo-500' },
+  { label: 'Settings', icon: '⚙', color: 'bg-slate-500' },
+  { label: 'MYR', icon: 'M', color: 'bg-white', myr: true },
+]
+
+function IphoneAppLaunch() {
+  const reduceMotion = useReducedMotion()
+  const [phase, setPhase] = useState(0) // 0 home, 1 opening, 2 app, 3 closing
+
+  useEffect(() => {
+    if (reduceMotion) return
+    let timers: ReturnType<typeof setTimeout>[] = []
+    const cycle = () => {
+      setPhase(0)
+      timers.push(setTimeout(() => setPhase(1), 2200))
+      timers.push(setTimeout(() => setPhase(2), 2900))
+      timers.push(setTimeout(() => setPhase(3), 7900))
+      timers.push(setTimeout(cycle, 8600))
+    }
+    cycle()
+    return () => timers.forEach(clearTimeout)
+  }, [reduceMotion])
+
+  const opening = phase === 1
+  const inApp = phase === 2
+  const closing = phase === 3
+
   return (
-    <div
-      role="group"
-      aria-label="iPhone 18 Pro Max showing MYR app"
-      className="relative mx-auto h-auto w-[46%] max-w-[260px] aspect-[.482] drop-shadow-[0_30px_55px_rgba(2,6,23,.5)]"
-    >
-      <img
-        src="/assets/iphone18-frame.png"
-        alt=""
-        className="absolute inset-0 h-full w-full rounded-[10%] object-fill"
-      />
-      <div className="absolute inset-[9%_8%_9%_8%] overflow-hidden rounded-[8%] bg-gradient-to-br from-ink-950 via-ink-900 to-ink-800">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="iphone-myr-app flex flex-col items-center justify-center gap-3">
-            <img
-              src="/assets/2024-08-MYR-LOGO.png"
-              alt="MYR"
-              className="h-16 w-auto object-contain"
-            />
-            <p className="text-[10px] font-semibold uppercase tracking-[.2em] text-white/70">
-              MYR Advance Solution
-            </p>
+    <div role="group" aria-label="iPhone 18 Pro Max app preview" className="relative h-auto w-[46%] max-w-[230px] aspect-[.482] drop-shadow-[0_30px_55px_rgba(2,6,23,.5)]">
+      <img src="/assets/iphone18-frame.png" alt="" className="absolute inset-0 h-full w-full rounded-[10%] object-fill" />
+      <div className="absolute inset-x-[7%] bottom-[14%] top-[15%] overflow-hidden rounded-[8%] bg-black">
+        {/* Home screen */}
+        <div
+          className={`absolute inset-0 grid grid-cols-4 content-start gap-x-1 gap-y-[7%] bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-[7%] transition-all duration-500 ${
+            inApp || opening || closing ? 'scale-95 opacity-0 blur-sm' : 'scale-100 opacity-100 blur-0'
+          }`}
+        >
+          {CTA_APPS.map((app) => (
+            <div key={app.label} className="flex flex-col items-center gap-[4%]">
+              <span
+                className={`grid aspect-square w-full place-items-center rounded-[22%] text-[clamp(8px,1.1vw,13px)] font-bold shadow-md ${app.color} ${app.myr ? 'ring-2 ring-white/60' : ''} ${
+                  app.myr && opening ? 'scale-[4.5] z-10' : 'scale-100'
+                } transition-transform duration-500`}
+              >
+                {app.myr ? (
+                  <img src="/assets/2024-08-MYR-LOGO.png" alt="" className="h-[60%] w-[60%] object-contain" />
+                ) : (
+                  app.icon
+                )}
+              </span>
+              <span className="text-[clamp(5px,.6vw,8px)] text-white/80">{app.label}</span>
+            </div>
+          ))}
+        </div>
+        {/* Full-screen white app (MYR Advance Solution) */}
+        <div
+          className={`absolute inset-0 flex flex-col bg-white transition-all duration-500 ${
+            inApp ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'
+          }`}
+        >
+          <div className="flex items-center justify-between px-3 pt-3 text-[clamp(7px,.8vw,10px)] text-slate-500">
+            <span>9:41</span>
+            <span>●●● Wi-Fi</span>
+          </div>
+          <div className="flex flex-1 flex-col items-center justify-center px-4 text-center">
+            <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution" className="h-[18%] w-auto object-contain" />
+            <h3 className="mt-3 text-[clamp(12px,1.6vw,18px)] font-bold text-ink-950">MYR Advance Solution</h3>
+            <p className="mt-1 text-[clamp(7px,.8vw,10px)] text-ink-500">Sign in to continue</p>
+            <div className="mt-4 w-full space-y-2">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left text-[clamp(7px,.8vw,10px)] text-slate-400">Email address</div>
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left text-[clamp(7px,.8vw,10px)] text-slate-400">Password</div>
+              <div className="rounded-lg bg-ink-950 py-2 text-[clamp(8px,.9vw,11px)] font-bold text-white">Log in</div>
+            </div>
+            <p className="mt-3 text-[clamp(6px,.7vw,9px)] text-slate-400">Don&apos;t have an account? Register</p>
           </div>
         </div>
-        <span className="absolute bottom-2 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-white/40" />
       </div>
-      <style>{`
-        .iphone-myr-app {
-          animation: myrAppOpenClose 6s ease-in-out infinite;
-          transform-origin: center;
-        }
-        @keyframes myrAppOpenClose {
-          0% { transform: scale(0.25); opacity: 0; filter: blur(6px); }
-          12% { transform: scale(1); opacity: 1; filter: blur(0); }
-          82% { transform: scale(1); opacity: 1; filter: blur(0); }
-          100% { transform: scale(0.25); opacity: 0; filter: blur(6px); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .iphone-myr-app { animation: none; transform: scale(1); opacity: 1; }
-        }
-      `}</style>
     </div>
   )
 }
@@ -1274,20 +1323,20 @@ function IphoneMyrAppPreview() {
 function BottomCtaBand() {
   return (
     <section className="section-dark border-y border-line py-14 sm:py-16">
-      <div className="container-page grid items-center gap-10 sm:grid-cols-2">
-        <div className="text-center sm:text-left">
-          <h2 className="max-w-2xl text-2xl font-bold text-ink-900 sm:text-3xl">
+      <div className="container-page grid items-center gap-8 sm:grid-cols-2">
+        <div>
+          <h2 className="max-w-2xl text-2xl font-bold text-ink-950 sm:text-3xl">
             Save up to 60% on Website Development plan + get a free domain
           </h2>
           <p className="mt-2 text-sm text-ink-600">
             Try risk-free. 30-day money-back guarantee.
           </p>
-          <a href="#E-Commerce" className="btn btn-primary btn-lg mt-6 inline-block shrink-0">
+          <a href="#E-Commerce" className="btn btn-primary btn-lg mt-6 inline-block">
             Get Started
           </a>
         </div>
         <div className="flex justify-center">
-          <IphoneMyrAppPreview />
+          <IphoneAppLaunch />
         </div>
       </div>
     </section>
