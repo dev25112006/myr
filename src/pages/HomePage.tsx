@@ -570,16 +570,18 @@ function ServiceScreen({ serviceIndex }: { serviceIndex: number }) {
   }, [isPhone])
 
   return (
-    <div className="relative aspect-[1.35] w-full max-w-xl animate-[serviceScreenEnter_500ms_ease-out]">
+    <div className="relative aspect-[4/3] w-full max-w-xl animate-[serviceScreenEnter_500ms_ease-out]">
       <div className={`absolute inset-0 origin-center transform-gpu transition-all duration-[1400ms] ease-in-out ${isPhone ? 'scale-[.08] rotate-[70deg] opacity-0 blur-[1px]' : 'scale-100 rotate-0 opacity-100 blur-0'}`}>
-      <div key={serviceIndex} className="relative h-full overflow-hidden rounded-[1.6rem] border border-slate-200/80 bg-white shadow-[0_30px_80px_-40px_rgba(15,23,42,.45)] animate-[serviceScreenEnter_500ms_ease-out]">
-        <div className="flex h-7 items-center gap-2 border-b border-slate-100 px-3">
-          <span className="h-2 w-2 rounded-full bg-rose-400" />
-          <span className="h-2 w-2 rounded-full bg-amber-300" />
-          <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          <span className="ml-2 flex-1 truncate rounded-md bg-slate-100 px-2 py-0.5 text-[8px] text-slate-500">myradvancesolution.com/{service.to.replace(/^\//, '')}</span>
-        </div>
-        <div className="relative h-[calc(100%-1.75rem)] overflow-hidden bg-slate-50 text-slate-800">
+      <div className="relative h-full rounded-[2rem] bg-slate-900 p-[1.6%] shadow-[0_40px_90px_-45px_rgba(15,23,42,.55)] ring-1 ring-slate-900/10">
+        <div className="absolute left-1/2 top-[3%] h-[3%] w-[2.5%] -translate-x-1/2 rounded-full bg-slate-700/80" />
+        <div key={serviceIndex} className="relative h-[96%] overflow-hidden rounded-[1.5rem] bg-white animate-[serviceScreenEnter_500ms_ease-out]">
+          <div className="flex h-[7%] items-center gap-2 border-b border-slate-100 px-3">
+            <span className="h-2 w-2 rounded-full bg-rose-400" />
+            <span className="h-2 w-2 rounded-full bg-amber-300" />
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="ml-2 flex-1 truncate rounded-md bg-slate-100 px-2 py-0.5 text-[8px] text-slate-500">myradvancesolution.com/{service.to.replace(/^\//, '')}</span>
+          </div>
+          <div className="relative h-[93%] overflow-hidden bg-slate-50 text-slate-800">
           {serviceIndex === 0 && (
             <div className="service-site-scroll absolute inset-0 bg-white p-[5%]">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-[clamp(6px,.7vw,10px)] font-semibold"><span className="text-emerald-700">MYR<span className="text-slate-700"> Studio</span></span><span className="flex gap-3 text-slate-500"><span>Work</span><span>Services</span><span>About</span></span><span className="rounded bg-emerald-600 px-2 py-1 text-white">Start a project</span></div>
@@ -611,6 +613,8 @@ function ServiceScreen({ serviceIndex }: { serviceIndex: number }) {
             <div className="absolute inset-0 bg-[#f7faf9] p-[4%] text-[clamp(6px,.68vw,9px)]"><div className="flex h-full gap-[3%]"><aside className="w-[19%] rounded-lg bg-[#112d32] p-[3%] text-white"><b className="text-cyan-200">CAMPUS</b>{['Overview','Students','Academics','Fees','Reports'].map((item,i)=><div key={item} className={`mt-3 rounded px-1.5 py-1 ${i===0?'bg-white/15 text-white':'text-white/60'}`}>{item}</div>)}</aside><div className="flex-1"><div className="flex items-center justify-between"><div><b className="text-[1.5em]">Campus overview</b><p className="text-slate-500">Monday · Term 2</p></div><span className="rounded bg-cyan-800 px-2 py-1 text-white">All campuses</span></div><div className="mt-[3%] grid grid-cols-3 gap-2">{[['Students','2,486'],['Attendance','94.2%'],['Fee collection','82%']].map(([label,value])=><div key={label} className="rounded-lg bg-white p-2 shadow-sm"><span className="text-slate-500">{label}</span><b className="mt-1 block text-[1.5em]">{value}</b></div>)}</div><div className="mt-[3%] rounded-lg bg-white p-2 shadow-sm"><b>Today · Class 10 A</b>{[['Mathematics','09:00','Present'],['Physics','10:15','In progress'],['English','11:30','Upcoming']].map(([subject,time,status])=><div key={subject} className="mt-2 flex justify-between border-t border-slate-100 pt-1.5 text-slate-600"><span>{subject}</span><span>{time}</span><span className="text-emerald-700">{status}</span></div>)}</div></div></div></div>
           )}
         </div>
+      </div>
+      <div className="absolute bottom-[1.2%] left-1/2 h-[0.5%] w-[18%] -translate-x-1/2 rounded-full bg-slate-600/70" />
       </div>
       </div>
       <div className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center origin-center transform-gpu transition-all duration-[1400ms] ease-in-out ${isPhone ? 'scale-100 rotate-0 opacity-100' : 'scale-[.08] rotate-[-70deg] opacity-0'}`}>
