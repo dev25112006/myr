@@ -1311,7 +1311,7 @@ function IphoneAppLaunch() {
             opening ? 'opacity-100 scale-100' : 'opacity-0 scale-110 pointer-events-none'
           }`}
         >
-          <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution" className="h-[70%] w-[70%] object-contain" />
+          <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution" className="h-full w-full object-contain p-2" />
         </div>
         {/* Full-screen white app (MYR Advance Solution) */}
         <div
