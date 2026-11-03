@@ -479,99 +479,12 @@ function StatsSection() {
   )
 }
 
-const PHONE_DEMO_APPS = [
-  { label: 'Mail', icon: '✉', color: 'bg-sky-500' },
-  { label: 'Photos', icon: '✿', color: 'bg-fuchsia-500' },
-  { label: 'Camera', icon: '◉', color: 'bg-slate-700' },
-  { label: 'Maps', icon: '⌖', color: 'bg-emerald-500' },
-  { label: 'Music', icon: '♫', color: 'bg-rose-500' },
-  { label: 'Notes', icon: '▤', color: 'bg-amber-400' },
-  { label: 'Wallet', icon: '▣', color: 'bg-slate-800' },
-  { label: 'Weather', icon: '☀', color: 'bg-blue-400' },
-  { label: 'Files', icon: '▰', color: 'bg-sky-600' },
-  { label: 'Chat', icon: '•••', color: 'bg-green-500' },
-  { label: 'Shop', icon: '▣', color: 'bg-violet-500' },
-  { label: 'Calendar', icon: '31', color: 'bg-red-500' },
-  { label: 'Phone', icon: '☎', color: 'bg-emerald-500' },
-  { label: 'CRM', icon: '▥', color: 'bg-indigo-500' },
-  { label: 'Settings', icon: '⚙', color: 'bg-slate-500' },
-  { label: 'MYR', icon: '', color: 'bg-white', myr: true },
-]
-
-function MobilePhonePreview({
-  phase,
-  onOpen,
-  onClose,
-}: {
-  phase: number
-  onOpen: () => void
-  onClose: () => void
-}) {
-  const homeVisible = phase === 0 || phase === 3
-  const appVisible = phase === 1 || phase === 2
-
-  return (
-    <div role="group" aria-label="iPhone 18 Pro Max app preview" className="relative h-auto w-[39%] max-w-[205px] aspect-[.482] drop-shadow-[0_30px_55px_rgba(2,6,23,.5)]">
-      <img src="/assets/iphone18-frame.png" alt="" className="absolute inset-0 h-full w-full rounded-[10%] object-fill" />
-      <div className="absolute left-[4%] top-[1.6%] h-[96.8%] w-[91.7%] overflow-hidden rounded-[10%] text-white">
-        <div className={`absolute inset-x-[9%] top-[6%] z-30 flex justify-between text-[7px] font-semibold drop-shadow ${appVisible ? 'text-slate-900' : 'text-white'}`}><span>9:41</span><span>▮▮  Wi-Fi  ▰</span></div>
-        <div className="absolute left-[39%] top-[1.5%] z-30 h-[3.2%] w-[22%] rounded-full bg-black" />
-        <div
-          className="absolute inset-x-[7%] bottom-[14%] top-[15%] grid grid-cols-4 content-start gap-x-1 gap-y-[7%] transition-all duration-500"
-          style={{ opacity: homeVisible ? 1 : 0, transform: homeVisible ? 'scale(1)' : 'scale(.9)' }}
-        >
-          {PHONE_DEMO_APPS.map((app) => (
-            <button
-              key={app.label}
-              type="button"
-              onClick={app.myr ? onOpen : undefined}
-              aria-label={app.myr ? 'Open MYR app demo' : app.label}
-              className="flex min-w-0 flex-col items-center gap-1 text-[6px] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,.9)]"
-            >
-              <span className={`flex aspect-square w-full items-center justify-center overflow-hidden rounded-[22%] text-[14px] shadow-lg ${app.color}`}>
-                {app.myr ? <img src="/assets/2024-09-MYR-MOBILE-LOGO.png" alt="" className="h-[82%] w-[82%] object-contain" /> : app.icon}
-              </span>
-              <span className="truncate">{app.label}</span>
-            </button>
-          ))}
-        </div>
-        <div className="absolute inset-x-[8%] bottom-[5%] grid grid-cols-4 gap-1 rounded-2xl bg-white/20 p-1.5 backdrop-blur-sm" style={{ opacity: homeVisible ? 1 : 0, transition: 'opacity 500ms ease' }}>
-          {PHONE_DEMO_APPS.slice(0, 4).map((app) => <span key={`dock-${app.label}`} className={`flex aspect-square items-center justify-center rounded-[22%] text-[12px] shadow ${app.color}`}>{app.icon}</span>)}
-        </div>
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-white via-white to-slate-50 text-slate-900 transition-all duration-700"
-          style={{ opacity: appVisible ? 1 : 0, transform: phase === 1 ? 'scale(.78)' : phase === 2 ? 'scale(1)' : 'scale(.78)' }}
-        >
-          <button type="button" onClick={onClose} aria-label="Close MYR app demo" className="absolute right-[9%] top-[14%] flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-600">×</button>
-          <img src="/assets/2024-09-MYR-MOBILE-LOGO.png" alt="MYR logo" className="w-[48%] object-contain" />
-          <span className="mt-[8%] text-[clamp(9px,1vw,13px)] font-bold tracking-[.16em] text-violet-900">MYR</span>
-          <span className="mt-1 text-[7px] text-slate-500">Advance Solution</span>
-          <span className="mt-[12%] rounded-full bg-violet-700 px-4 py-2 text-[7px] font-semibold text-white">Explore services</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function ServiceScreen({ serviceIndex }: { serviceIndex: number }) {
   const service = SERVICES[serviceIndex]
-  const isPhone = serviceIndex === 6
-  const [phonePhase, setPhonePhase] = useState(0)
-
-  useEffect(() => {
-    if (!isPhone) {
-      setPhonePhase(0)
-      return
-    }
-    const interval = window.setInterval(() => {
-      setPhonePhase((current) => (current >= 3 ? 0 : current + 1))
-    }, 2200)
-    return () => window.clearInterval(interval)
-  }, [isPhone])
 
   return (
     <div className="relative aspect-[4/3] w-full max-w-xl animate-[serviceScreenEnter_500ms_ease-out]">
-      <div className={`absolute inset-0 origin-center transform-gpu transition-all duration-[1400ms] ease-in-out ${isPhone ? 'scale-[.08] rotate-[70deg] opacity-0 blur-[1px]' : 'scale-100 rotate-0 opacity-100 blur-0'}`}>
+      <div className="absolute inset-0 origin-center transform-gpu scale-100 rotate-0 opacity-100 blur-0 transition-all duration-[1400ms] ease-in-out">
       <div className="relative h-full rounded-[1.2rem] bg-slate-900 p-[0.8%] shadow-[0_40px_90px_-45px_rgba(15,23,42,.55)] ring-1 ring-slate-900/10">
         <div key={serviceIndex} className="relative h-full overflow-hidden rounded-[1rem] bg-white animate-[serviceScreenEnter_500ms_ease-out]">
           <div className="flex h-[7%] items-center gap-2 border-b border-slate-100 px-3">
@@ -614,15 +527,6 @@ function ServiceScreen({ serviceIndex }: { serviceIndex: number }) {
         </div>
       </div>
       </div>
-      </div>
-      <div className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center origin-center transform-gpu transition-all duration-[1400ms] ease-in-out ${isPhone ? 'scale-100 rotate-0 opacity-100' : 'scale-[.08] rotate-[-70deg] opacity-0'}`}>
-        <div className={`flex h-full w-full items-center justify-center ${isPhone ? 'pointer-events-auto' : 'pointer-events-none'}`}>
-          <MobilePhonePreview
-            phase={phonePhase}
-            onOpen={() => setPhonePhase(1)}
-            onClose={() => setPhonePhase(3)}
-          />
-        </div>
       </div>
       <style>{`
         @keyframes serviceScreenEnter { from { opacity: .2; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
