@@ -620,12 +620,15 @@ function CoreServicesSection() {
                   <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-accent-600 transition group-hover:gap-2">
                     Explore service →
                   </span>
+                  <div className="mt-5 lg:hidden">
+                    <ServiceScreen serviceIndex={index} />
+                  </div>
                 </a>
               </article>
             ))}
           </div>
 
-          <div className="order-1 lg:order-2 lg:sticky lg:top-[14vh] lg:flex lg:h-[72vh] lg:self-start lg:items-center">
+          <div className="hidden order-1 lg:order-2 lg:sticky lg:top-[14vh] lg:flex lg:h-[72vh] lg:self-start lg:items-center">
             <ServiceScreen serviceIndex={activeIndex} />
           </div>
         </div>
