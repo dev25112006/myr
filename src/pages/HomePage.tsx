@@ -570,16 +570,16 @@ function ServiceScreen({ serviceIndex }: { serviceIndex: number }) {
   }, [isPhone])
 
   return (
-    <div className="relative aspect-[1.55] w-full max-w-xl animate-[serviceScreenEnter_500ms_ease-out]">
-      <div className={`absolute inset-x-0 top-1/2 -translate-y-1/2 origin-center transform-gpu transition-all duration-[1400ms] ease-in-out ${isPhone ? 'scale-[.08] rotate-[70deg] opacity-0 blur-[1px]' : 'scale-100 rotate-0 opacity-100 blur-0'}`}>
-      <div className="overflow-hidden rounded-t-[1.1rem] border-[5px] border-b-0 border-slate-800 bg-slate-900 p-2 shadow-2xl">
-        <div className="flex h-5 items-center gap-1.5 px-1">
-          <i className="h-2 w-2 rounded-full bg-rose-400" />
-          <i className="h-2 w-2 rounded-full bg-amber-300" />
-          <i className="h-2 w-2 rounded-full bg-emerald-400" />
-          <span className="ml-2 flex-1 rounded bg-slate-700 px-2 py-0.5 text-[8px] text-slate-300">myradvancesolution.com/{service.to.replace(/^\//, '')}</span>
+    <div className="relative aspect-[1.35] w-full max-w-xl animate-[serviceScreenEnter_500ms_ease-out]">
+      <div className={`absolute inset-0 origin-center transform-gpu transition-all duration-[1400ms] ease-in-out ${isPhone ? 'scale-[.08] rotate-[70deg] opacity-0 blur-[1px]' : 'scale-100 rotate-0 opacity-100 blur-0'}`}>
+      <div key={serviceIndex} className="relative h-full overflow-hidden rounded-[1.6rem] border border-slate-200/80 bg-white shadow-[0_30px_80px_-40px_rgba(15,23,42,.45)] animate-[serviceScreenEnter_500ms_ease-out]">
+        <div className="flex h-7 items-center gap-2 border-b border-slate-100 px-3">
+          <span className="h-2 w-2 rounded-full bg-rose-400" />
+          <span className="h-2 w-2 rounded-full bg-amber-300" />
+          <span className="h-2 w-2 rounded-full bg-emerald-400" />
+          <span className="ml-2 flex-1 truncate rounded-md bg-slate-100 px-2 py-0.5 text-[8px] text-slate-500">myradvancesolution.com/{service.to.replace(/^\//, '')}</span>
         </div>
-        <div className="relative aspect-[16/9] overflow-hidden rounded bg-slate-50 text-slate-800">
+        <div className="relative h-[calc(100%-1.75rem)] overflow-hidden bg-slate-50 text-slate-800">
           {serviceIndex === 0 && (
             <div className="service-site-scroll absolute inset-0 bg-white p-[5%]">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-[clamp(6px,.7vw,10px)] font-semibold"><span className="text-emerald-700">MYR<span className="text-slate-700"> Studio</span></span><span className="flex gap-3 text-slate-500"><span>Work</span><span>Services</span><span>About</span></span><span className="rounded bg-emerald-600 px-2 py-1 text-white">Start a project</span></div>
@@ -612,8 +612,6 @@ function ServiceScreen({ serviceIndex }: { serviceIndex: number }) {
           )}
         </div>
       </div>
-      <div className="mx-auto h-3 w-[22%] bg-gradient-to-b from-slate-500 to-slate-400" />
-      <div className="mx-auto h-2 w-[38%] rounded-b-full bg-slate-500" />
       </div>
       <div className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center origin-center transform-gpu transition-all duration-[1400ms] ease-in-out ${isPhone ? 'scale-100 rotate-0 opacity-100' : 'scale-[.08] rotate-[-70deg] opacity-0'}`}>
         <div className={`flex h-full w-full items-center justify-center ${isPhone ? 'pointer-events-auto' : 'pointer-events-none'}`}>
