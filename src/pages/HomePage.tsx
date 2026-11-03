@@ -1269,7 +1269,7 @@ function IphoneAppLaunch() {
   return (
     <div role="group" aria-label="iPhone 18 Pro Max app preview" className="relative h-auto w-[85%] max-w-[300px] sm:w-[80%] sm:max-w-[290px] aspect-[.482] drop-shadow-[0_30px_55px_rgba(2,6,23,.5)]">
       <img src="/assets/iphone18-frame.png" alt="" className="absolute inset-0 h-full w-full rounded-[10%] object-fill" />
-      <div className="absolute inset-x-[7%] bottom-[14%] top-[15%] overflow-hidden rounded-[8%] bg-black">
+      <div className="absolute inset-x-[6%] bottom-[10%] top-[12%] overflow-hidden rounded-[8%] bg-black">
         {/* Home screen */}
         <div
           className={`absolute inset-0 flex flex-col bg-gradient-to-b from-indigo-900 via-slate-900 to-slate-950 p-[5%] transition-all duration-500 ${
