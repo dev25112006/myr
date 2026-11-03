@@ -1344,7 +1344,7 @@ function IphoneAppLaunch() {
 function BottomCtaBand() {
   return (
     <section className="section-dark border-y border-line py-14 sm:py-16">
-      <div className="container-page grid items-center gap-8 sm:grid-cols-2">
+      <div className="container-page grid items-center gap-4 sm:grid-cols-2 sm:gap-6">
         <div>
           <span className="inline-flex items-center gap-2 rounded-full bg-flame-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-flame-600">
             Limited-time offer
