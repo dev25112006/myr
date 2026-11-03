@@ -184,9 +184,9 @@ function IntroPhase() {
       <p className="mx-auto mt-4 text-ink-500">{config.intro}</p>
       <ul className="mx-auto mt-8 grid max-w-xl gap-3 text-left sm:grid-cols-2">
         {[
-          'Click through campus departments',
-          'Switch between seven real roles',
-          'Run short workflows, earn XP and badges',
+          `Explore ${config.locations.length} campus departments`,
+          `Switch between ${config.roles.length} roles`,
+          `Try ${config.missions.length} sample missions and earn XP`,
           'Everything stays in your browser',
         ].map((t) => (
           <li key={t} className="rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink-600">

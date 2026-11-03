@@ -39,7 +39,7 @@ function CollegeErpContent() {
         badge={seg.hero.badge}
         headline={seg.hero.titleBefore + seg.hero.titleAccent}
         sub={seg.hero.sub}
-        primaryCta={{ label: 'Enter Smart Campus', to: '/education-erp/college/#modules' }}
+        primaryCta={{ label: 'Explore College ERP', to: '/education-erp/college/#modules' }}
         secondaryCta={{ label: 'Enter Virtual College', onClick: () => tour.open('intro') }}
         roleCards={['College Administrator', 'Principal', 'Faculty']}
         connected={true}
@@ -64,20 +64,16 @@ function CollegeErpContent() {
       {/* 3 · Roles */}
       <RoleSection
         roles={COLLEGE_TOUR.roles}
-        sub="Admin, teachers, parents and the accounts desk each work inside their own view of the same student, class and fee records."
+        sub="Administrators, directors, HODs, faculty and service teams get role-specific views across departments, while students see their own academic, attendance, result and fee records."
       />
 
       {/* 4 · Modules */}
       <div id="modules">
         <ModuleShowcase
           modules={collegeModules}
-          eyebrow="College ERP modules"
-          title={
-            <>
-              Sixteen modules, <span className="text-accent-600">each with its real screen.</span>
-            </>
-          }
-          sub="No icon grids. Every module opens a preview of the working screen. Green means the workflow runs in the MYR workspace today; grey means configurable scope."
+          eyebrow="MODULES INVOLVED"
+          title="College workflows, connected"
+          sub="Explore the academic, student-service and administrative workflows involved in running a college. Preview screens use sample data; status labels distinguish live workflows from configurable scope."
         />
       </div>
 
@@ -88,7 +84,7 @@ function CollegeErpContent() {
       <ClosingSection
         headline={seg.closingHeadline}
         body="Build a Connected Campus. Manage Every Academic Journey. One dashboard, every screen your college carries. The accounts desk on a desktop, a teacher with a phone in the corridor, a student checking at home."
-        journeyLabel="Explore College ERP"
+        journeyLabel="Start Your College ERP Journey"
         journeyTo="/education-erp/modules/"
         demoLabel="Book College ERP Demo"
         tourLabel="Enter Virtual College"

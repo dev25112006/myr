@@ -83,7 +83,7 @@ export const BASMALA = 'Basmala'
 export const CHAT_SUPPORT = 'https://1367.3cx.cloud/myradvancesolutionpr'
 export const CHAT_SALES = 'https://1367.3cx.cloud/myrsolution'
 export const CHAT_ABUSE = 'https://1367.3cx.cloud/eli'
-export const WHATSAPP = 'https://wa.me/+917408443341'
+export const WHATSAPP = 'https://wa.me/917408443341'
 
 export const FOOTER_BLURB =
   'We Can Take Your Business To The Next Level. Elevate your business with our comprehensive suite of IT services and solutions, encompassing IPBX systems, CCTV security, computer networking, CRM development, AI digital marketing, website development and design, billing solutions and more.'

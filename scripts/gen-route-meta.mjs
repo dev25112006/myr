@@ -25,7 +25,6 @@ const KEYWORDS = {
   '/1800-number/': 'India toll free number 1800, business helpline number, toll-free phone service, IVR, call routing',
   '/privyr/': 'mobile CRM software India, lead management CRM US, sales CRM, WhatsApp lead follow up, sales automation',
   '/crm/': 'mobile CRM software India, lead management CRM US, sales CRM, WhatsApp lead follow up, sales automation',
-  '/crm/': 'mobile CRM software India, lead management CRM US, sales CRM, WhatsApp lead follow up, sales automation',
   '/about-us/': 'about MyR Advance Solution, IT company, technology partner',
   '/contact-us/': 'contact IT support, live chat, WhatsApp support',
   '/tech-store/': 'business software and IT products India, CRM, HRMS, education ERP, website plans, networking and PBX systems',
@@ -47,6 +46,14 @@ const KEYWORDS = {
   '/education-erp/college/': 'college ERP India, college management software, examination management system, college attendance, student portal',
   '/education-erp/coaching/': 'coaching institute software India, coaching ERP, batch scheduling software, test series management, coaching fee management',
   '/education-erp/modules/': 'education ERP modules, school management modules, attendance module, exam module, fee module, timetable module',
+  '/booking/': 'book IT consultation India, software demo appointment, business technology discussion, MYR services appointment',
+  '/how-we-help-your-business/': 'business IT consulting India, software implementation, digital transformation services, technology partner',
+  '/knowledge-base/': 'MYR help center, product support articles, business software help, account and order guidance',
+  '/product-category/ip-pbx/': 'IP PBX products India, business phone systems, MYRLINK IP PBX, IVR and call routing equipment',
+  '/product-category/it-products/': 'business IT products India, networking equipment, IP PBX hardware, workplace infrastructure',
+  '/product-category/pbx/': 'business PBX equipment, IP telephony products, office phone systems, call routing hardware',
+  '/product-category/website-development/website-design/': 'website design packages India, responsive business website, ecommerce design plans, custom website development',
+  '/product-category/website-development/website/': 'business website packages India, responsive website design, website development plans, ecommerce options',
 }
 
 const PANEL_ROUTES = new Set([
@@ -58,12 +65,18 @@ const PANEL_ROUTES = new Set([
 /** URL aliases should consolidate signals on their primary route. */
 const CANONICAL_PATHS = {
   '/shop/': '/tech-store/',
+  '/partnership/': '/partner/',
+  '/cctv-solutions/': '/cctv-solution/',
+  '/ip-pbx/': '/ipbx-solution/',
+  '/crm/': '/privyr/',
+  '/product-category/pbx/': '/product-category/ip-pbx/',
 }
 
 /** Noindex routes (login-gated / duplicate / soft-404 source quirks). */
 const NOINDEX = new Set([
   '/myr/', '/cart/', '/checkout/', '/my-account/', '/my-account/lost-password/',
   '/not-found/', '/lets-keep-in-touch/', '/product-category/networking-devices/',
+  '/services/web-development/',
   ...PANEL_ROUTES,
 ])
 

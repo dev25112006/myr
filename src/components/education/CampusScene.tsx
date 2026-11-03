@@ -25,7 +25,7 @@ export function CampusScene({
   const reduce = useReducedMotion()
 
   return (
-    <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl border border-line bg-white">
+    <div className="pointer-events-none relative aspect-[16/10] w-full overflow-hidden rounded-3xl border border-line bg-white">
       {/* ground */}
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-[42%] bg-paper/70" />
       <div aria-hidden className="absolute inset-x-0 bottom-[42%] h-px bg-line" />
@@ -86,7 +86,7 @@ export function CampusScene({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.04 * i, duration: 0.35 }}
-            className="group absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-2 rounded-full"
+            className="pointer-events-auto group absolute z-10 -translate-x-1/2 -translate-y-1/2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-2 rounded-full"
             style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
             aria-pressed={active}
             aria-label={`Explore ${loc.label}${visited ? ' (visited)' : ''}`}

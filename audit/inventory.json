@@ -1111,7 +1111,7 @@
   "file": "booking.html",
   "route": "/booking/",
   "title": "Booking - MyR Advance Solution",
-  "meta_description": "",
+    "meta_description": "Request an appointment with MYR to discuss business software or IT services. Share your preferred date and requirements; our team will confirm availability.",
   "canonical": "https://www.myradvancesolution.com/booking/",
   "headings": [
    [
@@ -1590,7 +1590,7 @@
   "file": "cart.html",
   "route": "/cart/",
   "title": "Cart - MyR Advance Solution",
-  "meta_description": "",
+    "meta_description": "Review products selected from the MYR store and continue to secure checkout. Prices, tax and applicable shipping are confirmed before payment.",
   "canonical": "https://www.myradvancesolution.com/cart/",
   "headings": [
    [
@@ -2545,7 +2545,7 @@
   "file": "checkout.html",
   "route": "/checkout/",
   "title": "Cart - MyR Advance Solution",
-  "meta_description": "",
+    "meta_description": "Review your MYR order, saved customer details and final total, then pay securely through the configured payment provider.",
   "canonical": "https://www.myradvancesolution.com/cart/",
   "headings": [
    [
@@ -7892,7 +7892,7 @@
   "file": "how-we-help-your-business.html",
   "route": "/how-we-help-your-business/",
   "title": "How we help your business - MyR Advance Solution",
-  "meta_description": "",
+    "meta_description": "Explore how MYR helps businesses with software, websites, communications and IT infrastructure, from planning through implementation.",
   "canonical": "https://www.myradvancesolution.com/how-we-help-your-business/",
   "headings": [
    [
@@ -9072,7 +9072,7 @@
   "file": "knowledge-base.html",
   "route": "/knowledge-base/",
   "title": "Knowledge Base - MyR Advance Solution",
-  "meta_description": "",
+    "meta_description": "Find answers and practical guidance about MYR products, services, accounts, orders and business technology solutions.",
   "canonical": "https://www.myradvancesolution.com/knowledge-base/",
   "headings": [
    [
@@ -10038,7 +10038,7 @@
   "file": "my-account.html",
   "route": "/my-account/",
   "title": "My account - MyR Advance Solution",
-  "meta_description": "",
+    "meta_description": "Sign in to manage your MYR profile, review order and payment status, and access customer support requests.",
   "canonical": "https://www.myradvancesolution.com/my-account/",
   "headings": [
    [
@@ -14858,7 +14858,7 @@
   "file": "product-category_ip-pbx.html",
   "route": "/product-category/ip-pbx/",
   "title": "IP PBX Solution - MyR Advance Solution",
-  "meta_description": "",
+    "meta_description": "Browse MYRLINK IP PBX systems for business calling, extensions, IVR and team communications, with MYR guidance on product selection.",
   "canonical": "https://www.myradvancesolution.com/product-category/ip-pbx/",
   "headings": [
    [
@@ -15374,7 +15374,7 @@
   "file": "product-category_it-products.html",
   "route": "/product-category/it-products/",
   "title": "IT Products - MyR Advance Solution",
-  "meta_description": "",
+    "meta_description": "Explore IT products for business infrastructure, including networking and IP PBX equipment, with availability confirmed by MYR.",
   "canonical": "https://www.myradvancesolution.com/product-category/it-products/",
   "headings": [
    [
@@ -15890,7 +15890,7 @@
   "file": "product-category_pbx.html",
   "route": "/product-category/pbx/",
   "title": "PBX - MyR Advance Solution",
-  "meta_description": "",
+    "meta_description": "Explore business PBX and IP telephony equipment for extensions, call routing and workplace communications from MYRLINK.",
   "canonical": "https://www.myradvancesolution.com/product-category/pbx/",
   "headings": [
    [
@@ -17001,10 +17001,10 @@
  },
  "product-category_website-development_website-design": {
   "file": "product-category_website-development_website-design.html",
-  "route": "/product-category/website-development_website-design/",
+    "route": "/product-category/website-development/website-design/",
   "title": "Website Design - MyR Advance Solution",
-  "meta_description": "",
-  "canonical": "https://www.myradvancesolution.com/product-category/website-development/website-design/",
+    "meta_description": "Compare website design and development plans for business sites, from a clear online presence to customized ecommerce experiences.",
+    "canonical": "https://www.myradvancesolution.com/product-category/website-development/website-design/",
   "headings": [
    [
     "h1",
@@ -17603,10 +17603,10 @@
  },
  "product-category_website-development_website": {
   "file": "product-category_website-development_website.html",
-  "route": "/product-category/website-development_website/",
+    "route": "/product-category/website-development/website/",
   "title": "Website - MyR Advance Solution",
-  "meta_description": "",
-  "canonical": "https://www.myradvancesolution.com/product-category/website-development/website/",
+    "meta_description": "Explore business website packages with responsive design, practical content structure and options for future integrations.",
+    "canonical": "https://www.myradvancesolution.com/product-category/website-development/website/",
   "headings": [
    [
     "h1",

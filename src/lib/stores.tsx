@@ -172,12 +172,12 @@ type AuthCtx = {
   authError: string
   users: AuthUser[]
   serverInbox: InboxEntry[]
-  login: (identifier: string, password: string) => Promise<void>
-  register: (email: string, password: string) => Promise<void>
+  login: (identifier: string, password: string, humanToken: string) => Promise<void>
+  register: (email: string, password: string, humanToken: string) => Promise<void>
   refreshUsers: () => Promise<void>
   setUserRole: (id: string, role: AuthUser['role']) => Promise<void>
   refreshInbox: () => Promise<void>
-  submitInbox: (entry: Omit<InboxEntry, 'id' | 'date' | 'status'>) => Promise<void>
+  submitInbox: (entry: Omit<InboxEntry, 'id' | 'date' | 'status'> & { humanToken: string }) => Promise<void>
   setServerInboxStatus: (id: string, status: InboxEntry['status']) => Promise<void>
   logout: () => void
 }
@@ -235,14 +235,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authError,
       users,
       serverInbox,
-      login: async (identifier, password) => {
+      login: async (identifier, password, humanToken) => {
         setAuthError('')
-        const data = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: identifier, password }) })
+        const data = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: identifier, password, humanToken }) })
         setUser(data.user)
       },
-      register: async (email, password) => {
+      register: async (email, password, humanToken) => {
         setAuthError('')
-        const data = await api('/api/auth/register', { method: 'POST', body: JSON.stringify({ email, password }) })
+        const data = await api('/api/auth/register', { method: 'POST', body: JSON.stringify({ email, password, humanToken }) })
         setUser(data.user)
       },
       refreshUsers,

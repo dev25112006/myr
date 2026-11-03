@@ -1,10 +1,8 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { CHAT_SALES } from '@/components/layout/nav'
 import { Reveal, SectionHeading, Stagger, StaggerItem, StatCounters, type Stat } from '@/components/ui'
-import { SmartForm } from '@/components/forms/SmartForm'
-import { PARTNER_FORM } from '@/content/leadForms'
+import { usePopup } from '@/lib/stores'
 
 /* ------------------------------- source data ------------------------------ */
 
@@ -56,21 +54,22 @@ const WHY_PARTNER = [
 ]
 
 const WHITE_LABEL_PRODUCTS = [
-  { icon: '🏫', title: 'White Label School ERP', body: 'Admissions, attendance, exams, fees and campus operations — branded as yours.', price: '₹5,000/mo', to: '/education-erp/school/' },
-  { icon: '🎓', title: 'White Label College ERP', body: 'Departments, semesters, placements and institutional oversight under your brand.', price: '₹7,000/mo', to: '/education-erp/college/' },
-  { icon: '📚', title: 'White Label Coaching ERP', body: 'Enquiries, batches, test series and fee follow-ups for coaching institutes.', price: '₹4,000/mo', to: '/education-erp/coaching/' },
-  { icon: '🤝', title: 'White Label CRM', body: 'Pipeline management, lead tracking and sales automation — your logo, your pricing.', price: '₹8,000/mo', to: '/crm-development/' },
-  { icon: '👥', title: 'White Label HRM', body: 'Onboarding, attendance, payroll and performance management for any workforce.', price: '₹3,000/mo', to: '/hrm-solutions/' },
-  { icon: '🛒', title: 'White Label E-commerce', body: 'Full online stores with catalogue, cart, checkout and payment gateway.', price: '₹24,999', to: '/ecommerce-solutions/' },
-  { icon: '🧾', title: 'White Label Billing Software', body: 'GST billing, invoicing, stock and reports for retail and restaurants.', price: '₹4,999', to: '/contact-us/' },
-  { icon: '🌐', title: 'White Label Website Development', body: 'Responsive, SEO-ready websites delivered under your agency brand.', price: '₹14,499', to: '/website-development/' },
-  { icon: '📣', title: 'White Label Digital Marketing', body: 'SEO, social and paid campaigns your clients will thank you for.', price: '₹6,999/mo', to: '/digital-marketing/' },
+  { icon: '🏫', title: 'White Label School ERP', body: 'Admissions, attendance, exams, fees and campus operations — branded as yours.' },
+  { icon: '🎓', title: 'White Label College ERP', body: 'Departments, semesters, placements and institutional oversight under your brand.' },
+  { icon: '📚', title: 'White Label Coaching ERP', body: 'Enquiries, batches, test series and fee follow-ups for coaching institutes.' },
+  { icon: '🤝', title: 'White Label CRM', body: 'Pipeline management, lead tracking and sales automation — your logo, your pricing.' },
+  { icon: '👥', title: 'White Label HRM', body: 'Onboarding, attendance, payroll and performance management for any workforce.' },
+  { icon: '🛒', title: 'White Label E-commerce', body: 'Full online stores with catalogue, cart, checkout and payment gateway.' },
+  { icon: '🧾', title: 'White Label Billing Software', body: 'GST billing, invoicing, stock and reports for retail and restaurants.' },
+  { icon: '🌐', title: 'White Label Website Development', body: 'Responsive, SEO-ready websites delivered under your agency brand.' },
+  { icon: '📣', title: 'White Label Digital Marketing', body: 'SEO, social and paid campaigns your clients will thank you for.' },
 ]
 
 /* --------------------------------- sections -------------------------------- */
 
 function HeroSection() {
   const reduceMotion = useReducedMotion()
+  const { setOpen } = usePopup()
   return (
     <section className="section-dark grid-noise relative overflow-hidden pb-16 pt-12 sm:pb-20 sm:pt-16">
       <div className="pointer-events-none absolute -right-24 top-10 h-96 w-96 rounded-full bg-flame-500/10 blur-3xl" aria-hidden />
@@ -86,9 +85,9 @@ function HeroSection() {
             transform their operations with our innovative software solutions.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <a href={CHAT_SALES} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-md">
+            <button type="button" onClick={() => setOpen('partner')} className="btn btn-primary btn-md">
               Become a Partner
-            </a>
+            </button>
             <a href="#journey" className="btn btn-ghost-dark btn-md">
               See the Journey ↓
             </a>
@@ -214,6 +213,7 @@ function WhySection() {
 }
 
 function WhiteLabelSection() {
+  const { setOpen } = usePopup()
   return (
     <section id="white-label" className="section-deep scroll-mt-20 py-20 sm:py-24">
       <div className="container-page">
@@ -228,20 +228,20 @@ function WhiteLabelSection() {
                 <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-flame-500/10 text-2xl transition group-hover:bg-flame-500/20" aria-hidden>
                   {p.icon}
                 </span>
-                <span className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-flame-600">{p.price}</span>
               </div>
               <h3 className="mt-4 text-base font-bold text-ink-950">{p.title}</h3>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-400">{p.body}</p>
-              <Link to={p.to} className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-flame-600 group-hover:underline">
-                View product →
-              </Link>
+              <button type="button" onClick={() => setOpen('partner')} className="mt-4 self-start text-xs font-bold text-flame-600 group-hover:underline">
+                Request partner details →
+              </button>
             </StaggerItem>
           ))}
         </Stagger>
         <Reveal className="mt-10 rounded-2xl border border-flame-500/25 bg-gradient-to-br from-flame-500/10 to-transparent p-6 text-center">
           <p className="text-sm leading-relaxed text-ink-500">
-            Need a custom bundle or volume pricing? <strong className="text-ink-950">Tell us in the form below</strong> and we will put together a partner quote.
+            Need a custom bundle or partner quote? Tell us what you’re looking for and our team will follow up.
           </p>
+          <button type="button" onClick={() => setOpen('partner')} className="btn btn-primary btn-md mt-4">Request a partner quote</button>
         </Reveal>
       </div>
     </section>
@@ -249,6 +249,7 @@ function WhiteLabelSection() {
 }
 
 function ContactSection() {
+  const { setOpen } = usePopup()
   return (
     <section id="partner-contact" className="section-dark scroll-mt-20 border-t border-line py-20 sm:py-24">
       <div className="container-page grid gap-10 lg:grid-cols-[.8fr_1.2fr]">
@@ -272,14 +273,15 @@ function ContactSection() {
             <a href={CHAT_SALES} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-md">
               Chat on WhatsApp ↗
             </a>
-            <Link to="/contact-us/" className="btn btn-ghost-dark btn-md">
-              General contact
-            </Link>
+            <button type="button" onClick={() => setOpen('partner')} className="btn btn-ghost-dark btn-md">Fill partnership form</button>
           </div>
         </Reveal>
         <Reveal delay={0.1}>
-          <div className="rounded-3xl border border-line bg-paper p-5 shadow-card sm:p-8">
-            <SmartForm config={PARTNER_FORM} light />
+          <div className="flex min-h-64 flex-col justify-center rounded-3xl border border-line bg-paper p-6 shadow-card sm:p-8">
+            <p className="eyebrow">Partner inquiry</p>
+            <h3 className="mt-2 text-xl font-bold text-ink-950">Let’s shape the right partnership for your business.</h3>
+            <p className="mt-3 max-w-lg text-sm leading-relaxed text-ink-500">Share your details and the products you’re interested in. Our partnership team will follow up with tailored terms.</p>
+            <button type="button" onClick={() => setOpen('partner')} className="btn btn-primary btn-md mt-5 self-start">Open partnership form</button>
           </div>
         </Reveal>
       </div>

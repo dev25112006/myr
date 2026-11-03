@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth, usePopup } from '@/lib/stores'
+import { useAuth, useCart, usePopup } from '@/lib/stores'
 import { useCatalogPrice } from '@/lib/useCatalogPrice'
 import { inr } from '@/lib/format'
 
@@ -17,108 +17,20 @@ type Props = {
   sub?: string
 }
 
-type Details = { name: string; phone: string; address: string; city: string; state: string; postalCode: string; country: string; notes: string }
-
-/** Interactive buy section: left = core features + direct "Buy now" (Razorpay), right = animated purchase preview. */
+/** Interactive buy section: left = core features + shared checkout entry, right = animated purchase preview. */
 export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt, image, features, heading, sub }: Props) {
   const price = useCatalogPrice(id, fallbackPrice)
   const { user } = useAuth()
+  const { add } = useCart()
   const { setOpen } = usePopup()
   const navigate = useNavigate()
-  const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
-  const [showForm, setShowForm] = useState(false)
-  const [mode, setMode] = useState<'review' | 'form'>('form')
-  const [details, setDetails] = useState<Details>({ name: '', phone: '', address: '', city: '', state: '', postalCode: '', country: 'India', notes: '' })
 
-  const loadRazorpay = async () => {
-    if (document.getElementById('razorpay-checkout-script')) {
-      return (window as Window & { Razorpay?: new (options: Record<string, unknown>) => { open: () => void; on: (e: 'payment.failed', h: (r: { error?: { description?: string } }) => void) => void } }).Razorpay
-    }
-    const script = document.createElement('script')
-    script.id = 'razorpay-checkout-script'
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
-    script.async = true
-    document.body.appendChild(script)
-    await new Promise<void>((resolve, reject) => { script.onload = () => resolve(); script.onerror = () => reject(new Error('Unable to load payment checkout.')) })
-    return (window as Window & { Razorpay?: new (options: Record<string, unknown>) => { open: () => void; on: (e: 'payment.failed', h: (r: { error?: { description?: string } }) => void) => void } }).Razorpay
-  }
-
-  const startBuy = async () => {
+  const startBuy = () => {
     if (!user) { setOpen('login'); return }
-    try {
-      const res = await fetch('/api/account/profile', { credentials: 'same-origin' })
-      if (res.ok) {
-        const data = await res.json()
-        const p = data.profile || {}
-        const hasSaved = !!(p.name && p.phone)
-        setDetails({
-          name: p.name || (user.email.split('@')[0] ?? ''),
-          phone: p.phone || '',
-          address: p.address || '',
-          city: p.city || '',
-          state: p.state || '',
-          postalCode: p.postalCode || '',
-          country: p.country || 'India',
-          notes: p.notes || '',
-        })
-        setMode(hasSaved ? 'review' : 'form')
-      } else {
-        setMode('form')
-        setDetails((d) => ({ ...d, name: d.name || (user.email.split('@')[0] ?? '') }))
-      }
-    } catch {
-      setMode('form')
-    }
-    setShowForm(true)
-  }
-
-  const processPayment = async () => {
-    if (!details.name.trim() || !details.phone.trim()) { setMessage('Name and phone are required.'); return }
-    setBusy(true)
     setMessage('')
-    try {
-      const quoteRes = await fetch('/api/quote', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: [{ id, qty: 1 }] }) })
-      const quote = await quoteRes.json()
-      if (!quoteRes.ok) throw new Error(quote.error || 'Unable to calculate price.')
-
-      const orderRes = await fetch('/api/orders', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: [{ id, qty: 1 }], expectedTotal: quote.total, notes: details.notes, shippingAddress: { name: details.name, phone: details.phone, address: details.address, city: details.city, state: details.state, postalCode: details.postalCode, country: details.country } }) })
-      const orderData = await orderRes.json()
-      if (!orderRes.ok) throw new Error(orderData.error || 'Could not create order.')
-
-      if (!orderData.payment) {
-        setMessage('Online payment is not configured. Our team will contact you.')
-        setBusy(false)
-        return
-      }
-
-      setShowForm(false)
-      const Razorpay = await loadRazorpay()
-      if (!Razorpay) throw new Error('Payment checkout unavailable.')
-
-      const checkout = new Razorpay({
-        key: orderData.payment.keyId,
-        amount: orderData.payment.amount,
-        currency: orderData.payment.currency,
-        name: 'MYR Advance Solution',
-        description: `${name} order`,
-        order_id: orderData.payment.orderId,
-        prefill: { email: user!.email, name: details.name, contact: details.phone },
-        handler: async (result: Record<string, string>) => {
-          const verify = await fetch('/api/payments/verify', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ orderId: orderData.order.id, ...result }) })
-          const verifyData = await verify.json()
-          if (!verify.ok) { setMessage(verifyData.error || 'Payment verification failed.'); return }
-          navigate('/my-account/', { state: { orderConfirmation: { type: 'paid', orderId: verifyData.order.id, testMode: quote.testMode === true } } })
-        },
-        modal: { ondismiss: () => setMessage('Payment was not completed. Your order is saved in your account.') },
-      })
-      checkout.on('payment.failed', (response) => setMessage(response.error?.description || 'Payment failed. Please try again.'))
-      checkout.open()
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'Unable to start payment.')
-    } finally {
-      setBusy(false)
-    }
+    if (!add({ id, qty: 1, price, name })) { setMessage('This product is unavailable for checkout.'); return }
+    navigate('/checkout/')
   }
 
   return (
@@ -143,8 +55,8 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
             {monthly && <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-400">/ month</span>}
           </div>
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <button type="button" onClick={startBuy} disabled={busy} className="btn btn-primary btn-lg">
-              {busy ? 'Starting…' : 'Buy now'}
+            <button type="button" onClick={startBuy} className="btn btn-primary btn-lg">
+              Buy now
             </button>
             <a href="/contact-us/" className="text-sm font-semibold text-accent-600 hover:underline">
               Talk to sales →
@@ -159,50 +71,6 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
         </div>
       </div>
 
-      {/* Details modal */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowForm(false)}>
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-ink-950">Checkout details</h3>
-            <p className="mt-1 text-sm text-ink-500">Fill in your details. We’ll use these for your order and invoice.</p>
-            {mode === 'review' ? (
-              <div className="mt-4">
-                <div className="rounded-xl border border-line bg-paper/50 p-4 text-sm">
-                  <p className="font-semibold text-ink-950">{details.name}</p>
-                  <p className="text-ink-500">{details.phone}</p>
-                  {(details.address || details.city) && (
-                    <p className="mt-1 text-ink-500">{[details.address, details.city, details.state, details.postalCode, details.country].filter(Boolean).join(', ')}</p>
-                  )}
-                  {details.notes && <p className="mt-1 text-ink-400 italic">Notes: {details.notes}</p>}
-                </div>
-                <p className="mt-2 text-xs text-ink-400">Using saved details. Edit anytime in your profile.</p>
-                {message && <p role="alert" className="mt-2 text-sm text-flame-600">{message}</p>}
-                <div className="mt-4 flex justify-end gap-2">
-                  <button type="button" onClick={() => setShowForm(false)} className="btn btn-outline-light btn-md">Cancel</button>
-                  <button type="button" onClick={() => setMode('form')} className="btn btn-outline-light btn-md">Edit details</button>
-                  <button type="button" onClick={() => void processPayment()} disabled={busy} className="btn btn-primary btn-md">{busy ? 'Processing…' : 'Confirm & pay'}</button>
-                </div>
-              </div>
-            ) : (
-            <form onSubmit={(e) => { e.preventDefault(); void processPayment() }} className="mt-4 grid gap-3 sm:grid-cols-2">
-              <label className="text-sm sm:col-span-2">Full name<input className="input mt-1" required value={details.name} onChange={(e) => setDetails({ ...details, name: e.target.value })} /></label>
-              <label className="text-sm">Phone<input className="input mt-1" required value={details.phone} onChange={(e) => setDetails({ ...details, phone: e.target.value })} /></label>
-              <label className="text-sm">Country<input className="input mt-1" value={details.country} onChange={(e) => setDetails({ ...details, country: e.target.value })} /></label>
-              <label className="text-sm sm:col-span-2">Street address<input className="input mt-1" value={details.address} onChange={(e) => setDetails({ ...details, address: e.target.value })} /></label>
-              <label className="text-sm">City<input className="input mt-1" value={details.city} onChange={(e) => setDetails({ ...details, city: e.target.value })} /></label>
-              <label className="text-sm">State<input className="input mt-1" value={details.state} onChange={(e) => setDetails({ ...details, state: e.target.value })} /></label>
-              <label className="text-sm">Postal code<input className="input mt-1" value={details.postalCode} onChange={(e) => setDetails({ ...details, postalCode: e.target.value })} /></label>
-              <label className="text-sm sm:col-span-2">Order notes<textarea className="input mt-1 min-h-20" value={details.notes} onChange={(e) => setDetails({ ...details, notes: e.target.value })} /></label>
-              {message && <p role="alert" className="sm:col-span-2 text-sm text-flame-600">{message}</p>}
-              <div className="sm:col-span-2 flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="btn btn-outline-light btn-md">Cancel</button>
-                <button type="submit" disabled={busy} className="btn btn-primary btn-md">{busy ? 'Processing…' : 'Continue to payment'}</button>
-              </div>
-            </form>
-            )}
-          </div>
-        </div>
-      )}
     </section>
   )
 }

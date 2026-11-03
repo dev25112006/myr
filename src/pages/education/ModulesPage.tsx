@@ -22,7 +22,7 @@ export function ModulesPage() {
 
   useEffect(() => {
     let cancelled = false
-    fetch('/api/saas/products')
+    fetch('/api/saas/products', { signal: AbortSignal.timeout(3000) })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('catalog unavailable'))))
       .then((data: unknown) => {
         if (cancelled || !Array.isArray(data)) return

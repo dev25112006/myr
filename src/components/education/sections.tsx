@@ -57,7 +57,7 @@ export function CampusTourSection({ identity, config }: { identity: SegmentIdent
               }}
             />
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-xs text-ink-400">Eight hotspots, keyboard accessible</p>
+              <p className="text-xs text-ink-400">{numWord(config.locations.length)} hotspots, keyboard accessible</p>
               <button type="button" onClick={() => tour.open('campus')} className="btn btn-ghost-dark btn-sm">
                 Enter the full tour →
               </button>

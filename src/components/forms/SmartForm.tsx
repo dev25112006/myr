@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { cn } from '@/lib/format'
 import { useAuth } from '@/lib/stores'
+import { HumanVerification, turnstileSiteKey } from './HumanVerification'
 
 export type FormField =
   | {
@@ -75,6 +76,7 @@ export function SmartForm({
   const [done, setDone] = useState(false)
   const [sending, setSending] = useState(false)
   const [submitError, setSubmitError] = useState('')
+  const [humanToken, setHumanToken] = useState('')
   const { submitInbox } = useAuth()
 
   const set = (name: string, v: string | string[] | undefined) => {
@@ -84,6 +86,10 @@ export function SmartForm({
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (!turnstileSiteKey || !humanToken) {
+      setSubmitError(turnstileSiteKey ? 'Complete the human verification challenge before submitting.' : 'Human verification is not configured. Please try again later.')
+      return
+    }
     const errs = validate(config, values)
     setErrors(errs)
     if (Object.keys(errs).length) {
@@ -105,7 +111,7 @@ export function SmartForm({
     const type = config.inboxType ?? (/support|ticket|refund/i.test(config.id) ? 'ticket' : /lead|contact|appointment|partner|sales|booking|privyr/i.test(config.id) ? 'lead' : 'form')
     setSubmitError('')
     try {
-      await submitInbox({ type, subject: config.inboxSubject ?? config.id.replace(/[-_]/g, ' '), name, email, message: fields.join('\n'), source: window.location.pathname })
+      await submitInbox({ type, subject: config.inboxSubject ?? config.id.replace(/[-_]/g, ' '), name, email, message: fields.join('\n'), source: window.location.pathname, humanToken })
       setDone(true)
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Unable to submit this form. Please try again.')
@@ -277,9 +283,12 @@ export function SmartForm({
         )
       })}
 
+      <div className="sm:col-span-2">
+        <HumanVerification onVerified={(token) => { setHumanToken(token); setSubmitError('') }} />
+      </div>
       {submitError && <p className="text-sm text-flame-600 sm:col-span-2" role="alert">{submitError}</p>}
       <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row sm:items-center">
-        <button type="submit" className={cn('btn btn-primary btn-md sm:w-auto', sending && 'opacity-70')} disabled={sending}>
+        <button type="submit" className={cn('btn btn-primary btn-md sm:w-auto', sending && 'opacity-70')} disabled={sending || !turnstileSiteKey || !humanToken}>
           {sending ? 'Sending…' : (config.submitLabel ?? 'Submit')}
         </button>
         <p className="text-[11px] text-ink-400">

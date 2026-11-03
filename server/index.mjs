@@ -7,6 +7,7 @@ import path from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import { MongoClient } from 'mongodb'
 import pg from 'pg'
+import { normalizeNotificationSettings, resolveRecipients, sendEmail as sendTransactionalEmail } from './email-notify.mjs'
 
 const scrypt = promisify(scryptCallback)
 const port = Number(process.env.PORT || 3001)
@@ -26,7 +27,10 @@ const initialCatalog = [
   [6004, 'CRM Software', '/crm-development/', 8000, 'CRM'], [6005, 'HRM Software', '/hrm-solutions/', 3000, 'HRM'],
   [6006, 'E-commerce Website', '/ecommerce-solutions/', 24999, 'E-commerce'], [6007, 'Billing Software', '/contact-us/', 4999, 'Billing'],
 ].map(([id, name, slug, price, category]) => ({ id, name, slug, price, category, type: 'simple' }))
-let db = { users: [], sessions: [], inbox: [], orders: [], reviews: [], catalog: initialCatalog, carts: {}, team: [], tasks: [], chatMessages: [], audit: [], webhookEvents: [], settings: { taxRateBps: 0, shippingFlat: 0 } }
+let db = {
+  users: [], sessions: [], inbox: [], orders: [], reviews: [], catalog: initialCatalog, carts: {}, team: [], tasks: [], chatMessages: [], audit: [], webhookEvents: [],
+  settings: { taxRateBps: 0, shippingFlat: 0, commerceVerified: false, emailNotifications: normalizeNotificationSettings({}) },
+}
 let database
 let pgPool
 let mongoClient
@@ -62,12 +66,6 @@ async function hashPassword(password, salt = randomBytes(16).toString('hex')) {
   return { salt, hash: derived.toString('hex') }
 }
 function tokenHash(value) { return createHmac('sha256', process.env.TOKEN_PEPPER || 'myr-local-token-pepper-change-me').update(value).digest('hex') }
-async function sendEmail(to, subject, html) {
-  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) return false
-  const response = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from: process.env.EMAIL_FROM, to: [to], subject, html }) })
-  if (!response.ok) { console.error('Email provider request failed:', response.status); return false }
-  return true
-}
 async function issueEmailToken(user, purpose) {
   const token = randomBytes(32).toString('hex')
   db.emailTokens ||= []
@@ -76,7 +74,21 @@ async function issueEmailToken(user, purpose) {
   await persist()
   const origin = configuredOrigin(process.env.APP_ORIGIN)
   const route = purpose === 'reset' ? '/my-account/reset-password/?token=' : '/my-account/verify-email/?token='
-  await sendEmail(user.email, purpose === 'reset' ? 'Reset your MYR account password' : 'Verify your MYR account email', `<p>Use the link below to ${purpose === 'reset' ? 'reset your password' : 'verify your email'}:</p><p><a href="${origin}${route}${token}">Continue</a></p><p>This link expires in ${purpose === 'reset' ? '60 minutes' : '24 hours'}.</p>`)
+  await sendTransactionalEmail(user.email, purpose === 'reset' ? 'Reset your MYR account password' : 'Verify your MYR account email', `<p>Use the link below to ${purpose === 'reset' ? 'reset your password' : 'verify your email'}:</p><p><a href="${origin}${route}${token}">Continue</a></p><p>This link expires in ${purpose === 'reset' ? '60 minutes' : '24 hours'}.</p>`)
+}
+
+function triggerNotification({ user, event = 'default', subject, html, text, includeUser = true, roles = [], explicitEmails = [] }) {
+  const recipients = resolveRecipients({
+    users: db.users,
+    settings: db.settings?.emailNotifications || normalizeNotificationSettings({}),
+    event,
+    user,
+    includeUser,
+    roles,
+    explicitEmails,
+  })
+  if (!recipients.length) return false
+  return sendTransactionalEmail(recipients, subject, html, { text })
 }
 function publicUser(user) { return { id: user.id, email: user.email, role: user.role, emailVerified: user.emailVerified !== false, createdAt: user.createdAt } }
 function json(res, status, data, headers = {}) {
@@ -125,6 +137,20 @@ function csrfCheck(req) {
   } catch { return false }
 }
 function emailOk(email) { return typeof email === 'string' && email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) }
+async function verifyHumanToken(token) {
+  if (!process.env.TURNSTILE_SECRET_KEY) return { configured: false, verified: false }
+  if (typeof token !== 'string' || !token.trim()) return { configured: true, verified: false }
+  try {
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ secret: process.env.TURNSTILE_SECRET_KEY, response: token.trim() }),
+      signal: AbortSignal.timeout(6000),
+    })
+    const result = response.ok ? await response.json() : null
+    return { configured: true, verified: result?.success === true }
+  } catch { return { configured: true, verified: false, unavailable: true } }
+}
 function dateOnlyOk(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
   const date = new Date(`${value}T00:00:00.000Z`)
@@ -192,7 +218,8 @@ async function init() {
   db.tasks ||= []
   db.chatMessages ||= []
   db.reviews ||= []
-  db.settings = { taxRateBps: 0, shippingFlat: 0, commerceVerified: false, ...(db.settings || {}) }
+  db.settings = { taxRateBps: 0, shippingFlat: 0, commerceVerified: false, emailNotifications: normalizeNotificationSettings({}), ...(db.settings || {}) }
+  db.settings.emailNotifications = normalizeNotificationSettings(db.settings.emailNotifications)
   if (process.env.EMAIL_VERIFICATION_REQUIRED === 'true' && (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM)) throw new Error('Set RESEND_API_KEY and EMAIL_FROM before requiring email verification.')
   if (process.env.ADMIN_EMAIL || process.env.ADMIN_PASSWORD) {
     const email = String(process.env.ADMIN_EMAIL || '').trim().toLowerCase()
@@ -275,6 +302,17 @@ async function handle(req, res) {
     if (req.method === 'GET' && pathName === '/api/health') return json(res, 200, { ok: true })
     if (req.method === 'GET' && pathName === '/api/auth/session') return json(res, 200, { user: user ? publicUser(user) : null })
     if (req.method === 'GET' && pathName === '/api/catalog') return json(res, 200, { products: db.catalog })
+    if (req.method === 'GET' && pathName === '/api/saas/products') {
+      const products = db.catalog.filter((item) => item && typeof item.name === 'string' && typeof item.slug === 'string').map((item) => ({
+        id: item.id,
+        slug: item.slug,
+        name: item.name,
+        category: item.category || 'General',
+        price: item.price,
+        type: item.type || 'simple',
+      }))
+      return json(res, 200, products)
+    }
     const productReviewsMatch = pathName.match(/^\/api\/products\/(\d+)\/reviews$/)
     if (productReviewsMatch && req.method === 'GET') {
       const productId = Number(productReviewsMatch[1])
@@ -379,6 +417,10 @@ async function handle(req, res) {
     }
     if (req.method === 'POST' && pathName === '/api/auth/register') {
       const input = await body(req)
+      const humanCheck = await verifyHumanToken(input.humanToken)
+      if (!humanCheck.configured) return json(res, 503, { error: 'Human verification is not configured.' })
+      if (humanCheck.unavailable) return json(res, 503, { error: 'Human verification is temporarily unavailable. Please try again.' })
+      if (!humanCheck.verified) return json(res, 403, { error: 'Complete human verification before creating an account.' })
       const email = String(input.email || '').trim().toLowerCase()
       if (!emailOk(email) || !passwordOk(input.password)) return json(res, 400, { error: 'Use a valid email and a password with at least 12 characters.' })
       if (db.users.some((item) => item.email === email)) return json(res, 409, { error: 'An account with this email already exists.' })
@@ -388,11 +430,18 @@ async function handle(req, res) {
       const newSession = { id: randomBytes(32).toString('hex'), userId: created.id, expiresAt: Date.now() + sessionTtl }
       db.sessions.push(newSession)
       await persist()
+      if (db.settings.emailNotifications?.enabled !== false) {
+        await triggerNotification({ user: { email: created.email, role: created.role }, event: 'account', subject: 'Welcome to MYR', html: `<p>Hi ${created.email},</p><p>Your account has been created successfully.</p><p>Our team will reach out if we need anything else.</p>`, text: 'Your account has been created successfully.' })
+      }
       if (process.env.RESEND_API_KEY && process.env.EMAIL_VERIFICATION_REQUIRED === 'true') await issueEmailToken(created, 'verify')
       return json(res, 201, { user: publicUser(created) }, { 'set-cookie': cookieHeader(newSession.id, sessionTtl / 1000) })
     }
     if (req.method === 'POST' && pathName === '/api/auth/login') {
       const input = await body(req)
+      const humanCheck = await verifyHumanToken(input.humanToken)
+      if (!humanCheck.configured) return json(res, 503, { error: 'Human verification is not configured.' })
+      if (humanCheck.unavailable) return json(res, 503, { error: 'Human verification is temporarily unavailable. Please try again.' })
+      if (!humanCheck.verified) return json(res, 403, { error: 'Complete human verification before signing in.' })
       const email = String(input.email || '').trim().toLowerCase()
       const attemptKey = `${req.socket.remoteAddress}:${email}`
       const attempts = loginAttempts.get(attemptKey) || { count: 0, reset: Date.now() + 15 * 60_000 }
@@ -424,25 +473,41 @@ async function handle(req, res) {
     }
     if (req.method === 'GET' && pathName === '/api/account/profile') {
       if (!requireRole('customer', 'manager', 'admin')) return
-      return json(res, 200, { profile: { email: user.email, role: user.role, name: user.profile?.name || '', phone: user.profile?.phone || '', timezone: user.profile?.timezone || '', address: user.profile?.address || '', city: user.profile?.city || '', state: user.profile?.state || '', postalCode: user.profile?.postalCode || '', country: user.profile?.country || 'India', notes: user.profile?.notes || '' } })
+      const profile = user.profile || {}
+      return json(res, 200, { profile: {
+        email: user.email,
+        role: user.role,
+        name: profile.name || '',
+        phone: profile.phone || '',
+        timezone: profile.timezone || '',
+        address: profile.address || '',
+        city: profile.city || '',
+        state: profile.state || '',
+        postalCode: profile.postalCode || '',
+        country: profile.country || 'India',
+      } })
     }
     if (req.method === 'PATCH' && pathName === '/api/account/profile') {
       if (!requireRole('customer', 'manager', 'admin')) return
       const input = await body(req)
-      const name = typeof input.name === 'string' ? input.name.trim() : (user.profile?.name || '')
-      const phone = typeof input.phone === 'string' ? input.phone.trim() : (user.profile?.phone || '')
-      const timezone = typeof input.timezone === 'string' ? input.timezone.trim() : (user.profile?.timezone || '')
-      if (name && (name.length < 2 || name.length > 120)) return json(res, 400, { error: 'Name must be between 2 and 120 characters.' })
+      const name = typeof input.name === 'string' ? input.name.trim() : ''
+      const phone = typeof input.phone === 'string' ? input.phone.trim() : ''
+      const timezone = typeof input.timezone === 'string' ? input.timezone.trim() : ''
+      const address = typeof input.address === 'string' ? input.address.trim() : ''
+      const city = typeof input.city === 'string' ? input.city.trim() : ''
+      const state = typeof input.state === 'string' ? input.state.trim() : ''
+      const postalCode = typeof input.postalCode === 'string' ? input.postalCode.trim() : ''
+      const country = typeof input.country === 'string' && input.country.trim() ? input.country.trim() : 'India'
+      if (name.length < 2 || name.length > 120) return json(res, 400, { error: 'Name must be between 2 and 120 characters.' })
       if (phone.length > 40 || (phone && !/^[+\d][\d\s().-]{5,39}$/.test(phone))) return json(res, 400, { error: 'Enter a valid phone number up to 40 characters.' })
       if (timezone.length > 80) return json(res, 400, { error: 'Timezone must be 80 characters or fewer.' })
-      const address = typeof input.address === 'string' ? input.address.trim().slice(0, 300) : (user.profile?.address || '')
-      const city = typeof input.city === 'string' ? input.city.trim().slice(0, 120) : (user.profile?.city || '')
-      const state = typeof input.state === 'string' ? input.state.trim().slice(0, 120) : (user.profile?.state || '')
-      const postalCode = typeof input.postalCode === 'string' ? input.postalCode.trim().slice(0, 20) : (user.profile?.postalCode || '')
-      const country = typeof input.country === 'string' ? input.country.trim().slice(0, 80) : (user.profile?.country || 'India')
-      const notes = typeof input.notes === 'string' ? input.notes.trim().slice(0, 2000) : (user.profile?.notes || '')
-      user.profile = { name, phone, timezone, address, city, state, postalCode, country, notes }
-      if (['admin', 'manager'].includes(user.role)) recordAudit(user, 'profile.update', user.id, { fields: ['name', 'phone', 'timezone', 'address'] })
+      if (address.length > 300) return json(res, 400, { error: 'Address must be 300 characters or fewer.' })
+      if (city.length > 120) return json(res, 400, { error: 'City must be 120 characters or fewer.' })
+      if (state.length > 120) return json(res, 400, { error: 'State must be 120 characters or fewer.' })
+      if (postalCode.length > 40) return json(res, 400, { error: 'Postal code must be 40 characters or fewer.' })
+      if (country.length > 120) return json(res, 400, { error: 'Country must be 120 characters or fewer.' })
+      user.profile = { ...(user.profile || {}), name, phone, timezone, address, city, state, postalCode, country }
+      if (['admin', 'manager'].includes(user.role)) recordAudit(user, 'profile.update', user.id, { fields: ['name', 'phone', 'timezone', 'address', 'city', 'state', 'postalCode', 'country'] })
       await persist()
       return json(res, 200, { profile: { email: user.email, role: user.role, ...user.profile } })
     }
@@ -475,9 +540,20 @@ async function handle(req, res) {
       if (input.expectedTotal !== undefined && (!Number.isSafeInteger(input.expectedTotal) || input.expectedTotal !== total)) return json(res, 409, { error: 'The catalog price or checkout total changed. Review the updated total and try again.', currentTotal: total })
       const requiresShipping = items.some((item) => item.category === 'IP PBX Solution')
       const address = input.shippingAddress || {}
-      if (requiresShipping && ['name', 'address', 'city', 'state', 'postalCode', 'country', 'phone'].some((key) => typeof address[key] !== 'string' || !address[key].trim())) return json(res, 400, { error: 'Complete the shipping address for physical products.' })
-      const hasCustomerDetails = ['name', 'phone'].some((key) => typeof address[key] === 'string' && address[key].trim())
-      const storedAddress = hasCustomerDetails ? Object.fromEntries(['name', 'address', 'city', 'state', 'postalCode', 'country', 'phone'].map((key) => [key, String(address[key] || '').trim().slice(0, 300)])) : null
+      const savedProfile = user.profile || {}
+      const normalizedAddress = {
+        name: typeof address.name === 'string' ? address.name.trim() : (savedProfile.name || ''),
+        phone: typeof address.phone === 'string' ? address.phone.trim() : (savedProfile.phone || ''),
+        address: typeof address.address === 'string' ? address.address.trim() : (savedProfile.address || ''),
+        city: typeof address.city === 'string' ? address.city.trim() : (savedProfile.city || ''),
+        state: typeof address.state === 'string' ? address.state.trim() : (savedProfile.state || ''),
+        postalCode: typeof address.postalCode === 'string' ? address.postalCode.trim() : (savedProfile.postalCode || ''),
+        country: typeof address.country === 'string' && address.country.trim() ? address.country.trim() : (savedProfile.country || 'India'),
+      }
+      if (requiresShipping && ['name', 'address', 'city', 'state', 'postalCode', 'country', 'phone'].some((key) => !normalizedAddress[key].trim())) return json(res, 400, { error: 'Complete the shipping address for physical products.' })
+      const hasCustomerDetails = ['name', 'phone'].some((key) => normalizedAddress[key].trim())
+      const storedAddress = hasCustomerDetails ? Object.fromEntries(['name', 'address', 'city', 'state', 'postalCode', 'country', 'phone'].map((key) => [key, String(normalizedAddress[key] || '').trim().slice(0, 300)])) : null
+      user.profile = { ...(user.profile || {}), name: normalizedAddress.name || user.profile?.name || '', phone: normalizedAddress.phone || user.profile?.phone || '', address: normalizedAddress.address || user.profile?.address || '', city: normalizedAddress.city || user.profile?.city || '', state: normalizedAddress.state || user.profile?.state || '', postalCode: normalizedAddress.postalCode || user.profile?.postalCode || '', country: normalizedAddress.country || user.profile?.country || 'India', timezone: typeof user.profile?.timezone === 'string' ? user.profile.timezone : '' }
       const order = { id: `MYR-${randomBytes(6).toString('hex').toUpperCase()}`, userId: user.id, email: user.email, items, subtotal, tax, shipping, total, shippingAddress: storedAddress, status: 'Pending payment', paymentStatus: 'unpaid', date: new Date().toISOString(), notes: String(input.notes || '').slice(0, 2000) }
       if (!Number.isSafeInteger(order.total * 100) || order.total * 100 < 100) return json(res, 400, { error: 'The minimum online payment amount is ₹1.00.' })
       if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
@@ -489,9 +565,9 @@ async function handle(req, res) {
         order.razorpayOrderId = result.id; order.status = 'Awaiting payment'
       }
       db.orders.unshift(order)
-      if (storedAddress) { user.profile = { ...(user.profile || {}), name: storedAddress.name || user.profile?.name || '', phone: storedAddress.phone || user.profile?.phone || '', address: storedAddress.address || user.profile?.address || '', city: storedAddress.city || user.profile?.city || '', state: storedAddress.state || user.profile?.state || '', postalCode: storedAddress.postalCode || user.profile?.postalCode || '', country: storedAddress.country || user.profile?.country || 'India', notes: input.notes ? String(input.notes).slice(0, 2000) : (user.profile?.notes || '') } }
       db.inbox.unshift({ id: randomBytes(12).toString('hex'), type: 'order', subject: `Order ${order.id}`, name: user.email, email: user.email, message: items.map((item) => `${item.name} × ${item.qty}`).join(', '), date: order.date, status: 'New', source: 'Account checkout', ownerId: user.id })
       await persist()
+      await triggerNotification({ user: { email: user.email, role: user.role }, event: 'order', subject: `Order confirmation: ${order.id}`, html: `<p>Hi ${user.profile?.name || user.email},</p><p>Your order <strong>${order.id}</strong> has been placed successfully.</p><p>Total: ₹${order.total}</p>`, text: `Your order ${order.id} has been placed successfully.` })
       const { userId, ...safeOrder } = order
       return json(res, 201, { order: safeOrder, ...(order.razorpayOrderId ? { payment: { provider: 'razorpay', keyId: process.env.RAZORPAY_KEY_ID, orderId: order.razorpayOrderId, amount: order.total * 100, currency: 'INR', testMode: testCheckoutEnabled } } : {}) })
     }
@@ -534,7 +610,9 @@ async function handle(req, res) {
       } catch { return json(res, 502, { error: 'Unable to confirm payment status with the provider.' }) }
       if (paymentStatus !== 'captured') return json(res, 409, { error: 'Payment is not captured yet. The order will update after the provider confirms it.' })
       order.paymentStatus = 'paid'; order.status = 'Paid'; order.razorpayPaymentId = String(input.razorpay_payment_id); order.updatedAt = new Date().toISOString()
-      await persist(); const { userId, ...safeOrder } = order
+      await persist()
+      await triggerNotification({ user: { email: user.email, role: user.role }, event: 'payment', subject: `Payment received for ${order.id}`, html: `<p>Hi ${user.profile?.name || user.email},</p><p>Your payment for order <strong>${order.id}</strong> has been captured successfully.</p><p>Total paid: ₹${order.total}</p>`, text: `Your payment for order ${order.id} has been captured successfully.` })
+      const { userId, ...safeOrder } = order
       return json(res, 200, { order: safeOrder })
     }
     if (req.method === 'POST' && pathName === '/api/account/support') {
@@ -543,6 +621,7 @@ async function handle(req, res) {
       if (typeof input.subject !== 'string' || input.subject.trim().length < 3 || typeof input.message !== 'string' || input.message.trim().length < 5) return json(res, 400, { error: 'Add a subject and message.' })
       const entry = { id: randomBytes(12).toString('hex'), type: 'ticket', subject: input.subject.trim().slice(0, 180), name: user.email, email: user.email, message: input.message.trim().slice(0, 12000), replies: [], date: new Date().toISOString(), status: 'New', source: 'Customer account', ownerId: user.id }
       db.inbox.unshift(entry); await persist(); const { ownerId, ...safeEntry } = entry
+      await triggerNotification({ user: { email: user.email, role: user.role }, event: 'support', subject: `Support request received: ${entry.subject}`, html: `<p>Hi ${user.email},</p><p>Your request <strong>${entry.subject}</strong> has been received.</p><p>Our team will get back to you soon.</p>`, text: `Your support request ${entry.subject} has been received.` })
       return json(res, 201, { entry: safeEntry })
     }
     const customerReplyMatch = pathName.match(/^\/api\/account\/support\/([a-f0-9]+)\/replies$/)
@@ -553,6 +632,7 @@ async function handle(req, res) {
       const input = await body(req); const message = String(input.message || '').trim()
       if (message.length < 2 || message.length > 12000) return json(res, 400, { error: 'Reply must contain 2 to 12,000 characters.' })
       entry.replies ||= []; entry.replies.push({ id: randomBytes(8).toString('hex'), author: 'customer', message, date: new Date().toISOString() }); entry.status = 'New'; await persist()
+      await triggerNotification({ user: { email: entry.email, role: 'customer' }, event: 'support', subject: `New update on your MYR request: ${entry.subject}`, html: `<p>Hi ${entry.name || entry.email},</p><p>We have a new update on your request: <strong>${entry.subject}</strong></p><p>${message}</p>`, text: `New update on your request: ${entry.subject}` })
       const { ownerId, ...safeEntry } = entry; return json(res, 201, { entry: safeEntry })
     }
     if (req.method === 'GET' && pathName === '/api/admin/users') {
@@ -579,7 +659,12 @@ async function handle(req, res) {
       const input = await body(req)
       if (!Number.isSafeInteger(input.taxRateBps) || input.taxRateBps < 0 || input.taxRateBps > 10000 || !Number.isSafeInteger(input.shippingFlat) || input.shippingFlat < 0 || input.shippingFlat > 1000000) return json(res, 400, { error: 'Tax must be 0–100% and shipping must be a non-negative whole number of rupees.' })
       const commerceVerified = input.commerceVerified === true
-      const previous = db.settings; db.settings = { taxRateBps: input.taxRateBps, shippingFlat: input.shippingFlat, commerceVerified }; recordAudit(user, 'settings.commerce.update', 'commerce', { previous, current: db.settings }); await persist(); return json(res, 200, { settings: db.settings })
+      const nextNotificationSettings = normalizeNotificationSettings(input.emailNotifications || db.settings.emailNotifications || {})
+      const previous = db.settings
+      db.settings = { ...db.settings, taxRateBps: input.taxRateBps, shippingFlat: input.shippingFlat, commerceVerified, emailNotifications: nextNotificationSettings }
+      recordAudit(user, 'settings.commerce.update', 'commerce', { previous, current: db.settings })
+      await persist()
+      return json(res, 200, { settings: db.settings })
     }
     if (req.method === 'GET' && pathName === '/api/admin/settings') { if (!requireRole('admin')) return; return json(res, 200, { settings: db.settings, testMode: testCheckoutEnabled }) }
     if (req.method === 'GET' && pathName === '/api/admin/orders') {
@@ -642,7 +727,8 @@ async function handle(req, res) {
       const input = await body(req); const message = String(input.message || '').trim()
       if (message.length < 2 || message.length > 12000) return json(res, 400, { error: 'Reply must contain 2 to 12,000 characters.' })
       entry.replies ||= []; entry.replies.push({ id: randomBytes(8).toString('hex'), author: user.email, message, date: new Date().toISOString() }); entry.status = 'In progress'; await persist()
-      await sendEmail(entry.email, `Update on your MYR request: ${entry.subject}`, `<p>${message.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])}</p>`)
+      await sendTransactionalEmail(entry.email, `Update on your MYR request: ${entry.subject}`, `<p>${message.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])}</p>`)
+      await triggerNotification({ user: { email: entry.email, role: 'customer' }, event: 'support', subject: `Staff update: ${entry.subject}`, html: `<p>Hi ${entry.name || entry.email},</p><p>Our team sent an update on your request: <strong>${entry.subject}</strong></p><p>${message}</p>`, text: `Our team sent an update on your request: ${entry.subject}` })
       const { ownerId, ...safeEntry } = entry; return json(res, 201, { entry: safeEntry })
     }
     if (req.method === 'GET' && pathName === '/api/manager/team') {
@@ -740,6 +826,10 @@ async function handle(req, res) {
     }
     if (req.method === 'POST' && pathName === '/api/inbox') {
       const input = await body(req)
+      const humanCheck = await verifyHumanToken(input.humanToken)
+      if (!humanCheck.configured) return json(res, 503, { error: 'Human verification is not configured.' })
+      if (humanCheck.unavailable) return json(res, 503, { error: 'Human verification is temporarily unavailable. Please try again.' })
+      if (!humanCheck.verified) return json(res, 403, { error: 'Human verification failed. Please try again.' })
       if (!['lead', 'ticket', 'form'].includes(input.type) || typeof input.subject !== 'string' || !input.subject.trim() || input.subject.length > 180 || typeof input.message !== 'string' || !input.message.trim() || input.message.length > 12_000 || (input.name !== undefined && (typeof input.name !== 'string' || input.name.length > 180)) || (input.email !== undefined && (typeof input.email !== 'string' || input.email.length > 254 || (input.email && !emailOk(input.email))))) return json(res, 400, { error: 'Invalid submission' })
       const entry = { id: randomBytes(12).toString('hex'), type: input.type, subject: input.subject, name: String(input.name || user?.email || 'Website visitor').slice(0, 180), email: String(input.email || user?.email || '').slice(0, 254), message: input.message, date: new Date().toISOString(), status: 'New', source: String(input.source || '').slice(0, 300), ownerId: user?.id || null }
       db.inbox.unshift(entry)
@@ -777,7 +867,7 @@ async function handle(req, res) {
     try { if (!(await stat(filePath)).isFile()) filePath = path.join(distDir, 'index.html') } catch { filePath = path.join(distDir, 'index.html') }
     const contentTypes = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.json': 'application/json; charset=utf-8', '.txt': 'text/plain; charset=utf-8' }
     const file = await readFile(filePath)
-    res.writeHead(200, { 'content-type': contentTypes[path.extname(filePath)] || 'application/octet-stream', 'x-frame-options': 'DENY', 'referrer-policy': 'strict-origin-when-cross-origin', 'permissions-policy': 'camera=(), microphone=(), geolocation=()', 'content-security-policy': "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' https://checkout.razorpay.com; connect-src 'self' https://api.razorpay.com; frame-src https://api.razorpay.com https://checkout.razorpay.com; base-uri 'self'; frame-ancestors 'none'" })
+    res.writeHead(200, { 'content-type': contentTypes[path.extname(filePath)] || 'application/octet-stream', 'x-frame-options': 'DENY', 'referrer-policy': 'strict-origin-when-cross-origin', 'permissions-policy': 'camera=(), microphone=(), geolocation=()', 'content-security-policy': "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' https://checkout.razorpay.com https://challenges.cloudflare.com; connect-src 'self' https://api.razorpay.com https://challenges.cloudflare.com; frame-src https://api.razorpay.com https://checkout.razorpay.com https://challenges.cloudflare.com; base-uri 'self'; frame-ancestors 'none'" })
     return res.end(req.method === 'HEAD' ? undefined : file)
   } catch (error) {
     console.error(error)

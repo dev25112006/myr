@@ -7,6 +7,7 @@ import { LoginRegisterPopup } from '@/components/layout/popups/LoginRegisterPopu
 import { PartnerFormPopup } from '@/components/layout/popups/PartnerFormPopup'
 import { AppointmentPopup } from '@/components/layout/popups/AppointmentPopup'
 import { PrivyrSignupPopup } from '@/components/layout/popups/PrivyrSignupPopup'
+import { WhatsAppFloatingButton } from '@/components/layout/WhatsAppFloatingButton'
 import { SeoHead } from '@/components/seo/SeoHead'
 import { getRouteMeta } from '@/content/routeMeta'
 
@@ -66,6 +67,7 @@ export function Layout() {
       <PartnerFormPopup />
       <AppointmentPopup />
       <PrivyrSignupPopup />
+      <WhatsAppFloatingButton />
     </div>
   )
 }

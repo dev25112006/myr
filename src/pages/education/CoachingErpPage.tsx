@@ -350,72 +350,7 @@ function CoachingErpContent() {
       {/* 5 · Interactive Coaching Missions */}
       <MissionsBoard config={seg.tour!} />
 
-      {/* 6 · Multi-Tenant Architecture Visualization */}
-      <section className="section-deep px-5 py-20 sm:px-8" aria-labelledby="multi-tenant-heading">
-        <div className="mx-auto max-w-7xl">
-          <h2 id="multi-tenant-heading" className="text-2xl font-bold leading-tight text-ink-950 sm:text-3xl">
-            Multi-Tenant Architecture Visualization
-          </h2>
-          <p className="mt-4 text-ink-500">
-            Each institution on the MYR platform has its own isolated workspace with separate users, roles, and data.
-          </p>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-2xl border border-line bg-white p-6 shadow-card reveal">
-              <h3 className="text-xl font-bold text-ink-950 mb-4">MYR Platform</h3>
-              <p className="text-ink-500 mb-6">Central platform providing shared infrastructure, administration tools, and cross-institution analytics.</p>
-              <div className="space-y-3">
-                <div className="rounded-xl border border-flame-500/20 bg-flame-500/10 p-4">
-                  <h4 className="text-sm font-semibold text-flame-600">Institution A</h4>
-                  <p className="text-xs text-ink-400">Independent workspace with its own students, batches, faculty and fees.</p>
-                </div>
-                <div className="rounded-xl border border-flame-500/20 bg-flame-500/10 p-4">
-                  <h4 className="text-sm font-semibold text-flame-600">Institution B</h4>
-                  <p className="text-xs text-ink-400">Isolated data and users, separate from Institution A.</p>
-                </div>
-                <div className="rounded-xl border border-flame-500/20 bg-flame-500/10 p-4">
-                  <h4 className="text-sm font-semibold text-flame-600">Institution C</h4>
-                  <p className="text-xs text-ink-400">Isolated data and users, separate from A and B.</p>
-                </div>
-              </div>
-            </div>
-            <div className="rounded-2xl border border-line bg-white p-6 shadow-card reveal">
-              <h3 className="text-xl font-bold text-ink-950 mb-4">Institution A</h3>
-              <p className="text-ink-500 mb-6">Fully isolated workspace with independent users, roles, and data.</p>
-              <ul className="space-y-2 text-sm text-ink-600">
-                <li>Own students and batches</li>
-                <li>Own faculty assignments</li>
-                <li>Own fee collections</li>
-                <li>Own attendance records</li>
-                <li>Own examination results</li>
-              </ul>
-            </div>
-            <div className="rounded-2xl border border-line bg-white p-6 shadow-card reveal">
-              <h3 className="text-xl font-bold text-ink-950 mb-4">Institution B</h3>
-              <p className="text-ink-500 mb-6">Fully isolated workspace with independent users, roles, and data.</p>
-              <ul className="space-y-2 text-sm text-ink-600">
-                <li>Own students and batches</li>
-                <li>Own faculty assignments</li>
-                <li>Own fee collections</li>
-                <li>Own attendance records</li>
-                <li>Own examination results</li>
-              </ul>
-            </div>
-            <div className="rounded-2xl border border-line bg-white p-6 shadow-card reveal">
-              <h3 className="text-xl font-bold text-ink-950 mb-4">Institution C</h3>
-              <p className="text-ink-500 mb-6">Fully isolated workspace with independent users, roles, and data.</p>
-              <ul className="space-y-2 text-sm text-ink-600">
-                <li>Own students and batches</li>
-                <li>Own faculty assignments</li>
-                <li>Own fee collections</li>
-                <li>Own attendance records</li>
-                <li>Own examination results</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 7 · Closing Section */}
+      {/* 6 · Closing Section */}
       <ClosingSection
         headline="Spend Less Time Managing. More Time Teaching."
         body="Build a smarter coaching institute. Manage students, batches, faculty, attendance, examinations, fees and institutional operations from a connected platform. Spend less time managing and more time teaching."

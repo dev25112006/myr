@@ -1103,8 +1103,89 @@ export const SEGMENT_LINKS: Record<string, SegmentLink> = {
 export const COLLEGE_TOUR: TourConfig = {
   segmentId: "college",
   title: "Virtual College",
-  intro: "Pick any location to see how that department works inside the platform.",
-  locations: [],
+  intro: 'Pick a college department to explore its sample workflow. This tour runs entirely in your browser.',
+  locations: [
+    {
+      id: 'admissions', label: 'Admissions & Registrar', x: 16, y: 22, status: 'live',
+      workflow: ['Capture enquiries and applications in one admissions pipeline.', 'Track each applicant through review and enrollment stages.', 'Keep document verification and follow-up scope visible to the registrar.'],
+      screen: {
+        title: 'Admissions · Applicant pipeline', subtitle: 'Academic year 2026–27', nav: ['Overview', 'Enquiries', 'Applications', 'Documents', 'Reports'], active: 'Applications',
+        stats: [{ label: 'New enquiries', value: '24' }, { label: 'In review', value: '12' }, { label: 'Enrolled', value: '38' }],
+        table: { columns: ['Applicant', 'Program', 'Stage', 'Next step'], rows: [['Aarav Mehta', 'B.Tech · CSE', 'In review', 'Documents'], ['Ananya Iyer', 'B.Tech · EEE', 'Enquiry', 'Campus visit'], ['Dev Patel', 'MBA', 'Enrolled', 'Complete']] },
+        note: 'Admissions records and the applicant pipeline use sample data in this preview.',
+      },
+    },
+    {
+      id: 'departments', label: 'Academic Departments', x: 38, y: 14, status: 'scope',
+      workflow: ['Organize programs, departments, courses and academic sessions.', 'Review faculty assignments and department-level reports.', 'Agree institution-specific structure during implementation.'],
+      screen: {
+        title: 'Departments · Academic structure', subtitle: 'Session 2026–27', nav: ['Departments', 'Programs', 'Courses', 'Sessions', 'Reports'], active: 'Departments',
+        stats: [{ label: 'Departments', value: '9' }, { label: 'Programs', value: '24' }, { label: 'Open reviews', value: '3' }],
+        table: { columns: ['Department', 'HOD', 'Programs', 'Status'], rows: [['Computer Science', 'Dr. Rao', '6', 'Active'], ['Commerce', 'Prof. Shah', '4', 'Review'], ['Management', 'Dr. Nair', '3', 'Active']] },
+        note: 'Department and academic-session setup is configurable scope.',
+      },
+    },
+    {
+      id: 'faculty', label: 'Faculty Workspace', x: 63, y: 17, status: 'live',
+      workflow: ['Open assigned courses and class lists.', 'Record attendance for a course meeting.', 'Enter internal assessment marks for review.'],
+      screen: {
+        title: 'Faculty · My teaching day', subtitle: 'Prof. Sharma · CSE', nav: ['My day', 'Courses', 'Attendance', 'Assessments', 'Marks'], active: 'My day',
+        stats: [{ label: 'Courses today', value: '5' }, { label: 'Attendance pending', value: '2' }, { label: 'Marks to review', value: '18' }],
+        lines: [{ title: 'Data Structures · Sem III', meta: '09:00 AM · Room 204', status: 'Next' }, { title: 'Attendance · CSE-A', meta: '32 students', status: 'Pending' }, { title: 'Internal assessment', meta: 'Marks entry', status: 'Due today' }],
+        note: 'Assigned subjects, attendance and marks entry are live workflows; the screen is a sample preview.',
+      },
+    },
+    {
+      id: 'examinations', label: 'Examination Cell', x: 84, y: 31, status: 'live',
+      workflow: ['Schedule examinations and enter marks against a maximum.', 'Review pending results before publishing.', 'Make published results available in the student portal.'],
+      screen: {
+        title: 'Examinations · Result review', subtitle: 'Semester III · Term 1', nav: ['Schedule', 'Marks entry', 'Review', 'Results', 'Transcripts'], active: 'Review',
+        stats: [{ label: 'Exams scheduled', value: '18' }, { label: 'Awaiting review', value: '6' }, { label: 'Published', value: '12' }],
+        table: { columns: ['Course', 'Assessment', 'Entries', 'Status'], rows: [['Data Structures', 'Internal 1', '32 / 32', 'Review'], ['Economics', 'Mid-term', '28 / 30', 'In progress'], ['Accounting', 'Quiz 2', '45 / 45', 'Published']] },
+        note: 'Marks, review and result publishing are live workflows; this sample uses fictional records.',
+      },
+    },
+    {
+      id: 'accounts', label: 'Accounts Office', x: 15, y: 58, status: 'live',
+      workflow: ['Set fee records by program and semester.', 'Record payments against outstanding balances.', 'Issue receipts and review collection reports.'],
+      screen: {
+        title: 'Accounts · Semester collections', subtitle: 'Counter 1', nav: ['Overview', 'Fee records', 'Receipts', 'Dues', 'Reports'], active: 'Receipts',
+        stats: [{ label: 'Collected today', value: '₹84,500' }, { label: 'Open dues', value: '₹1,26,000' }, { label: 'Receipts issued', value: '17' }],
+        table: { columns: ['Receipt', 'Student', 'Fee head', 'Amount'], rows: [['RCPT-4TK21', 'Aarav Mehta', 'Semester fee', '₹12,000'], ['RCPT-7QL08', 'Myra Das', 'Library fee', '₹1,200'], ['RCPT-2NP54', 'Dev Patel', 'Semester fee', '₹8,500']] },
+        note: 'Fee records, receipts and financial reporting use live workflows with sample data here.',
+      },
+    },
+    {
+      id: 'library', label: 'Library', x: 35, y: 68, status: 'live',
+      workflow: ['Search the catalog and check copy availability.', 'Record an issue or return against a student.', 'Review circulation and overdue information.'],
+      screen: {
+        title: 'Library · Circulation desk', subtitle: 'Catalog and issue / return', nav: ['Catalog', 'Issue / Return', 'Overdue', 'Stock'], active: 'Issue / Return',
+        stats: [{ label: 'Titles listed', value: '1,240' }, { label: 'Issued today', value: '34' }, { label: 'Overdue', value: '9' }],
+        table: { columns: ['Accession', 'Title', 'Borrower', 'Due'], rows: [['ACC-2214', 'Database Systems', 'Aarav Mehta', '12 Nov'], ['ACC-0871', 'Microeconomics', 'Ananya Iyer', '10 Nov'], ['ACC-3390', 'Business Ethics', 'Dev Patel', '08 Nov']] },
+        note: 'Library catalog and circulation screens are sample views of the live workflow.',
+      },
+    },
+    {
+      id: 'student-services', label: 'Student Services', x: 59, y: 70, status: 'live',
+      workflow: ['Give students a scoped view of their academic profile and semester.', 'Show attendance, examination results and fee status together.', 'Keep each student’s records private to their own account.'],
+      screen: {
+        title: 'Student portal · My semester', subtitle: 'Myra Das · B.Com · Semester IV', nav: ['Home', 'Courses', 'Attendance', 'Results', 'Fees'], active: 'Home',
+        stats: [{ label: 'Attendance', value: '92%' }, { label: 'Results posted', value: '3' }, { label: 'Fee status', value: 'Clear' }],
+        lines: [{ title: 'Financial Accounting · Internal 1', meta: 'Published · 18 Oct', status: 'View result' }, { title: 'Semester fee receipt', meta: '₹12,000 · 28 Oct', status: 'Paid' }, { title: 'Course registration', meta: 'Semester IV', status: 'Complete' }],
+        note: 'Academic profile, attendance, results and fee status are live student views.',
+      },
+    },
+    {
+      id: 'placements', label: 'Placement & Career Centre', x: 84, y: 57, status: 'scope',
+      workflow: ['Maintain company and placement-drive information.', 'Review eligibility and student applications.', 'Track interviews and outcomes by drive.'],
+      screen: {
+        title: 'Placement · Drive overview', subtitle: 'Season 2026', nav: ['Drives', 'Companies', 'Eligibility', 'Applications', 'Outcomes'], active: 'Drives',
+        stats: [{ label: 'Active drives', value: '5' }, { label: 'Company records', value: '47' }, { label: 'Applications', value: '126' }],
+        table: { columns: ['Drive', 'Role', 'Applications', 'Stage'], rows: [['Autumn intake', 'Graduate trainee', '42', 'Shortlisting'], ['Campus hiring', 'Analyst', '31', 'Applications'], ['Internship week', 'Developer intern', '53', 'Scheduled']] },
+        note: 'Placement and career workflows are configurable scope, confirmed with MYR during planning.',
+      },
+    },
+  ],
   roles: [
     {
       id: 'admin',
@@ -1349,7 +1430,93 @@ export const COLLEGE_TOUR: TourConfig = {
       },
     },
   ],
-  missions: [],
+  missions: [
+    {
+      id: 'college-admission', ordinal: 'Mission 1', title: 'Review a program application',
+      brief: 'Add an applicant to the program pipeline and set the next review step.',
+      status: 'scope', xp: 100, badge: 'Registrar', kind: 'form',
+      fields: [
+        { name: 'student', label: 'Applicant name', kind: 'text', required: true, placeholder: 'e.g. Aisha Kapoor' },
+        { name: 'email', label: 'Applicant email', kind: 'email', required: true, placeholder: 'applicant@example.com' },
+        { name: 'program', label: 'Program', kind: 'select', required: true, options: [{ value: 'cse', label: 'B.Tech · Computer Science' }, { value: 'commerce', label: 'B.Com · Accounting' }, { value: 'mba', label: 'MBA · Management' }] },
+      ],
+      successTitle: 'Application added to review',
+      successBody: 'The sample applicant is attached to a program pipeline. Admissions setup and document review are configurable scope; this stays in your browser.',
+    },
+    {
+      id: 'college-course-allocation', ordinal: 'Mission 2', title: 'Plan a department course',
+      brief: 'Choose a department, course and faculty member for a sample semester plan.',
+      status: 'scope', xp: 80, badge: 'Academic Planner', kind: 'form',
+      fields: [
+        { name: 'department', label: 'Department', kind: 'select', required: true, options: [{ value: 'cse', label: 'Computer Science' }, { value: 'commerce', label: 'Commerce' }, { value: 'management', label: 'Management' }] },
+        { name: 'course', label: 'Course', kind: 'text', required: true, placeholder: 'e.g. Data Structures · Semester III' },
+        { name: 'faculty', label: 'Faculty member', kind: 'text', required: true, placeholder: 'e.g. Prof. Sharma' },
+      ],
+      successTitle: 'Course plan saved in the demo',
+      successBody: 'Department and faculty allocation are institution-specific configuration scope. No college record is created or sent to MYR.',
+    },
+    {
+      id: 'college-attendance', ordinal: 'Mission 3', title: 'Mark course attendance',
+      brief: 'Mark each student present, absent or late for a sample lecture.',
+      status: 'live', xp: 120, badge: 'Attendance Keeper', kind: 'roster',
+      roster: [
+        { id: 'c1', name: 'Aarav Mehta', meta: 'Roll 01 · CSE-A' },
+        { id: 'c2', name: 'Ananya Iyer', meta: 'Roll 02 · CSE-A' },
+        { id: 'c3', name: 'Dev Patel', meta: 'Roll 03 · CSE-A' },
+        { id: 'c4', name: 'Ishita Rao', meta: 'Roll 04 · CSE-A' },
+        { id: 'c5', name: 'Kabir Singh', meta: 'Roll 05 · CSE-A' },
+      ],
+      successTitle: 'Attendance submitted for CSE-A',
+      successBody: 'The live attendance workflow records one mark per student and date. These names and marks are sample data stored only in your browser.',
+    },
+    {
+      id: 'college-fee-receipt', ordinal: 'Mission 4', title: 'Record a semester fee payment',
+      brief: 'Record a payment against an outstanding semester fee. Overpayments are blocked.',
+      status: 'live', xp: 120, badge: 'Fee Collector', kind: 'receipt',
+      fees: [
+        { value: 'cfee1', label: 'Aarav Mehta · Semester III fee', outstanding: 12000 },
+        { value: 'cfee2', label: 'Myra Das · Library fee', outstanding: 1200 },
+        { value: 'cfee3', label: 'Dev Patel · Examination fee', outstanding: 3500 },
+      ],
+      successTitle: 'Receipt issued, balance updated',
+      successBody: 'The fee workflow records receipts and updates the outstanding balance. This simulated payment does not move real funds.',
+    },
+    {
+      id: 'college-marks-entry', ordinal: 'Mission 5', title: 'Enter internal assessment marks',
+      brief: 'Enter one score and check it against the assessment maximum.',
+      status: 'live', xp: 110, badge: 'Marks Entry Clerk', kind: 'marks',
+      exams: [
+        { value: 'c-maths', label: 'Statistics · Internal 1', maxMarks: 50 },
+        { value: 'c-data', label: 'Data Structures · Mid-term', maxMarks: 100 },
+        { value: 'c-accounting', label: 'Financial Accounting · Quiz', maxMarks: 25 },
+      ],
+      successTitle: 'Marks saved for review',
+      successBody: 'Scores above the maximum are rejected, and marks remain pending review until an authorized user publishes results.',
+    },
+    {
+      id: 'college-result-publish', ordinal: 'Mission 6', title: 'Publish semester results',
+      brief: 'Review pending marks and publish them to the student portal.',
+      status: 'live', xp: 130, badge: 'Result Publisher', kind: 'publish',
+      pending: [
+        { id: 'cr1', name: 'Aarav Mehta · Data Structures', marks: '86', max: '100' },
+        { id: 'cr2', name: 'Ananya Iyer · Statistics', marks: '44', max: '50' },
+      ],
+      successTitle: 'Results published to student records',
+      successBody: 'Published results appear in the scoped student view. The sample records remain in this browser and are not shared across accounts.',
+    },
+    {
+      id: 'college-placement-review', ordinal: 'Mission 7', title: 'Review a placement drive checklist',
+      brief: 'Check the setup items for a sample campus recruitment drive.',
+      status: 'scope', xp: 90, badge: 'Career Coordinator', kind: 'checklist',
+      checklist: [
+        { id: 'company', text: 'Company profile reviewed', meta: 'Company records · scope' },
+        { id: 'eligibility', text: 'Student eligibility criteria confirmed', meta: 'Eligibility rules · scope' },
+        { id: 'schedule', text: 'Interview schedule shared with applicants', meta: 'Drive coordination · scope' },
+      ],
+      successTitle: 'Drive checklist complete',
+      successBody: 'Placement and career workflows are configurable scope. This checklist is a browser-only planning demo.',
+    },
+  ],
 }
 
 export type CollegeModule = {
@@ -1362,6 +1529,64 @@ export type CollegeModule = {
 }
 
 export const collegeModules: CollegeModule[] = [
-  { id: "admission", title: "Admission CRM", status: "scope", body: "", preview: { kind: "list", items: [] } },
-  { id: "sis", title: "Student Info System", status: "scope", body: "", preview: { kind: "table", columns: [], rows: [] } },
+  {
+    id: 'administration', title: 'Institution Administration', status: 'scope',
+    body: 'Configure departments, programs, academic sessions and campus records around the institution’s structure.',
+    preview: { kind: 'table', columns: ['Department', 'Programs', 'Session', 'Status'], rows: [['Computer Science', '6', '2026–27', 'Active'], ['Commerce', '4', '2026–27', 'Review'], ['Management', '3', '2026–27', 'Active']] },
+    note: 'Institution setup is configurable scope.',
+  },
+  {
+    id: 'admissions', title: 'Admissions & Applications', status: 'live',
+    body: 'Track enquiries and applications from first contact through review and enrollment.',
+    preview: { kind: 'list', items: [{ title: 'Aarav Mehta', meta: 'B.Tech · CSE', status: 'In review' }, { title: 'Ananya Iyer', meta: 'B.Tech · EEE', status: 'Enquiry' }, { title: 'Dev Patel', meta: 'MBA', status: 'Enrolled' }] },
+    note: 'Admissions records and pipeline are live workflows.',
+  },
+  {
+    id: 'academics', title: 'Academic Departments', status: 'scope',
+    body: 'Coordinate HODs, faculty allocation, course offerings and department-level reporting.',
+    preview: { kind: 'table', columns: ['Department', 'Faculty', 'Courses', 'Review'], rows: [['CSE', '9', '24', 'Ready'], ['EEE', '7', '18', 'Review'], ['Commerce', '8', '21', 'Ready']] },
+    note: 'Department and faculty allocation is configurable scope.',
+  },
+  {
+    id: 'faculty', title: 'Faculty Workspace', status: 'live',
+    body: 'Give faculty a focused view of assigned subjects, attendance, assessments and marks entry.',
+    preview: { kind: 'list', items: [{ title: 'Data Structures · CSE-A', meta: '09:00 AM · Room 204', status: 'Next' }, { title: 'Attendance · CSE-B', meta: '32 students', status: 'Pending' }, { title: 'Internal assessment', meta: '18 scripts', status: 'Review' }] },
+    note: 'Assigned subjects, attendance and marks entry are live workflows.',
+  },
+  {
+    id: 'attendance', title: 'Attendance Management', status: 'live',
+    body: 'Record course attendance per student and date, then review the same record in the student view.',
+    preview: { kind: 'stats', items: [{ label: 'Present today', value: '92%' }, { label: 'Classes marked', value: '38' }, { label: 'Pending', value: '4' }] },
+    note: 'Attendance uses sample data in this preview.',
+  },
+  {
+    id: 'examinations', title: 'Examinations & Results', status: 'live',
+    body: 'Schedule examinations, enter marks against a maximum, review results and publish them deliberately.',
+    preview: { kind: 'table', columns: ['Course', 'Assessment', 'Entries', 'Status'], rows: [['Data Structures', 'Mid-term', '32 / 32', 'Review'], ['Economics', 'Internal 1', '28 / 30', 'In progress'], ['Accounting', 'Quiz 2', '45 / 45', 'Published']] },
+    note: 'Marks entry and result publishing are live workflows.',
+  },
+  {
+    id: 'accounts', title: 'Accounts & Semester Fees', status: 'live',
+    body: 'Record semester fee structures, payments and receipts, and review collection reports.',
+    preview: { kind: 'chart', bars: [{ label: 'Tuition', value: 88 }, { label: 'Library', value: 72 }, { label: 'Exam', value: 61 }, { label: 'Transport', value: 46 }] },
+    note: 'Fee records, receipts and financial reporting are live workflows.',
+  },
+  {
+    id: 'library', title: 'Library & Circulation', status: 'live',
+    body: 'Connect the catalog, issue and return activity, availability and overdue tracking.',
+    preview: { kind: 'list', items: [{ title: 'Database Systems', meta: 'ACC-2214 · Aarav Mehta', status: 'Due 12 Nov' }, { title: 'Microeconomics', meta: 'ACC-0871 · Ananya Iyer', status: 'Due 10 Nov' }, { title: 'Business Ethics', meta: 'ACC-3390 · Dev Patel', status: 'Overdue' }] },
+    note: 'Library catalog and circulation are live workflows.',
+  },
+  {
+    id: 'student-services', title: 'Student Services Portal', status: 'live',
+    body: 'Bring the student’s profile, semester, attendance, results and fee status into one scoped view.',
+    preview: { kind: 'table', columns: ['My semester', 'Status', 'Updated'], rows: [['Attendance', '92%', 'Today'], ['Results', '3 posted', '18 Oct'], ['Fee status', 'Clear', '28 Oct']] },
+    note: 'Student profile, attendance, results and fee views are live.',
+  },
+  {
+    id: 'placements', title: 'Placements & Career Centre', status: 'scope',
+    body: 'Plan company records, placement drives, eligibility, applications and interview outcomes.',
+    preview: { kind: 'list', items: [{ title: 'Autumn intake', meta: 'Graduate trainee · 42 applicants', status: 'Shortlisting' }, { title: 'Campus hiring', meta: 'Analyst · 31 applicants', status: 'Applications' }, { title: 'Internship week', meta: 'Developer intern · 53 applicants', status: 'Scheduled' }] },
+    note: 'Placement and career workflows are configurable scope.',
+  },
 ]

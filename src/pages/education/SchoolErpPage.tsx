@@ -72,12 +72,8 @@ function SchoolErpContent() {
       <div id="modules">
         <ModuleShowcase
           modules={schoolModules}
-          eyebrow="School ERP modules"
-          title={
-            <>
-              Fourteen modules, <span className="text-teal-700">each with its real screen.</span>
-            </>
-          }
+          eyebrow="School ERP"
+          title="MODULES INCLUDED"
           sub="No icon grids. Every module opens a preview of the working screen. Green means the workflow runs in the MYR workspace today; grey means configurable scope."
         />
       </div>

@@ -45,28 +45,35 @@ const portalRoles = [
   ['Parent / Guardian', 'Child attendance, progress, notices, fee details and school updates.'],
 ]
 
-const whiteLabelProducts = [
-  { icon: '🏫', title: 'White Label School ERP', price: '₹5,000/mo', to: '/education-erp/school/' },
-  { icon: '🎓', title: 'White Label College ERP', price: '₹7,000/mo', to: '/education-erp/college/' },
-  { icon: '📚', title: 'White Label Coaching ERP', price: '₹4,000/mo', to: '/education-erp/coaching/' },
-  { icon: '🤝', title: 'White Label CRM', price: '₹8,000/mo', to: '/crm-development/' },
-  { icon: '👥', title: 'White Label HRM', price: '₹3,000/mo', to: '/hrm-solutions/' },
+const institutionSegments: { type: Institution; icon: string; summary: string; to: string }[] = [
+  { type: 'School', icon: '🏫', summary: 'Coordinate admissions, academics, fees and family communication across your school.', to: '/education-erp/school/' },
+  { type: 'College', icon: '🎓', summary: 'Connect departments, semester operations, campus services and institutional reporting.', to: '/education-erp/college/' },
+  { type: 'Coaching', icon: '📚', summary: 'Organize enquiries, batches, tests, learner progress and fee follow-ups.', to: '/education-erp/coaching/' },
 ]
 
 export function EducationErpPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const requestedType = searchParams.get('type')?.toLowerCase()
   const [activeType, setActiveType] = useState<Institution>(requestedType === 'college' ? 'College' : requestedType === 'coaching' ? 'Coaching' : 'School')
+  const [previewType, setPreviewType] = useState<Institution>(requestedType === 'college' ? 'College' : requestedType === 'coaching' ? 'Coaching' : 'School')
   const [activeModule, setActiveModule] = useState(0)
   const reduceMotion = useReducedMotion()
   const data = institutionContent[activeType]
+  const previewData = institutionContent[previewType]
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setPreviewType((current) => current === 'School' ? 'College' : current === 'College' ? 'Coaching' : 'School')
+    }, 5000)
+    return () => window.clearInterval(timer)
+  }, [])
   useEffect(() => {
     if (requestedType === 'school' || requestedType === 'college' || requestedType === 'coaching') {
       const next = requestedType === 'school' ? 'School' : requestedType === 'college' ? 'College' : 'Coaching'
       setActiveType(next)
+      setPreviewType(next)
     }
   }, [requestedType])
-  const changeInstitution = (type: Institution) => { setActiveType(type); setActiveModule(0); setSearchParams({ type: type.toLowerCase() }, { replace: true }) }
+  const changeInstitution = (type: Institution) => { setActiveType(type); setPreviewType(type); setActiveModule(0); setSearchParams({ type: type.toLowerCase() }, { replace: true }) }
 
   return <div className="overflow-hidden bg-paper text-ink-100">
     {/* ── Hero ── */}
@@ -88,10 +95,10 @@ export function EducationErpPage() {
               <div className="grid min-h-[270px] grid-cols-[45px_1fr] sm:min-h-[355px] sm:grid-cols-[145px_1fr]">
                 <aside className="space-y-1 bg-ink-950 p-1.5 text-[7px] text-white sm:p-3 sm:text-[9px]"><b className="hidden px-2 py-2 text-[8px] uppercase tracking-widest text-flame-400 sm:block">Workspace</b>{['Overview', 'Students', 'Academics', 'Attendance', 'Fees', 'Exams', 'Reports'].map((item,i)=><div key={item} className={`rounded-md px-1.5 py-2 sm:px-2 ${i===activeModule?'bg-white/15 font-semibold text-flame-300':'text-white/65'}`}><span className="sm:hidden">{['▦','◎','▤','◷','₹','✳','▥'][i]}</span><span className="hidden sm:inline">{item}</span></div>)}</aside>
                 <div className="min-w-0 bg-paper p-2.5 sm:p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-2"><div><p className="text-[8px] font-bold uppercase tracking-wider text-flame-600 sm:text-[9px]">Institution dashboard</p><h2 className="mt-1 text-sm font-bold text-ink-950 sm:text-lg">Good morning, Dr. Sharma</h2><p className="text-[8px] text-ink-400 sm:text-[10px]">Here's your {activeType.toLowerCase()} at a glance.</p></div><span className="rounded-lg bg-flame-500 px-2.5 py-1.5 text-[8px] font-semibold text-white">+ New admission</span></div>
-                  <AnimatePresence mode="wait" initial={false}><motion.div key={activeType} initial={reduceMotion?false:{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={reduceMotion?undefined:{opacity:0,y:-6}} transition={{duration:.2}}>
-                    <div className="mt-3 grid grid-cols-3 gap-1.5 sm:mt-4 sm:gap-2">{data.stats.map(([label,value],i)=><div key={label} className="rounded-lg border border-line bg-white p-2 shadow-sm sm:p-3"><p className="truncate text-[7px] text-ink-400 sm:text-[9px]">{label}</p><p className="mt-1 text-xs font-bold text-ink-950 sm:text-lg">{value}</p><span className="text-[7px] text-emerald-700 sm:text-[8px]">{i===0?'↑ 4.2% this term':'Updated today'}</span></div>)}</div>
-                    <div className="mt-2 rounded-lg border border-line bg-white p-2.5 shadow-sm sm:mt-3 sm:p-3"><div className="flex items-center justify-between"><b className="text-[8px] text-ink-950 sm:text-[10px]">Today's schedule</b><span className="text-[7px] text-flame-600 sm:text-[8px]">View timetable →</span></div>{data.rows.map(([item,time,status])=><div key={item} className="mt-2 grid grid-cols-[1fr_auto] items-center gap-1 border-t border-line pt-2 text-[7px] sm:grid-cols-[1fr_auto_auto] sm:text-[9px]"><span className="truncate font-medium text-ink-800">{item}</span><span className="text-ink-400">{time}</span><span className="hidden rounded-full bg-flame-500/10 px-2 py-0.5 text-flame-600 sm:block">{status}</span></div>)}</div>
+                  <div className="flex flex-wrap items-start justify-between gap-2"><div><p className="text-[8px] font-bold uppercase tracking-wider text-flame-600 sm:text-[9px]">{previewData.title} · live preview</p><h2 className="mt-1 text-sm font-bold text-ink-950 sm:text-lg">Good morning, Dr. Sharma</h2><p className="text-[8px] text-ink-400 sm:text-[10px]">Here's your {previewType.toLowerCase()} at a glance.</p></div><span className="rounded-lg bg-flame-500 px-2.5 py-1.5 text-[8px] font-semibold text-white">+ New admission</span></div>
+                  <AnimatePresence mode="wait" initial={false}><motion.div key={previewType} initial={reduceMotion?false:{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={reduceMotion?undefined:{opacity:0,y:-6}} transition={{duration:.2}}>
+                    <div className="mt-3 grid grid-cols-3 gap-1.5 sm:mt-4 sm:gap-2">{previewData.stats.map(([label,value],i)=><div key={label} className="rounded-lg border border-line bg-white p-2 shadow-sm sm:p-3"><p className="truncate text-[7px] text-ink-400 sm:text-[9px]">{label}</p><p className="mt-1 text-xs font-bold text-ink-950 sm:text-lg">{value}</p><span className="text-[7px] text-emerald-700 sm:text-[8px]">{i===0?'↑ 4.2% this term':'Updated today'}</span></div>)}</div>
+                    <div className="mt-2 rounded-lg border border-line bg-white p-2.5 shadow-sm sm:mt-3 sm:p-3"><div className="flex items-center justify-between"><b className="text-[8px] text-ink-950 sm:text-[10px]">Today's schedule</b><span className="text-[7px] text-flame-600 sm:text-[8px]">View timetable →</span></div>{previewData.rows.map(([item,time,status])=><div key={item} className="mt-2 grid grid-cols-[1fr_auto] items-center gap-1 border-t border-line pt-2 text-[7px] sm:grid-cols-[1fr_auto_auto] sm:text-[9px]"><span className="truncate font-medium text-ink-800">{item}</span><span className="text-ink-400">{time}</span><span className="hidden rounded-full bg-flame-500/10 px-2 py-0.5 text-flame-600 sm:block">{status}</span></div>)}</div>
                   </motion.div></AnimatePresence>
                   <div className="mt-2 flex items-center justify-between rounded-lg bg-flame-500/10 px-2.5 py-2 text-[7px] sm:mt-3 sm:px-3 sm:text-[8px]"><span className="font-semibold text-flame-600">Role-based access active</span><span className="text-ink-400">Admin · Faculty · Student · Parent</span></div>
                 </div>
@@ -119,22 +126,19 @@ export function EducationErpPage() {
         <div className="grid gap-3 sm:grid-cols-2">{portalRoles.map(([role,description],i)=><motion.article key={role} initial={reduceMotion?false:{opacity:0,x:14}} whileInView={{opacity:1,x:0}} viewport={{once:true,amount:.2}} transition={{delay:i*.06,duration:.4}} className="rounded-2xl border border-line bg-paper p-5"><span className="text-[10px] font-bold uppercase tracking-widest text-flame-600">0{i+1} · Role view</span><h3 className="mt-2 font-bold text-ink-950">{role}</h3><p className="mt-2 text-xs leading-5 text-ink-500">{description}</p></motion.article>)}</div></div>
     </div></section>
 
-    {/* ── White-label segments ── */}
-    <section id="white-label" className="scroll-mt-20 py-14 sm:py-20"><div className="container-page">
-      <SectionHeading title="Get a White Label solution under your own brand" sub="School ERP, College ERP, Coaching ERP, CRM, HRM and more — fully white-labelled with your pricing." />
-      <Stagger className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {whiteLabelProducts.map((p) => (
-          <StaggerItem key={p.title} className="card group flex h-full flex-col p-5 text-center transition hover:-translate-y-1 hover:shadow-xl">
-            <span className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-flame-500/10 text-2xl transition group-hover:bg-flame-500/20" aria-hidden>{p.icon}</span>
-            <h3 className="mt-3 text-sm font-bold text-ink-950">{p.title}</h3>
-            <span className="mt-2 text-xs font-bold text-flame-600">{p.price}</span>
-            <Link to={p.to} className="mt-3 inline-flex items-center justify-center gap-1 text-xs font-bold text-flame-600 group-hover:underline">View →</Link>
+    {/* ── Institution-specific pages ── */}
+    <section id="institution-segments" className="scroll-mt-20 py-14 sm:py-20"><div className="container-page">
+      <SectionHeading title="Explore your education ERP" sub="Choose the dedicated solution for your institution type." />
+      <Stagger className="mt-10 grid gap-5 md:grid-cols-3">
+        {institutionSegments.map((segment) => (
+          <StaggerItem key={segment.type} className="card group flex h-full flex-col p-6 transition hover:-translate-y-1 hover:shadow-xl">
+            <span className="grid h-12 w-12 place-items-center rounded-xl bg-flame-500/10 text-2xl transition group-hover:bg-flame-500/20" aria-hidden>{segment.icon}</span>
+            <h3 className="mt-4 text-lg font-bold text-ink-950">{institutionContent[segment.type].title}</h3>
+            <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-500">{segment.summary}</p>
+            <Link to={segment.to} className="btn btn-primary btn-sm mt-5 self-start">Explore {segment.type} ERP →</Link>
           </StaggerItem>
         ))}
       </Stagger>
-      <Reveal className="mt-8 rounded-2xl border border-flame-500/25 bg-gradient-to-br from-flame-500/10 to-transparent p-6 text-center">
-        <p className="text-sm text-ink-500">Interested in white-labelling? <Link to="/partner/#partner-contact" className="font-bold text-flame-600 underline">Contact our partnership team →</Link></p>
-      </Reveal>
     </div></section>
 
     {/* ── CTA ── */}

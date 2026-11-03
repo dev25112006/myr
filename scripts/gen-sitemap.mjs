@@ -12,11 +12,19 @@ const NOINDEX = new Set([
   '/crm-dashboard/', '/my-leads/', '/crm-reports/', '/crm-tasks/', '/my-profile/',
   '/import-leads/', '/crm-login/', '/team-chat/', '/team-panel/', '/customer-panel/',
 ])
+const CANONICAL_PATHS = {
+  '/shop/': '/tech-store/',
+  '/partnership/': '/partner/',
+  '/cctv-solutions/': '/cctv-solution/',
+  '/ip-pbx/': '/ipbx-solution/',
+  '/crm/': '/privyr/',
+  '/product-category/pbx/': '/product-category/ip-pbx/',
+}
 
 const inv = JSON.parse(readFileSync('audit/inventory.json', 'utf8'))
 const routes = (Array.isArray(inv) ? inv : Object.values(inv))
   .map((r) => r.route)
-  .filter((p) => !NOINDEX.has(p))
+  .filter((p) => !NOINDEX.has(p) && !CANONICAL_PATHS[p])
   .sort()
 
 const today = new Date().toISOString().slice(0, 10)

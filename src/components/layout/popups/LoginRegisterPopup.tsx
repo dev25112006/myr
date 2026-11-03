@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { ModalShell } from '../ModalShell'
 import { useAuth, usePopup } from '@/lib/stores'
+import { HumanVerification, turnstileSiteKey } from '@/components/forms/HumanVerification'
 
 /**
  * Login / Register popup — source: Elementor popup id 2975 (WooCommerce auth).
@@ -17,6 +18,7 @@ export function LoginRegisterPopup() {
   const [remember, setRemember] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState('')
+  const [humanToken, setHumanToken] = useState('')
 
   const onLogin = async (e: FormEvent) => {
     e.preventDefault()
@@ -24,8 +26,9 @@ export function LoginRegisterPopup() {
       setError('Please enter your username or email address and password.')
       return
     }
+    if (!humanToken) { setError('Complete human verification before signing in.'); return }
     setError('')
-    try { await login(identifier.trim(), password); setDone(`Signed in as ${identifier.trim()}.`) }
+    try { await login(identifier.trim(), password, humanToken); setDone(`Signed in as ${identifier.trim()}.`) }
     catch (reason) { setError(reason instanceof Error ? reason.message : 'Unable to sign in.') }
   }
 
@@ -36,8 +39,9 @@ export function LoginRegisterPopup() {
       return
     }
     if (password.length < 12) { setError('Use a password with at least 12 characters.'); return }
+    if (!humanToken) { setError('Complete human verification before creating an account.'); return }
     setError('')
-    try { await register(email.trim(), password); setDone(`Account created for ${email.trim()}.`) }
+    try { await register(email.trim(), password, humanToken); setDone(`Account created for ${email.trim()}.`) }
     catch (reason) { setError(reason instanceof Error ? reason.message : 'Unable to create account.') }
   }
 
@@ -68,6 +72,7 @@ export function LoginRegisterPopup() {
                 onClick={() => {
                   setTab(t)
                   setError('')
+                  setHumanToken('')
                 }}
                 className={
                   tab === t
@@ -126,7 +131,8 @@ export function LoginRegisterPopup() {
                 />
                 Remember me
               </label>
-              <button type="submit" className="btn btn-primary btn-md w-full">
+              <HumanVerification onVerified={setHumanToken} />
+              <button type="submit" className="btn btn-primary btn-md w-full" disabled={!turnstileSiteKey || !humanToken}>
                 Log in
               </button>
               <div className="flex items-center justify-between text-sm">
@@ -181,7 +187,8 @@ export function LoginRegisterPopup() {
                 </Link>
                 .
               </p>
-              <button type="submit" className="btn btn-primary btn-md w-full">
+              <HumanVerification onVerified={setHumanToken} />
+              <button type="submit" className="btn btn-primary btn-md w-full" disabled={!turnstileSiteKey || !humanToken}>
                 Register
               </button>
             </form>
