@@ -470,7 +470,9 @@ async function handle(req, res) {
       const requiresShipping = items.some((item) => item.category === 'IP PBX Solution')
       const address = input.shippingAddress || {}
       if (requiresShipping && ['name', 'address', 'city', 'state', 'postalCode', 'country', 'phone'].some((key) => typeof address[key] !== 'string' || !address[key].trim())) return json(res, 400, { error: 'Complete the shipping address for physical products.' })
-      const order = { id: `MYR-${randomBytes(6).toString('hex').toUpperCase()}`, userId: user.id, email: user.email, items, subtotal, tax, shipping, total, shippingAddress: requiresShipping ? Object.fromEntries(['name', 'address', 'city', 'state', 'postalCode', 'country', 'phone'].map((key) => [key, String(address[key]).trim().slice(0, 300)])) : null, status: 'Pending payment', paymentStatus: 'unpaid', date: new Date().toISOString(), notes: String(input.notes || '').slice(0, 2000) }
+      const hasCustomerDetails = ['name', 'phone'].some((key) => typeof address[key] === 'string' && address[key].trim())
+      const storedAddress = hasCustomerDetails ? Object.fromEntries(['name', 'address', 'city', 'state', 'postalCode', 'country', 'phone'].map((key) => [key, String(address[key] || '').trim().slice(0, 300)])) : null
+      const order = { id: `MYR-${randomBytes(6).toString('hex').toUpperCase()}`, userId: user.id, email: user.email, items, subtotal, tax, shipping, total, shippingAddress: storedAddress, status: 'Pending payment', paymentStatus: 'unpaid', date: new Date().toISOString(), notes: String(input.notes || '').slice(0, 2000) }
       if (!Number.isSafeInteger(order.total * 100) || order.total * 100 < 100) return json(res, 400, { error: 'The minimum online payment amount is ₹1.00.' })
       if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
         let response

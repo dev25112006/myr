@@ -17,6 +17,8 @@ type Props = {
   sub?: string
 }
 
+type Details = { name: string; phone: string; address: string; city: string; state: string; postalCode: string; country: string; notes: string }
+
 /** Interactive buy section: left = core features + direct "Buy now" (Razorpay), right = animated purchase preview. */
 export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt, image, features, heading, sub }: Props) {
   const price = useCatalogPrice(id, fallbackPrice)
@@ -25,6 +27,8 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
   const navigate = useNavigate()
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
+  const [showForm, setShowForm] = useState(false)
+  const [details, setDetails] = useState<Details>({ name: '', phone: '', address: '', city: '', state: '', postalCode: '', country: 'India', notes: '' })
 
   const loadRazorpay = async () => {
     if (document.getElementById('razorpay-checkout-script')) {
@@ -39,8 +43,15 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
     return (window as Window & { Razorpay?: new (options: Record<string, unknown>) => { open: () => void; on: (e: 'payment.failed', h: (r: { error?: { description?: string } }) => void) => void } }).Razorpay
   }
 
-  const buyNow = async () => {
+  const startBuy = () => {
     if (!user) { setOpen('login'); return }
+    setDetails((d) => ({ ...d, name: d.name || (user?.email.split('@')[0] ?? '') }))
+    setShowForm(true)
+  }
+
+  const submitDetails = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!details.name.trim() || !details.phone.trim()) { setMessage('Name and phone are required.'); return }
     setBusy(true)
     setMessage('')
     try {
@@ -48,7 +59,7 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
       const quote = await quoteRes.json()
       if (!quoteRes.ok) throw new Error(quote.error || 'Unable to calculate price.')
 
-      const orderRes = await fetch('/api/orders', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: [{ id, qty: 1 }], expectedTotal: quote.total }) })
+      const orderRes = await fetch('/api/orders', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: [{ id, qty: 1 }], expectedTotal: quote.total, notes: details.notes, shippingAddress: { name: details.name, phone: details.phone, address: details.address, city: details.city, state: details.state, postalCode: details.postalCode, country: details.country } }) })
       const orderData = await orderRes.json()
       if (!orderRes.ok) throw new Error(orderData.error || 'Could not create order.')
 
@@ -58,6 +69,7 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
         return
       }
 
+      setShowForm(false)
       const Razorpay = await loadRazorpay()
       if (!Razorpay) throw new Error('Payment checkout unavailable.')
 
@@ -68,7 +80,7 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
         name: 'MYR Advance Solution',
         description: `${name} order`,
         order_id: orderData.payment.orderId,
-        prefill: { email: user.email },
+        prefill: { email: user!.email, name: details.name, contact: details.phone },
         handler: async (result: Record<string, string>) => {
           const verify = await fetch('/api/payments/verify', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ orderId: orderData.order.id, ...result }) })
           const verifyData = await verify.json()
@@ -108,7 +120,7 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
             {monthly && <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-400">/ month</span>}
           </div>
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <button type="button" onClick={() => void buyNow()} disabled={busy} className="btn btn-primary btn-lg">
+            <button type="button" onClick={startBuy} disabled={busy} className="btn btn-primary btn-lg">
               {busy ? 'Starting…' : 'Buy now'}
             </button>
             <a href="/contact-us/" className="text-sm font-semibold text-accent-600 hover:underline">
@@ -123,6 +135,31 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
           <PurchaseAnimation name={name} price={price} monthly={!!monthly} image={image} />
         </div>
       </div>
+
+      {/* Details modal */}
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowForm(false)}>
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-ink-950">Checkout details</h3>
+            <p className="mt-1 text-sm text-ink-500">Fill in your details. We’ll use these for your order and invoice.</p>
+            <form onSubmit={submitDetails} className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="text-sm sm:col-span-2">Full name<input className="input mt-1" required value={details.name} onChange={(e) => setDetails({ ...details, name: e.target.value })} /></label>
+              <label className="text-sm">Phone<input className="input mt-1" required value={details.phone} onChange={(e) => setDetails({ ...details, phone: e.target.value })} /></label>
+              <label className="text-sm">Country<input className="input mt-1" value={details.country} onChange={(e) => setDetails({ ...details, country: e.target.value })} /></label>
+              <label className="text-sm sm:col-span-2">Street address<input className="input mt-1" value={details.address} onChange={(e) => setDetails({ ...details, address: e.target.value })} /></label>
+              <label className="text-sm">City<input className="input mt-1" value={details.city} onChange={(e) => setDetails({ ...details, city: e.target.value })} /></label>
+              <label className="text-sm">State<input className="input mt-1" value={details.state} onChange={(e) => setDetails({ ...details, state: e.target.value })} /></label>
+              <label className="text-sm">Postal code<input className="input mt-1" value={details.postalCode} onChange={(e) => setDetails({ ...details, postalCode: e.target.value })} /></label>
+              <label className="text-sm sm:col-span-2">Order notes<textarea className="input mt-1 min-h-20" value={details.notes} onChange={(e) => setDetails({ ...details, notes: e.target.value })} /></label>
+              {message && <p role="alert" className="sm:col-span-2 text-sm text-flame-600">{message}</p>}
+              <div className="sm:col-span-2 flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setShowForm(false)} className="btn btn-outline-light btn-md">Cancel</button>
+                <button type="submit" disabled={busy} className="btn btn-primary btn-md">{busy ? 'Processing…' : 'Continue to payment'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   )
 }
