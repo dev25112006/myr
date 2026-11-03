@@ -28,6 +28,7 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [mode, setMode] = useState<'review' | 'form'>('form')
   const [details, setDetails] = useState<Details>({ name: '', phone: '', address: '', city: '', state: '', postalCode: '', country: 'India', notes: '' })
 
   const loadRazorpay = async () => {
@@ -43,14 +44,36 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
     return (window as Window & { Razorpay?: new (options: Record<string, unknown>) => { open: () => void; on: (e: 'payment.failed', h: (r: { error?: { description?: string } }) => void) => void } }).Razorpay
   }
 
-  const startBuy = () => {
+  const startBuy = async () => {
     if (!user) { setOpen('login'); return }
-    setDetails((d) => ({ ...d, name: d.name || (user?.email.split('@')[0] ?? '') }))
+    try {
+      const res = await fetch('/api/account/profile', { credentials: 'same-origin' })
+      if (res.ok) {
+        const data = await res.json()
+        const p = data.profile || {}
+        const hasSaved = !!(p.name && p.phone)
+        setDetails({
+          name: p.name || (user.email.split('@')[0] ?? ''),
+          phone: p.phone || '',
+          address: p.address || '',
+          city: p.city || '',
+          state: p.state || '',
+          postalCode: p.postalCode || '',
+          country: p.country || 'India',
+          notes: p.notes || '',
+        })
+        setMode(hasSaved ? 'review' : 'form')
+      } else {
+        setMode('form')
+        setDetails((d) => ({ ...d, name: d.name || (user.email.split('@')[0] ?? '') }))
+      }
+    } catch {
+      setMode('form')
+    }
     setShowForm(true)
   }
 
-  const submitDetails = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const processPayment = async () => {
     if (!details.name.trim() || !details.phone.trim()) { setMessage('Name and phone are required.'); return }
     setBusy(true)
     setMessage('')
@@ -142,7 +165,26 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
           <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-bold text-ink-950">Checkout details</h3>
             <p className="mt-1 text-sm text-ink-500">Fill in your details. We’ll use these for your order and invoice.</p>
-            <form onSubmit={submitDetails} className="mt-4 grid gap-3 sm:grid-cols-2">
+            {mode === 'review' ? (
+              <div className="mt-4">
+                <div className="rounded-xl border border-line bg-paper/50 p-4 text-sm">
+                  <p className="font-semibold text-ink-950">{details.name}</p>
+                  <p className="text-ink-500">{details.phone}</p>
+                  {(details.address || details.city) && (
+                    <p className="mt-1 text-ink-500">{[details.address, details.city, details.state, details.postalCode, details.country].filter(Boolean).join(', ')}</p>
+                  )}
+                  {details.notes && <p className="mt-1 text-ink-400 italic">Notes: {details.notes}</p>}
+                </div>
+                <p className="mt-2 text-xs text-ink-400">Using saved details. Edit anytime in your profile.</p>
+                {message && <p role="alert" className="mt-2 text-sm text-flame-600">{message}</p>}
+                <div className="mt-4 flex justify-end gap-2">
+                  <button type="button" onClick={() => setShowForm(false)} className="btn btn-outline-light btn-md">Cancel</button>
+                  <button type="button" onClick={() => setMode('form')} className="btn btn-outline-light btn-md">Edit details</button>
+                  <button type="button" onClick={() => void processPayment()} disabled={busy} className="btn btn-primary btn-md">{busy ? 'Processing…' : 'Confirm & pay'}</button>
+                </div>
+              </div>
+            ) : (
+            <form onSubmit={(e) => { e.preventDefault(); void processPayment() }} className="mt-4 grid gap-3 sm:grid-cols-2">
               <label className="text-sm sm:col-span-2">Full name<input className="input mt-1" required value={details.name} onChange={(e) => setDetails({ ...details, name: e.target.value })} /></label>
               <label className="text-sm">Phone<input className="input mt-1" required value={details.phone} onChange={(e) => setDetails({ ...details, phone: e.target.value })} /></label>
               <label className="text-sm">Country<input className="input mt-1" value={details.country} onChange={(e) => setDetails({ ...details, country: e.target.value })} /></label>
@@ -157,6 +199,7 @@ export function BuyShowcase({ id, name, desc, fallbackPrice, monthly, compareAt,
                 <button type="submit" disabled={busy} className="btn btn-primary btn-md">{busy ? 'Processing…' : 'Continue to payment'}</button>
               </div>
             </form>
+            )}
           </div>
         </div>
       )}

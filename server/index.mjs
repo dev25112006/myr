@@ -424,19 +424,25 @@ async function handle(req, res) {
     }
     if (req.method === 'GET' && pathName === '/api/account/profile') {
       if (!requireRole('customer', 'manager', 'admin')) return
-      return json(res, 200, { profile: { email: user.email, role: user.role, name: user.profile?.name || '', phone: user.profile?.phone || '', timezone: user.profile?.timezone || '' } })
+      return json(res, 200, { profile: { email: user.email, role: user.role, name: user.profile?.name || '', phone: user.profile?.phone || '', timezone: user.profile?.timezone || '', address: user.profile?.address || '', city: user.profile?.city || '', state: user.profile?.state || '', postalCode: user.profile?.postalCode || '', country: user.profile?.country || 'India', notes: user.profile?.notes || '' } })
     }
     if (req.method === 'PATCH' && pathName === '/api/account/profile') {
       if (!requireRole('customer', 'manager', 'admin')) return
       const input = await body(req)
-      const name = typeof input.name === 'string' ? input.name.trim() : ''
-      const phone = typeof input.phone === 'string' ? input.phone.trim() : ''
-      const timezone = typeof input.timezone === 'string' ? input.timezone.trim() : ''
-      if (name.length < 2 || name.length > 120) return json(res, 400, { error: 'Name must be between 2 and 120 characters.' })
+      const name = typeof input.name === 'string' ? input.name.trim() : (user.profile?.name || '')
+      const phone = typeof input.phone === 'string' ? input.phone.trim() : (user.profile?.phone || '')
+      const timezone = typeof input.timezone === 'string' ? input.timezone.trim() : (user.profile?.timezone || '')
+      if (name && (name.length < 2 || name.length > 120)) return json(res, 400, { error: 'Name must be between 2 and 120 characters.' })
       if (phone.length > 40 || (phone && !/^[+\d][\d\s().-]{5,39}$/.test(phone))) return json(res, 400, { error: 'Enter a valid phone number up to 40 characters.' })
       if (timezone.length > 80) return json(res, 400, { error: 'Timezone must be 80 characters or fewer.' })
-      user.profile = { name, phone, timezone }
-      if (['admin', 'manager'].includes(user.role)) recordAudit(user, 'profile.update', user.id, { fields: ['name', 'phone', 'timezone'] })
+      const address = typeof input.address === 'string' ? input.address.trim().slice(0, 300) : (user.profile?.address || '')
+      const city = typeof input.city === 'string' ? input.city.trim().slice(0, 120) : (user.profile?.city || '')
+      const state = typeof input.state === 'string' ? input.state.trim().slice(0, 120) : (user.profile?.state || '')
+      const postalCode = typeof input.postalCode === 'string' ? input.postalCode.trim().slice(0, 20) : (user.profile?.postalCode || '')
+      const country = typeof input.country === 'string' ? input.country.trim().slice(0, 80) : (user.profile?.country || 'India')
+      const notes = typeof input.notes === 'string' ? input.notes.trim().slice(0, 2000) : (user.profile?.notes || '')
+      user.profile = { name, phone, timezone, address, city, state, postalCode, country, notes }
+      if (['admin', 'manager'].includes(user.role)) recordAudit(user, 'profile.update', user.id, { fields: ['name', 'phone', 'timezone', 'address'] })
       await persist()
       return json(res, 200, { profile: { email: user.email, role: user.role, ...user.profile } })
     }
@@ -483,6 +489,7 @@ async function handle(req, res) {
         order.razorpayOrderId = result.id; order.status = 'Awaiting payment'
       }
       db.orders.unshift(order)
+      if (storedAddress) { user.profile = { ...(user.profile || {}), name: storedAddress.name || user.profile?.name || '', phone: storedAddress.phone || user.profile?.phone || '', address: storedAddress.address || user.profile?.address || '', city: storedAddress.city || user.profile?.city || '', state: storedAddress.state || user.profile?.state || '', postalCode: storedAddress.postalCode || user.profile?.postalCode || '', country: storedAddress.country || user.profile?.country || 'India', notes: input.notes ? String(input.notes).slice(0, 2000) : (user.profile?.notes || '') } }
       db.inbox.unshift({ id: randomBytes(12).toString('hex'), type: 'order', subject: `Order ${order.id}`, name: user.email, email: user.email, message: items.map((item) => `${item.name} × ${item.qty}`).join(', '), date: order.date, status: 'New', source: 'Account checkout', ownerId: user.id })
       await persist()
       const { userId, ...safeOrder } = order
