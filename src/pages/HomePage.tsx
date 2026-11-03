@@ -1225,121 +1225,6 @@ function SupportBlockSection() {
   )
 }
 
-const CTA_APPS = [
-  { label: 'Mail', icon: '✉', color: 'bg-sky-500' },
-  { label: 'Photos', icon: '✿', color: 'bg-fuchsia-500' },
-  { label: 'Camera', icon: '◉', color: 'bg-slate-700' },
-  { label: 'Maps', icon: '⌖', color: 'bg-emerald-500' },
-  { label: 'Music', icon: '♫', color: 'bg-rose-500' },
-  { label: 'Notes', icon: '▤', color: 'bg-amber-400' },
-  { label: 'Wallet', icon: '▣', color: 'bg-slate-800' },
-  { label: 'Weather', icon: '☀', color: 'bg-blue-400' },
-  { label: 'Files', icon: '▰', color: 'bg-sky-600' },
-  { label: 'Chat', icon: '•••', color: 'bg-green-500' },
-  { label: 'Shop', icon: '▣', color: 'bg-violet-500' },
-  { label: 'Calendar', icon: '31', color: 'bg-red-500' },
-  { label: 'Phone', icon: '☎', color: 'bg-emerald-500' },
-  { label: 'CRM', icon: '▥', color: 'bg-indigo-500' },
-  { label: 'Settings', icon: '⚙', color: 'bg-slate-500' },
-  { label: 'MYR', icon: 'M', color: 'bg-white', myr: true },
-]
-
-function IphoneAppLaunch() {
-  const reduceMotion = useReducedMotion()
-  const [phase, setPhase] = useState(0) // 0 home, 1 opening, 2 app, 3 closing
-
-  useEffect(() => {
-    if (reduceMotion) return
-    let timers: ReturnType<typeof setTimeout>[] = []
-    const cycle = () => {
-      setPhase(0)
-      timers.push(setTimeout(() => setPhase(1), 2200))
-      timers.push(setTimeout(() => setPhase(2), 3000))
-      timers.push(setTimeout(() => setPhase(3), 8000))
-      timers.push(setTimeout(cycle, 8700))
-    }
-    cycle()
-    return () => timers.forEach(clearTimeout)
-  }, [reduceMotion])
-
-  const opening = phase === 1
-  const inApp = phase === 2
-  const closing = phase === 3
-
-  return (
-    <div role="group" aria-label="iPhone 18 Pro Max app preview" className="relative h-auto w-[88%] max-w-[320px] sm:w-[46%] sm:max-w-[230px] aspect-[.482] drop-shadow-[0_30px_55px_rgba(2,6,23,.5)]">
-      <img src="/assets/iphone18-frame.png" alt="" className="absolute inset-0 h-full w-full rounded-[10%] object-fill" />
-      <div className="absolute inset-x-[6%] bottom-[11%] top-[12%] overflow-hidden rounded-[8%] bg-black">
-        {/* Home screen (iPhone home screen) */}
-        <div
-          className={`absolute inset-0 flex flex-col bg-gradient-to-b from-indigo-900 via-slate-900 to-slate-950 p-[5%] transition-all duration-500 ${
-            inApp || opening || closing ? 'scale-95 opacity-0 blur-sm' : 'scale-100 opacity-100 blur-0'
-          }`}
-        >
-          <div className="grid grid-cols-4 content-between gap-x-[3%] gap-y-[3%] flex-1 min-h-0 py-[2%]">
-            {CTA_APPS.map((app) => (
-              <div key={app.label} className="flex flex-col items-center gap-[4%]">
-                <span
-                  className={`grid aspect-square w-full place-items-center rounded-[22%] text-[clamp(8px,1.1vw,13px)] font-bold shadow-md ${app.color} ${app.myr ? 'ring-2 ring-white/60' : ''} ${
-                    app.myr && opening ? 'scale-[4.5] z-10' : 'scale-100'
-                  } transition-transform duration-500`}
-                >
-                  {app.myr ? (
-                    <img src="/assets/2024-08-MYR-LOGO.png" alt="" className="h-[60%] w-[60%] object-contain" />
-                  ) : (
-                    app.icon
-                  )}
-                </span>
-                <span className="text-[clamp(5px,.6vw,8px)] text-white/80">{app.label}</span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-2 flex items-center justify-around rounded-2xl bg-white/10 px-2 py-2 backdrop-blur-md">
-            {['Phone', 'Mail', 'Photos', 'MYR'].map((name) => {
-              const app = CTA_APPS.find((a) => a.label === name)!
-              return (
-                <span key={name} className={`grid h-9 w-9 place-items-center rounded-[22%] text-[11px] font-bold shadow-md ${app.color}`}>
-                  {app.myr ? <img src="/assets/2024-08-MYR-LOGO.png" alt="" className="h-[60%] w-[60%] object-contain" /> : app.icon}
-                </span>
-              )
-            })}
-          </div>
-        </div>
-        {/* Opening splash: MYR logo covers the full screen */}
-        <div
-          className={`absolute inset-0 z-20 flex items-center justify-center bg-white transition-all duration-500 ${
-            opening ? 'opacity-100 scale-100' : 'opacity-0 scale-110 pointer-events-none'
-          }`}
-        >
-          <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution" className="h-full w-full object-cover" />
-        </div>
-        {/* Full-screen white app (MYR Advance Solution) */}
-        <div
-          className={`absolute inset-0 flex flex-col bg-white transition-all duration-500 ${
-            inApp ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'
-          }`}
-        >
-          <div className="flex items-center justify-between px-3 pt-3 text-[clamp(7px,.8vw,10px)] text-slate-500">
-            <span>9:41</span>
-            <span>●●● Wi-Fi</span>
-          </div>
-          <div className="flex flex-1 flex-col items-center justify-center px-4 text-center">
-            <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution" className="h-[24%] w-auto object-contain" />
-            <h3 className="mt-3 text-[clamp(12px,1.6vw,18px)] font-bold text-ink-950">MYR Advance Solution</h3>
-            <p className="mt-1 text-[clamp(7px,.8vw,10px)] text-ink-500">Sign in to continue</p>
-            <div className="mt-4 w-full space-y-2">
-              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left text-[clamp(7px,.8vw,10px)] text-slate-400">Email address</div>
-              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left text-[clamp(7px,.8vw,10px)] text-slate-400">Password</div>
-              <div className="rounded-lg bg-ink-950 py-2 text-[clamp(8px,.9vw,11px)] font-bold text-white">Log in</div>
-            </div>
-            <p className="mt-3 text-[clamp(6px,.7vw,9px)] text-slate-400">Don&apos;t have an account? Register</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function BottomCtaBand() {
   return (
     <section className="section-dark border-y border-line py-14 sm:py-16">
@@ -1375,32 +1260,6 @@ function BottomCtaBand() {
   )
 }
 
-function IphoneShowcaseSection() {
-  return (
-    <section className="section-deep py-14 sm:py-16">
-      <div className="container-page grid items-center gap-8 sm:grid-cols-2">
-        <div>
-          <h2 className="text-2xl font-bold text-ink-950 sm:text-3xl">
-            Experience the <span className="text-accent-600">MYR</span> app
-          </h2>
-          <p className="mt-2 text-sm text-ink-600">
-            Tap the MYR app on the home screen to sign in or create your account.
-          </p>
-          <ul className="mt-5 space-y-2 text-sm text-ink-700">
-            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Full iPhone home screen with all your apps</li>
-            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Tap MYR to launch the app instantly</li>
-            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Sign in or sign up in seconds</li>
-            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Seamless, fast, and secure</li>
-          </ul>
-        </div>
-        <div className="flex justify-center sm:justify-end">
-          <IphoneAppLaunch />
-        </div>
-      </div>
-    </section>
-  )
-}
-
 /* ============================ PAGE ============================ */
 
 export function HomePage() {
@@ -1417,7 +1276,6 @@ export function HomePage() {
       <StoriesSection />
       <FaqSection />
       <UnlockSection />
-      <IphoneShowcaseSection />
       <SupportBlockSection />
       <BottomCtaBand />
     </>
