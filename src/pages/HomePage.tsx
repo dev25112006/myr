@@ -1294,7 +1294,7 @@ function IphoneAppLaunch() {
               </div>
             ))}
           </div>
-          <div className="mt-2 flex items-center justify-around rounded-2xl bg-white/10 px-2 py-2 backdrop-blur-md">
+          <div className="mt-2 flex items-center justify-around rounded-2xl bg-slate-800/60 px-2 py-2">
             {['Phone', 'Mail', 'Photos', 'MYR'].map((name) => {
               const app = CTA_APPS.find((a) => a.label === name)!
               return (
@@ -1343,7 +1343,7 @@ function IphoneAppLaunch() {
 
 function BottomCtaBand() {
   return (
-    <section className="section-dark border-y border-line py-14 sm:py-16">
+    <section className="section-deep border-y border-line py-14 sm:py-16">
       <div className="container-page grid items-center gap-4 sm:grid-cols-2 sm:gap-6">
         <div>
           <span className="inline-flex items-center gap-2 rounded-full bg-flame-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-flame-600">
