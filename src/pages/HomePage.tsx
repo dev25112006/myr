@@ -572,9 +572,8 @@ function ServiceScreen({ serviceIndex }: { serviceIndex: number }) {
   return (
     <div className="relative aspect-[4/3] w-full max-w-xl animate-[serviceScreenEnter_500ms_ease-out]">
       <div className={`absolute inset-0 origin-center transform-gpu transition-all duration-[1400ms] ease-in-out ${isPhone ? 'scale-[.08] rotate-[70deg] opacity-0 blur-[1px]' : 'scale-100 rotate-0 opacity-100 blur-0'}`}>
-      <div className="relative h-full rounded-[2rem] bg-slate-900 p-[1.6%] shadow-[0_40px_90px_-45px_rgba(15,23,42,.55)] ring-1 ring-slate-900/10">
-        <div className="absolute left-1/2 top-[3%] h-[3%] w-[2.5%] -translate-x-1/2 rounded-full bg-slate-700/80" />
-        <div key={serviceIndex} className="relative h-[96%] overflow-hidden rounded-[1.5rem] bg-white animate-[serviceScreenEnter_500ms_ease-out]">
+      <div className="relative h-full rounded-[1.2rem] bg-slate-900 p-[0.8%] shadow-[0_40px_90px_-45px_rgba(15,23,42,.55)] ring-1 ring-slate-900/10">
+        <div key={serviceIndex} className="relative h-full overflow-hidden rounded-[1rem] bg-white animate-[serviceScreenEnter_500ms_ease-out]">
           <div className="flex h-[7%] items-center gap-2 border-b border-slate-100 px-3">
             <span className="h-2 w-2 rounded-full bg-rose-400" />
             <span className="h-2 w-2 rounded-full bg-amber-300" />
@@ -614,7 +613,6 @@ function ServiceScreen({ serviceIndex }: { serviceIndex: number }) {
           )}
         </div>
       </div>
-      <div className="absolute bottom-[1.2%] left-1/2 h-[0.5%] w-[18%] -translate-x-1/2 rounded-full bg-slate-600/70" />
       </div>
       </div>
       <div className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center origin-center transform-gpu transition-all duration-[1400ms] ease-in-out ${isPhone ? 'scale-100 rotate-0 opacity-100' : 'scale-[.08] rotate-[-70deg] opacity-0'}`}>
