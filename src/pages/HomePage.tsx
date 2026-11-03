@@ -1276,7 +1276,7 @@ function IphoneAppLaunch() {
             inApp || opening || closing ? 'scale-95 opacity-0 blur-sm' : 'scale-100 opacity-100 blur-0'
           }`}
         >
-          <div className="grid grid-cols-4 content-start gap-x-[3%] gap-y-[4%] flex-1">
+          <div className="grid grid-cols-4 content-between gap-x-[3%] gap-y-[3%] flex-1 min-h-0 py-[2%]">
             {CTA_APPS.map((app) => (
               <div key={app.label} className="flex flex-col items-center gap-[4%]">
                 <span
@@ -1378,16 +1378,24 @@ function BottomCtaBand() {
 function IphoneShowcaseSection() {
   return (
     <section className="section-deep py-14 sm:py-16">
-      <div className="container-page flex flex-col items-center gap-6">
-        <div className="text-center">
+      <div className="container-page grid items-center gap-8 sm:grid-cols-2">
+        <div>
           <h2 className="text-2xl font-bold text-ink-950 sm:text-3xl">
             Experience the <span className="text-accent-600">MYR</span> app
           </h2>
           <p className="mt-2 text-sm text-ink-600">
-            Tap the MYR app to sign in or create your account.
+            Tap the MYR app on the home screen to sign in or create your account.
           </p>
+          <ul className="mt-5 space-y-2 text-sm text-ink-700">
+            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Full iPhone home screen with all your apps</li>
+            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Tap MYR to launch the app instantly</li>
+            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Sign in or sign up in seconds</li>
+            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Seamless, fast, and secure</li>
+          </ul>
         </div>
-        <IphoneAppLaunch />
+        <div className="flex justify-center sm:justify-end">
+          <IphoneAppLaunch />
+        </div>
       </div>
     </section>
   )
