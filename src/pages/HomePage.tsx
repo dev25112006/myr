@@ -1267,12 +1267,12 @@ function IphoneAppLaunch() {
   const closing = phase === 3
 
   return (
-    <div role="group" aria-label="iPhone 18 Pro Max app preview" className="relative h-auto w-[46%] max-w-[230px] aspect-[.482] drop-shadow-[0_30px_55px_rgba(2,6,23,.5)]">
+    <div role="group" aria-label="iPhone 18 Pro Max app preview" className="relative h-auto w-[70%] max-w-[260px] sm:w-[46%] sm:max-w-[230px] aspect-[.482] drop-shadow-[0_30px_55px_rgba(2,6,23,.5)]">
       <img src="/assets/iphone18-frame.png" alt="" className="absolute inset-0 h-full w-full rounded-[10%] object-fill" />
       <div className="absolute inset-x-[7%] bottom-[14%] top-[15%] overflow-hidden rounded-[8%] bg-black">
         {/* Home screen */}
         <div
-          className={`absolute inset-0 grid grid-cols-4 content-start gap-x-1 gap-y-[7%] bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-[7%] transition-all duration-500 ${
+          className={`absolute inset-0 grid grid-cols-4 content-start gap-x-[3%] gap-y-[4%] bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-[5%] transition-all duration-500 ${
             inApp || opening || closing ? 'scale-95 opacity-0 blur-sm' : 'scale-100 opacity-100 blur-0'
           }`}
         >
@@ -1325,15 +1325,32 @@ function BottomCtaBand() {
     <section className="section-dark border-y border-line py-14 sm:py-16">
       <div className="container-page grid items-center gap-8 sm:grid-cols-2">
         <div>
-          <h2 className="max-w-2xl text-2xl font-bold text-ink-950 sm:text-3xl">
+          <span className="inline-flex items-center gap-2 rounded-full bg-flame-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-flame-600">
+            Limited-time offer
+          </span>
+          <h2 className="mt-3 max-w-2xl text-2xl font-bold text-ink-950 sm:text-3xl">
             Save up to 60% on Website Development plan + get a free domain
           </h2>
           <p className="mt-2 text-sm text-ink-600">
             Try risk-free. 30-day money-back guarantee.
           </p>
-          <a href="#E-Commerce" className="btn btn-primary btn-lg mt-6 inline-block">
-            Get Started
-          </a>
+          <ul className="mt-5 space-y-2 text-sm text-ink-700">
+            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Custom responsive design tailored to your brand</li>
+            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Free domain + 1 year hosting + SSL included</li>
+            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Mobile-first, SEO-ready, fast-loading pages</li>
+            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Dedicated support &amp; easy content updates</li>
+          </ul>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <a href="#E-Commerce" className="btn btn-primary btn-lg">
+              Get Started
+            </a>
+            <a href="/contact-us/" className="text-sm font-semibold text-accent-600 hover:underline">
+              Talk to sales →
+            </a>
+          </div>
+          <p className="mt-4 text-xs text-ink-400">
+            Trusted by 250,000+ businesses · 4.9★ rated · No hidden fees
+          </p>
         </div>
         <div className="flex justify-center">
           <IphoneAppLaunch />
