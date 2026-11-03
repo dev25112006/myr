@@ -1225,36 +1225,169 @@ function SupportBlockSection() {
   )
 }
 
+const CTA_APPS = [
+  { label: 'Mail', icon: '✉', color: 'bg-sky-500' },
+  { label: 'Photos', icon: '✿', color: 'bg-fuchsia-500' },
+  { label: 'Camera', icon: '◉', color: 'bg-slate-700' },
+  { label: 'Maps', icon: '⌖', color: 'bg-emerald-500' },
+  { label: 'Music', icon: '♫', color: 'bg-rose-500' },
+  { label: 'Notes', icon: '▤', color: 'bg-amber-400' },
+  { label: 'Wallet', icon: '▣', color: 'bg-slate-800' },
+  { label: 'Weather', icon: '☀', color: 'bg-blue-400' },
+  { label: 'Files', icon: '▰', color: 'bg-sky-600' },
+  { label: 'Chat', icon: '•••', color: 'bg-green-500' },
+  { label: 'Shop', icon: '▣', color: 'bg-violet-500' },
+  { label: 'Calendar', icon: '31', color: 'bg-red-500' },
+  { label: 'Phone', icon: '☎', color: 'bg-emerald-500' },
+  { label: 'CRM', icon: '▥', color: 'bg-indigo-500' },
+  { label: 'Settings', icon: '⚙', color: 'bg-slate-500' },
+  { label: 'MYR', icon: 'M', color: 'bg-white', myr: true },
+]
+
+function IphoneAppLaunch() {
+  const reduceMotion = useReducedMotion()
+  const [phase, setPhase] = useState(0)
+
+  useEffect(() => {
+    if (reduceMotion) return
+    let timers: ReturnType<typeof setTimeout>[] = []
+    const cycle = () => {
+      setPhase(0)
+      timers.push(setTimeout(() => setPhase(1), 2200))
+      timers.push(setTimeout(() => setPhase(2), 3000))
+      timers.push(setTimeout(() => setPhase(3), 8000))
+      timers.push(setTimeout(cycle, 8700))
+    }
+    cycle()
+    return () => timers.forEach(clearTimeout)
+  }, [reduceMotion])
+
+  const opening = phase === 1
+  const inApp = phase === 2
+  const closing = phase === 3
+
+  return (
+    <div role="group" aria-label="iPhone 6 preview" className="relative h-auto w-[62%] max-w-[240px] sm:w-[46%] sm:max-w-[230px] aspect-[9/16] drop-shadow-[0_30px_55px_rgba(2,6,23,.5)]">
+      {/* iPhone 6 device frame (black) */}
+      <div className="absolute inset-0 rounded-[2.2rem] bg-black p-[6%] shadow-[0_30px_60px_-20px_rgba(2,6,23,.6)] ring-1 ring-slate-700/40">
+        {/* top speaker + camera + sensor */}
+        <div className="absolute left-1/2 top-[2.2%] flex -translate-x-1/2 items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-slate-700" />
+          <span className="h-0.5 w-10 rounded-full bg-slate-700" />
+          <span className="h-1.5 w-1.5 rounded-full bg-slate-700" />
+        </div>
+        {/* screen */}
+        <div className="relative mt-[8%] h-[80%] overflow-hidden rounded-[1.2rem] bg-black">
+          {/* Home screen */}
+          <div
+            className={`absolute inset-0 flex flex-col bg-gradient-to-b from-indigo-900 via-slate-900 to-slate-950 p-[6%] transition-all duration-500 ${
+              inApp || opening || closing ? 'scale-95 opacity-0 blur-sm' : 'scale-100 opacity-100 blur-0'
+            }`}
+          >
+            <div className="grid grid-cols-4 content-between gap-x-[3%] gap-y-[3%] flex-1 min-h-0 py-[2%]">
+              {CTA_APPS.map((app) => (
+                <div key={app.label} className="flex flex-col items-center gap-[4%]">
+                  <span
+                    className={`grid aspect-square w-full place-items-center rounded-[22%] text-[clamp(8px,1.1vw,13px)] font-bold shadow-md ${app.color} ${app.myr ? 'ring-2 ring-white/60' : ''} ${
+                      app.myr && opening ? 'scale-[4.5] z-10' : 'scale-100'
+                    } transition-transform duration-500`}
+                  >
+                    {app.myr ? (
+                      <img src="/assets/2024-08-MYR-LOGO.png" alt="" className="h-[60%] w-[60%] object-contain" />
+                    ) : (
+                      app.icon
+                    )}
+                  </span>
+                  <span className="text-[clamp(5px,.6vw,8px)] text-white/80">{app.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-2 flex items-center justify-around rounded-2xl bg-white/10 px-2 py-2 backdrop-blur-md">
+              {['Phone', 'Mail', 'Photos', 'MYR'].map((name) => {
+                const app = CTA_APPS.find((a) => a.label === name)!
+                return (
+                  <span key={name} className={`grid h-9 w-9 place-items-center rounded-[22%] text-[11px] font-bold shadow-md ${app.color}`}>
+                    {app.myr ? <img src="/assets/2024-08-MYR-LOGO.png" alt="" className="h-[60%] w-[60%] object-contain" /> : app.icon}
+                  </span>
+                )
+              })}
+            </div>
+          </div>
+          {/* Opening splash */}
+          <div
+            className={`absolute inset-0 z-20 flex items-center justify-center bg-white transition-all duration-500 ${
+              opening ? 'opacity-100 scale-100' : 'opacity-0 scale-110 pointer-events-none'
+            }`}
+          >
+            <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution" className="h-full w-full object-cover" />
+          </div>
+          {/* Full-screen white app */}
+          <div
+            className={`absolute inset-0 flex flex-col bg-white transition-all duration-500 ${
+              inApp ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'
+            }`}
+          >
+            <div className="flex items-center justify-between px-3 pt-3 text-[clamp(7px,.8vw,10px)] text-slate-500">
+              <span>9:41</span>
+              <span>●●● Wi-Fi</span>
+            </div>
+            <div className="flex flex-1 flex-col items-center justify-center px-4 text-center">
+              <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution" className="h-[24%] w-auto object-contain" />
+              <h3 className="mt-3 text-[clamp(12px,1.6vw,18px)] font-bold text-ink-950">MYR Advance Solution</h3>
+              <p className="mt-1 text-[clamp(7px,.8vw,10px)] text-ink-500">Sign in or create your account</p>
+              <div className="mt-4 w-full space-y-2">
+                <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left text-[clamp(7px,.8vw,10px)] text-slate-400">Email address</div>
+                <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left text-[clamp(7px,.8vw,10px)] text-slate-400">Password</div>
+                <div className="rounded-lg bg-ink-950 py-2 text-[clamp(8px,.9vw,11px)] font-bold text-white">Log in</div>
+                <div className="rounded-lg border border-ink-950 py-2 text-[clamp(8px,.9vw,11px)] font-bold text-ink-950">Sign up</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* home button */}
+        <div className="absolute bottom-[2.5%] left-1/2 flex h-[5.5%] w-[20%] -translate-x-1/2 items-center justify-center rounded-full border border-slate-600 bg-black shadow-inner">
+          <span className="h-[35%] w-[35%] rounded-sm border border-slate-500" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function BottomCtaBand() {
   return (
     <section className="section-dark border-y border-line py-14 sm:py-16">
-      <div className="container-page max-w-3xl text-center">
-        <span className="inline-flex items-center gap-2 rounded-full bg-flame-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-flame-600">
-          Limited-time offer
-        </span>
-        <h2 className="mt-3 text-2xl font-bold text-ink-950 sm:text-3xl">
-          Save up to 60% on Website Development plan + get a free domain
-        </h2>
-        <p className="mt-2 text-sm text-ink-600">
-          Try risk-free. 30-day money-back guarantee.
-        </p>
-        <ul className="mx-auto mt-5 max-w-md space-y-2 text-left text-sm text-ink-700">
-          <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Custom responsive design tailored to your brand</li>
-          <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Free domain + 1 year hosting + SSL included</li>
-          <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Mobile-first, SEO-ready, fast-loading pages</li>
-          <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Dedicated support &amp; easy content updates</li>
-        </ul>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <a href="#E-Commerce" className="btn btn-primary btn-lg">
-            Get Started
-          </a>
-          <a href="/contact-us/" className="text-sm font-semibold text-accent-600 hover:underline">
-            Talk to sales →
-          </a>
+      <div className="container-page grid items-center gap-8 sm:grid-cols-2">
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full bg-flame-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-flame-600">
+            Limited-time offer
+          </span>
+          <h2 className="mt-3 max-w-2xl text-2xl font-bold text-ink-950 sm:text-3xl">
+            Save up to 60% on Website Development plan + get a free domain
+          </h2>
+          <p className="mt-2 text-sm text-ink-600">
+            Try risk-free. 30-day money-back guarantee.
+          </p>
+          <ul className="mt-5 space-y-2 text-sm text-ink-700">
+            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Custom responsive design tailored to your brand</li>
+            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Free domain + 1 year hosting + SSL included</li>
+            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Mobile-first, SEO-ready, fast-loading pages</li>
+            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Dedicated support &amp; easy content updates</li>
+          </ul>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <a href="#E-Commerce" className="btn btn-primary btn-lg">
+              Get Started
+            </a>
+            <a href="/contact-us/" className="text-sm font-semibold text-accent-600 hover:underline">
+              Talk to sales →
+            </a>
+          </div>
+          <p className="mt-4 text-xs text-ink-400">
+            Trusted by 250,000+ businesses · 4.9★ rated · No hidden fees
+          </p>
         </div>
-        <p className="mt-4 text-xs text-ink-400">
-          Trusted by 250,000+ businesses · 4.9★ rated · No hidden fees
-        </p>
+        <div className="flex justify-center sm:justify-end">
+          <IphoneAppLaunch />
+        </div>
       </div>
     </section>
   )
