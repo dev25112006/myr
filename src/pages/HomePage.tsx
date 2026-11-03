@@ -1307,11 +1307,11 @@ function IphoneAppLaunch() {
         </div>
         {/* Opening splash: MYR logo covers the full screen */}
         <div
-          className={`absolute inset-0 flex items-center justify-center bg-white transition-all duration-500 ${
+          className={`absolute inset-0 z-20 flex items-center justify-center bg-white transition-all duration-500 ${
             opening ? 'opacity-100 scale-100' : 'opacity-0 scale-110 pointer-events-none'
           }`}
         >
-          <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution" className="h-[32%] w-auto object-contain" />
+          <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution" className="h-[70%] w-[70%] object-contain" />
         </div>
         {/* Full-screen white app (MYR Advance Solution) */}
         <div
@@ -1324,7 +1324,7 @@ function IphoneAppLaunch() {
             <span>●●● Wi-Fi</span>
           </div>
           <div className="flex flex-1 flex-col items-center justify-center px-4 text-center">
-            <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution" className="h-[18%] w-auto object-contain" />
+            <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution" className="h-[24%] w-auto object-contain" />
             <h3 className="mt-3 text-[clamp(12px,1.6vw,18px)] font-bold text-ink-950">MYR Advance Solution</h3>
             <p className="mt-1 text-[clamp(7px,.8vw,10px)] text-ink-500">Sign in to continue</p>
             <div className="mt-4 w-full space-y-2">
