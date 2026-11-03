@@ -5,6 +5,7 @@ import { TourProvider } from '@/components/education/TourProvider'
 import { useTour } from '@/components/education/useTour'
 import { TourShell } from '@/components/education/TourShell'
 import { ErpHero } from '@/components/education/ErpHero'
+import { ProductBuyCard } from '@/components/commerce/ProductBuyCard'
 import { DemoBadge } from '@/components/education/DemoBadge'
 import {
   CampusTourSection,
@@ -397,6 +398,23 @@ function CoachingErpContent() {
                 <li>Own examination results</li>
               </ul>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Buy */}
+      <section className="section-light py-14 sm:py-20">
+        <div className="container-page">
+          <div className="mx-auto max-w-md">
+            <ProductBuyCard
+              id={6003}
+              name="Coaching ERP"
+              desc="Enquiries, batches, test series and fee follow-ups for coaching institutes."
+              fallbackPrice={4000}
+              monthly
+              image="/assets/2024-08-start-mission-success-strategy-beginning-concept.png"
+              to="/education-erp/coaching/"
+            />
           </div>
         </div>
       </section>

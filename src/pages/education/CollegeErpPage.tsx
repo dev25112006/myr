@@ -6,6 +6,7 @@ import { TourProvider } from '@/components/education/TourProvider'
 import { useTour } from '@/components/education/useTour'
 import { TourShell } from '@/components/education/TourShell'
 import { ErpHero } from '@/components/education/ErpHero'
+import { ProductBuyCard } from '@/components/commerce/ProductBuyCard'
 import {
   CampusTourSection,
   ClosingSection,
@@ -69,6 +70,23 @@ function CollegeErpContent() {
 
       {/* 5 · Missions */}
       <MissionsBoard config={COLLEGE_TOUR} />
+
+      {/* Buy */}
+      <section className="section-light py-14 sm:py-20">
+        <div className="container-page">
+          <div className="mx-auto max-w-md">
+            <ProductBuyCard
+              id={6002}
+              name="College ERP"
+              desc="Departments, semesters, placements and institutional oversight in one view."
+              fallbackPrice={7000}
+              monthly
+              image="/assets/2025-02-it-expert-2.png"
+              to="/education-erp/college/"
+            />
+          </div>
+        </div>
+      </section>
 
       {/* 6 · Closing + FAQ + conversion */}
       <ClosingSection
