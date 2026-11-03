@@ -1225,21 +1225,70 @@ function SupportBlockSection() {
   )
 }
 
+function IphoneMyrAppPreview() {
+  return (
+    <div
+      role="group"
+      aria-label="iPhone 18 Pro Max showing MYR app"
+      className="relative mx-auto h-auto w-[46%] max-w-[260px] aspect-[.482] drop-shadow-[0_30px_55px_rgba(2,6,23,.5)]"
+    >
+      <img
+        src="/assets/iphone18-frame.png"
+        alt=""
+        className="absolute inset-0 h-full w-full rounded-[10%] object-fill"
+      />
+      <div className="absolute inset-[9%_8%_9%_8%] overflow-hidden rounded-[8%] bg-gradient-to-br from-ink-950 via-ink-900 to-ink-800">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="iphone-myr-app flex flex-col items-center justify-center gap-3">
+            <img
+              src="/assets/2024-08-MYR-LOGO.png"
+              alt="MYR"
+              className="h-16 w-auto object-contain"
+            />
+            <p className="text-[10px] font-semibold uppercase tracking-[.2em] text-white/70">
+              MYR Advance Solution
+            </p>
+          </div>
+        </div>
+        <span className="absolute bottom-2 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-white/40" />
+      </div>
+      <style>{`
+        .iphone-myr-app {
+          animation: myrAppOpenClose 6s ease-in-out infinite;
+          transform-origin: center;
+        }
+        @keyframes myrAppOpenClose {
+          0% { transform: scale(0.25); opacity: 0; filter: blur(6px); }
+          12% { transform: scale(1); opacity: 1; filter: blur(0); }
+          82% { transform: scale(1); opacity: 1; filter: blur(0); }
+          100% { transform: scale(0.25); opacity: 0; filter: blur(6px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .iphone-myr-app { animation: none; transform: scale(1); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 function BottomCtaBand() {
   return (
     <section className="section-dark border-y border-line py-14 sm:py-16">
-      <div className="container-page flex flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left">
-        <div>
+      <div className="container-page grid items-center gap-10 sm:grid-cols-2">
+        <div className="text-center sm:text-left">
           <h2 className="max-w-2xl text-2xl font-bold text-ink-900 sm:text-3xl">
             Save up to 60% on Website Development plan + get a free domain
           </h2>
           <p className="mt-2 text-sm text-ink-600">
             Try risk-free. 30-day money-back guarantee.
           </p>
+          <a href="#E-Commerce" className="btn btn-primary btn-lg mt-6 inline-block shrink-0">
+            Get Started
+          </a>
         </div>
-        <a href="#E-Commerce" className="btn btn-primary btn-lg shrink-0">
-          Get Started
-        </a>
+        <div className="flex justify-center">
+          <IphoneMyrAppPreview />
+        </div>
       </div>
     </section>
   )
