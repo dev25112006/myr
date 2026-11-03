@@ -1254,9 +1254,9 @@ function IphoneAppLaunch() {
     const cycle = () => {
       setPhase(0)
       timers.push(setTimeout(() => setPhase(1), 2200))
-      timers.push(setTimeout(() => setPhase(2), 2900))
-      timers.push(setTimeout(() => setPhase(3), 7900))
-      timers.push(setTimeout(cycle, 8600))
+      timers.push(setTimeout(() => setPhase(2), 3000))
+      timers.push(setTimeout(() => setPhase(3), 8000))
+      timers.push(setTimeout(cycle, 8700))
     }
     cycle()
     return () => timers.forEach(clearTimeout)
@@ -1270,28 +1270,48 @@ function IphoneAppLaunch() {
     <div role="group" aria-label="iPhone 18 Pro Max app preview" className="relative h-auto w-[70%] max-w-[260px] sm:w-[46%] sm:max-w-[230px] aspect-[.482] drop-shadow-[0_30px_55px_rgba(2,6,23,.5)]">
       <img src="/assets/iphone18-frame.png" alt="" className="absolute inset-0 h-full w-full rounded-[10%] object-fill" />
       <div className="absolute inset-x-[7%] bottom-[14%] top-[15%] overflow-hidden rounded-[8%] bg-black">
-        {/* Home screen */}
+        {/* Home screen (iPhone home screen) */}
         <div
-          className={`absolute inset-0 grid grid-cols-4 content-start gap-x-[3%] gap-y-[4%] bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-[5%] transition-all duration-500 ${
+          className={`absolute inset-0 flex flex-col bg-gradient-to-b from-indigo-900 via-slate-900 to-slate-950 p-[5%] transition-all duration-500 ${
             inApp || opening || closing ? 'scale-95 opacity-0 blur-sm' : 'scale-100 opacity-100 blur-0'
           }`}
         >
-          {CTA_APPS.map((app) => (
-            <div key={app.label} className="flex flex-col items-center gap-[4%]">
-              <span
-                className={`grid aspect-square w-full place-items-center rounded-[22%] text-[clamp(8px,1.1vw,13px)] font-bold shadow-md ${app.color} ${app.myr ? 'ring-2 ring-white/60' : ''} ${
-                  app.myr && opening ? 'scale-[4.5] z-10' : 'scale-100'
-                } transition-transform duration-500`}
-              >
-                {app.myr ? (
-                  <img src="/assets/2024-08-MYR-LOGO.png" alt="" className="h-[60%] w-[60%] object-contain" />
-                ) : (
-                  app.icon
-                )}
-              </span>
-              <span className="text-[clamp(5px,.6vw,8px)] text-white/80">{app.label}</span>
-            </div>
-          ))}
+          <div className="grid grid-cols-4 content-start gap-x-[3%] gap-y-[4%] flex-1">
+            {CTA_APPS.map((app) => (
+              <div key={app.label} className="flex flex-col items-center gap-[4%]">
+                <span
+                  className={`grid aspect-square w-full place-items-center rounded-[22%] text-[clamp(8px,1.1vw,13px)] font-bold shadow-md ${app.color} ${app.myr ? 'ring-2 ring-white/60' : ''} ${
+                    app.myr && opening ? 'scale-[4.5] z-10' : 'scale-100'
+                  } transition-transform duration-500`}
+                >
+                  {app.myr ? (
+                    <img src="/assets/2024-08-MYR-LOGO.png" alt="" className="h-[60%] w-[60%] object-contain" />
+                  ) : (
+                    app.icon
+                  )}
+                </span>
+                <span className="text-[clamp(5px,.6vw,8px)] text-white/80">{app.label}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 flex items-center justify-around rounded-2xl bg-white/10 px-2 py-2 backdrop-blur-md">
+            {['Phone', 'Mail', 'Photos', 'MYR'].map((name) => {
+              const app = CTA_APPS.find((a) => a.label === name)!
+              return (
+                <span key={name} className={`grid h-9 w-9 place-items-center rounded-[22%] text-[11px] font-bold shadow-md ${app.color}`}>
+                  {app.myr ? <img src="/assets/2024-08-MYR-LOGO.png" alt="" className="h-[60%] w-[60%] object-contain" /> : app.icon}
+                </span>
+              )
+            })}
+          </div>
+        </div>
+        {/* Opening splash: MYR logo covers the full screen */}
+        <div
+          className={`absolute inset-0 flex items-center justify-center bg-white transition-all duration-500 ${
+            opening ? 'opacity-100 scale-100' : 'opacity-0 scale-110 pointer-events-none'
+          }`}
+        >
+          <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution" className="h-[32%] w-auto object-contain" />
         </div>
         {/* Full-screen white app (MYR Advance Solution) */}
         <div
