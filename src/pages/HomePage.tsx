@@ -1268,15 +1268,16 @@ function IphoneAppLaunch() {
 
   return (
     <div role="group" aria-label="iPhone app preview" className="relative h-auto w-[70%] max-w-[260px] sm:w-[46%] sm:max-w-[230px] aspect-[9/16] drop-shadow-[0_30px_55px_rgba(2,6,23,.5)]">
-      {/* iPhone 6 device frame */}
-      <div className="absolute inset-0 rounded-[2.6rem] bg-slate-800 p-[4%] shadow-[0_30px_60px_-20px_rgba(2,6,23,.6)] ring-1 ring-slate-900/20">
+      {/* iPhone 6 device frame (silver) */}
+      <div className="absolute inset-0 rounded-[2.6rem] bg-gradient-to-b from-slate-200 to-slate-300 p-[3.5%] shadow-[0_30px_60px_-20px_rgba(2,6,23,.6)] ring-1 ring-slate-400/40">
         {/* top speaker + camera */}
-        <div className="absolute left-1/2 top-[1.6%] flex -translate-x-1/2 items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-slate-600" />
-          <span className="h-1 w-10 rounded-full bg-slate-600" />
+        <div className="absolute left-1/2 top-[2%] flex -translate-x-1/2 items-center gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-slate-500" />
+          <span className="h-0.5 w-8 rounded-full bg-slate-500" />
+          <span className="h-1.5 w-1.5 rounded-full bg-slate-500" />
         </div>
         {/* screen */}
-        <div className="relative mt-[6%] h-[82%] overflow-hidden rounded-[1.6rem] bg-black">
+        <div className="relative mt-[5%] h-[84%] overflow-hidden rounded-[1.4rem] bg-black">
           {/* Home screen */}
           <div
             className={`absolute inset-0 flex flex-col bg-gradient-to-b from-indigo-900 via-slate-900 to-slate-950 p-[5%] transition-all duration-500 ${
@@ -1344,7 +1345,9 @@ function IphoneAppLaunch() {
           </div>
         </div>
         {/* home button */}
-        <div className="absolute bottom-[1.6%] left-1/2 h-[6%] w-[22%] -translate-x-1/2 rounded-full border border-slate-600 bg-slate-700/80 shadow-inner" />
+        <div className="absolute bottom-[1.4%] left-1/2 flex h-[7%] w-[24%] -translate-x-1/2 items-center justify-center rounded-full border border-slate-400 bg-gradient-to-b from-slate-200 to-slate-300 shadow-inner">
+          <span className="h-[40%] w-[40%] rounded-sm border border-slate-500" />
+        </div>
       </div>
     </div>
   )
