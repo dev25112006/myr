@@ -369,8 +369,7 @@ export function CrmDevelopmentPage() {
   return (
     <>
       <HeroSection />
-      <ApproachSection />
-      <section className="section-light py-14 sm:py-20">
+      <section className="section-light py-10 sm:py-14">
         <div className="container-page">
           <div className="mx-auto max-w-md">
             <ProductBuyCard
@@ -386,6 +385,7 @@ export function CrmDevelopmentPage() {
           </div>
         </div>
       </section>
+      <ApproachSection />
       <ProcessSection />
       <LeadFormSection />
     </>

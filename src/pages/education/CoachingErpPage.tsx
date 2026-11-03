@@ -44,6 +44,23 @@ function CoachingErpContent() {
         roleCards={['Institute Owner', 'Counsellor', 'Faculty', 'Student']}
       />
 
+      {/* Buy */}
+      <section className="section-light py-10 sm:py-14">
+        <div className="container-page">
+          <div className="mx-auto max-w-md">
+            <ProductBuyCard
+              id={6003}
+              name="Coaching ERP"
+              desc="Enquiries, batches, test series and fee follow-ups for coaching institutes."
+              fallbackPrice={4000}
+              monthly
+              image="/assets/2024-08-start-mission-success-strategy-beginning-concept.png"
+              to="/education-erp/coaching/"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* 2 · Virtual Coaching Institute */}
       <CampusTourSection identity={seg.identity} config={seg.tour!} />
 
@@ -398,23 +415,6 @@ function CoachingErpContent() {
                 <li>Own examination results</li>
               </ul>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Buy */}
-      <section className="section-light py-14 sm:py-20">
-        <div className="container-page">
-          <div className="mx-auto max-w-md">
-            <ProductBuyCard
-              id={6003}
-              name="Coaching ERP"
-              desc="Enquiries, batches, test series and fee follow-ups for coaching institutes."
-              fallbackPrice={4000}
-              monthly
-              image="/assets/2024-08-start-mission-success-strategy-beginning-concept.png"
-              to="/education-erp/coaching/"
-            />
           </div>
         </div>
       </section>

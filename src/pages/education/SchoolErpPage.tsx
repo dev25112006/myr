@@ -46,6 +46,24 @@ function SchoolErpContent() {
         roleCards={['Administrator', 'Principal', 'Teacher', 'Student', 'Parent', 'Accountant', 'Transport Manager']}
       />
 
+      {/* Buy */}
+      <section className="section-light py-10 sm:py-14">
+        <div className="container-page">
+          <div className="mx-auto max-w-md">
+            <ProductBuyCard
+              id={6001}
+              name="School ERP"
+              desc="Admissions, attendance, exams, fees and campus operations for schools."
+              fallbackPrice={5000}
+              monthly
+              image="/assets/2024-09-website-designing-service-7.png"
+              to="/education-erp/school/"
+              badge="Popular"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* 2 · Virtual tour */}
       <CampusTourSection identity={seg.identity} config={SCHOOL_TOUR} />
 
@@ -71,24 +89,6 @@ function SchoolErpContent() {
 
       {/* 5 · Interactive Missions */}
       <MissionsBoard config={SCHOOL_TOUR} />
-
-      {/* Buy */}
-      <section className="section-light py-14 sm:py-20">
-        <div className="container-page">
-          <div className="mx-auto max-w-md">
-            <ProductBuyCard
-              id={6001}
-              name="School ERP"
-              desc="Admissions, attendance, exams, fees and campus operations for schools."
-              fallbackPrice={5000}
-              monthly
-              image="/assets/2024-09-website-designing-service-7.png"
-              to="/education-erp/school/"
-              badge="Popular"
-            />
-          </div>
-        </div>
-      </section>
 
       {/* 6 · Closing Section + FAQ + conversion */}
       <ClosingSection
