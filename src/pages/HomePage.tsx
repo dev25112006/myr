@@ -1343,38 +1343,51 @@ function IphoneAppLaunch() {
 function BottomCtaBand() {
   return (
     <section className="section-dark border-y border-line py-14 sm:py-16">
-      <div className="container-page grid items-center gap-8 sm:grid-cols-2">
-        <div>
-          <span className="inline-flex items-center gap-2 rounded-full bg-flame-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-flame-600">
-            Limited-time offer
-          </span>
-          <h2 className="mt-3 max-w-2xl text-2xl font-bold text-ink-950 sm:text-3xl">
-            Save up to 60% on Website Development plan + get a free domain
+      <div className="container-page max-w-3xl text-center">
+        <span className="inline-flex items-center gap-2 rounded-full bg-flame-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-flame-600">
+          Limited-time offer
+        </span>
+        <h2 className="mt-3 text-2xl font-bold text-ink-950 sm:text-3xl">
+          Save up to 60% on Website Development plan + get a free domain
+        </h2>
+        <p className="mt-2 text-sm text-ink-600">
+          Try risk-free. 30-day money-back guarantee.
+        </p>
+        <ul className="mx-auto mt-5 max-w-md space-y-2 text-left text-sm text-ink-700">
+          <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Custom responsive design tailored to your brand</li>
+          <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Free domain + 1 year hosting + SSL included</li>
+          <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Mobile-first, SEO-ready, fast-loading pages</li>
+          <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Dedicated support &amp; easy content updates</li>
+        </ul>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <a href="#E-Commerce" className="btn btn-primary btn-lg">
+            Get Started
+          </a>
+          <a href="/contact-us/" className="text-sm font-semibold text-accent-600 hover:underline">
+            Talk to sales →
+          </a>
+        </div>
+        <p className="mt-4 text-xs text-ink-400">
+          Trusted by 250,000+ businesses · 4.9★ rated · No hidden fees
+        </p>
+      </div>
+    </section>
+  )
+}
+
+function IphoneShowcaseSection() {
+  return (
+    <section className="section-deep py-14 sm:py-16">
+      <div className="container-page flex flex-col items-center gap-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-ink-950 sm:text-3xl">
+            Experience the <span className="text-accent-600">MYR</span> app
           </h2>
           <p className="mt-2 text-sm text-ink-600">
-            Try risk-free. 30-day money-back guarantee.
-          </p>
-          <ul className="mt-5 space-y-2 text-sm text-ink-700">
-            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Custom responsive design tailored to your brand</li>
-            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Free domain + 1 year hosting + SSL included</li>
-            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Mobile-first, SEO-ready, fast-loading pages</li>
-            <li className="flex items-center gap-2"><span className="text-emerald-600">✓</span> Dedicated support &amp; easy content updates</li>
-          </ul>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <a href="#E-Commerce" className="btn btn-primary btn-lg">
-              Get Started
-            </a>
-            <a href="/contact-us/" className="text-sm font-semibold text-accent-600 hover:underline">
-              Talk to sales →
-            </a>
-          </div>
-          <p className="mt-4 text-xs text-ink-400">
-            Trusted by 250,000+ businesses · 4.9★ rated · No hidden fees
+            Tap the MYR app to sign in or create your account.
           </p>
         </div>
-        <div className="flex justify-center">
-          <IphoneAppLaunch />
-        </div>
+        <IphoneAppLaunch />
       </div>
     </section>
   )
@@ -1396,6 +1409,7 @@ export function HomePage() {
       <StoriesSection />
       <FaqSection />
       <UnlockSection />
+      <IphoneShowcaseSection />
       <SupportBlockSection />
       <BottomCtaBand />
     </>
