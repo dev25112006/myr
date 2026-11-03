@@ -28889,5 +28889,16 @@
   "links": [],
   "images": [],
   "forms": []
+ },
+ "crm": {
+  "file": "crm.html",
+  "route": "/crm/",
+  "title": "Lead Management CRM Software | MYR Advance Solution",
+  "meta_description": "Mobile CRM software for India and US sales teams. Capture enquiries, manage contacts, schedule follow-ups and track leads through your pipeline.",
+  "canonical": "https://www.myradvancesolution.com/crm/",
+  "headings": [],
+  "links": [],
+  "images": [],
+  "forms": []
  }
 }

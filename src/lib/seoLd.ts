@@ -81,6 +81,10 @@ const SERVICES: Record<string, { name: string; desc: string }> = {
     name: 'Lead Management CRM Software',
     desc: 'Mobile CRM workflows for enquiry capture, contact management, sales follow-up, and lead pipeline visibility.',
   },
+  '/crm/': {
+    name: 'Lead Management CRM Software',
+    desc: 'Mobile CRM workflows for enquiry capture, contact management, sales follow-up, and lead pipeline visibility.',
+  },
   '/hrm-solutions/': {
     name: 'Human Resource Management Software',
     desc: 'HRMS implementation planning for employee records, hiring, onboarding, attendance, leave, payroll workflows, and employee self service.',

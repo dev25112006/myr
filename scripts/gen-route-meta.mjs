@@ -24,6 +24,8 @@ const KEYWORDS = {
   '/cctv-solution/': 'CCTV installation India, commercial security cameras, 16 channel DVR, 32 channel NVR, remote video monitoring',
   '/1800-number/': 'India toll free number 1800, business helpline number, toll-free phone service, IVR, call routing',
   '/privyr/': 'mobile CRM software India, lead management CRM US, sales CRM, WhatsApp lead follow up, sales automation',
+  '/crm/': 'mobile CRM software India, lead management CRM US, sales CRM, WhatsApp lead follow up, sales automation',
+  '/crm/': 'mobile CRM software India, lead management CRM US, sales CRM, WhatsApp lead follow up, sales automation',
   '/about-us/': 'about MyR Advance Solution, IT company, technology partner',
   '/contact-us/': 'contact IT support, live chat, WhatsApp support',
   '/tech-store/': 'business software and IT products India, CRM, HRMS, education ERP, website plans, networking and PBX systems',
