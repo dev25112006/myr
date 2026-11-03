@@ -1,7 +1,7 @@
 import { useEffect, useState, type PointerEvent } from 'react'
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
 import { CHAT_SALES } from '@/components/layout/nav'
-import { ProductBuyCard } from '@/components/commerce/ProductBuyCard'
+import { BuyShowcase } from '@/components/commerce/BuyShowcase'
 
 const MODULES = [
   { name: 'People directory', short: 'People', icon: '◎', eyebrow: 'ONE PEOPLE VIEW', headline: 'Every person, connected.', text: 'Bring employee details, roles, documents, and important moments together in one clear home.' },
@@ -109,7 +109,17 @@ export function HRMSolutionsPage() {
         </div>
       </section>
 
-      <section className="bg-white py-10 sm:py-14"><div className="container-page"><div className="mx-auto max-w-md"><ProductBuyCard id={6005} name="HRM Software" desc="Employee onboarding, attendance, payroll and performance management." fallbackPrice={3000} monthly image="/assets/2024-08-buy-time-attendance.png" to="/hrm-solutions/" /></div></div></section>
+      <BuyShowcase
+        id={6005}
+        name="HRM Software"
+        desc="Employee onboarding, attendance, payroll and performance management."
+        fallbackPrice={3000}
+        monthly
+        image="/assets/2024-08-buy-time-attendance.png"
+        heading="Ready to make people operations simpler?"
+        sub="Admin-controlled pricing. Buy now and go live fast."
+        features={['People directory & records', 'Time & attendance', 'Payroll & benefits', 'Hiring & onboarding']}
+      />
 
       <section id="hrm-workspace" className="scroll-mt-20 py-16 sm:py-20">
         <div className="container-page"><div className="mx-auto max-w-2xl text-center"><p className="text-[10px] font-bold uppercase tracking-[.2em] text-indigo-600">One connected employee journey</p><h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">People operations, with room to breathe.</h2><p className="mt-3 text-sm leading-relaxed text-slate-500">Choose a workspace area to see how everyday HR work can feel more connected.</p></div>

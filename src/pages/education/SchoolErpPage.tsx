@@ -6,7 +6,7 @@ import { TourProvider } from '@/components/education/TourProvider'
 import { useTour } from '@/components/education/useTour'
 import { TourShell } from '@/components/education/TourShell'
 import { ErpHero } from '@/components/education/ErpHero'
-import { ProductBuyCard } from '@/components/commerce/ProductBuyCard'
+import { BuyShowcase } from '@/components/commerce/BuyShowcase'
 import {
   CampusTourSection,
   ClosingSection,
@@ -47,22 +47,17 @@ function SchoolErpContent() {
       />
 
       {/* Buy */}
-      <section className="section-light py-10 sm:py-14">
-        <div className="container-page">
-          <div className="mx-auto max-w-md">
-            <ProductBuyCard
-              id={6001}
-              name="School ERP"
-              desc="Admissions, attendance, exams, fees and campus operations for schools."
-              fallbackPrice={5000}
-              monthly
-              image="/assets/2024-09-website-designing-service-7.png"
-              to="/education-erp/school/"
-              badge="Popular"
-            />
-          </div>
-        </div>
-      </section>
+      <BuyShowcase
+        id={6001}
+        name="School ERP"
+        desc="Admissions, attendance, exams, fees and campus operations for schools."
+        fallbackPrice={5000}
+        monthly
+        image="/assets/2024-09-website-designing-service-7.png"
+        heading="Start Your School ERP Journey"
+        sub="Admin-controlled pricing. Buy now and get set up in days."
+        features={['Admissions & student records', 'Attendance & exams', 'Fees & finance', 'Parent & staff portals']}
+      />
 
       {/* 2 · Virtual tour */}
       <CampusTourSection identity={seg.identity} config={SCHOOL_TOUR} />

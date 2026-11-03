@@ -1,6 +1,6 @@
 import { CHAT_SUPPORT, CHAT_SALES } from '@/components/layout/nav'
 import { Reveal, SectionHeading, Stagger, StaggerItem, TiltCard } from '@/components/ui'
-import { ProductBuyCard } from '@/components/commerce/ProductBuyCard'
+import { BuyShowcase } from '@/components/commerce/BuyShowcase'
 import { SmartForm, type FormConfig } from '@/components/forms/SmartForm'
 
 /* ------------------------------- source data ------------------------------ */
@@ -369,22 +369,17 @@ export function CrmDevelopmentPage() {
   return (
     <>
       <HeroSection />
-      <section className="section-light py-10 sm:py-14">
-        <div className="container-page">
-          <div className="mx-auto max-w-md">
-            <ProductBuyCard
-              id={6004}
-              name="CRM Software"
-              desc="Tailored CRM — pipeline management, customer tracking and sales automation."
-              fallbackPrice={8000}
-              monthly
-              image="/assets/2024-09-customized-crm-development.png"
-              to="/crm-development/"
-              badge="Custom build"
-            />
-          </div>
-        </div>
-      </section>
+      <BuyShowcase
+        id={6004}
+        name="CRM Software"
+        desc="Tailored CRM — pipeline management, customer tracking and sales automation."
+        fallbackPrice={8000}
+        monthly
+        image="/assets/2024-09-customized-crm-development.png"
+        heading="Your Business, Your CRM – Tailored for Success"
+        sub="Admin-controlled pricing. Buy now and go live fast."
+        features={['Pipeline management', 'Customer tracking', 'Sales automation', 'Custom workflows']}
+      />
       <ApproachSection />
       <ProcessSection />
       <LeadFormSection />
