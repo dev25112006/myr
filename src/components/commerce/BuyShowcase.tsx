@@ -121,7 +121,7 @@ function PurchaseAnimation({ name, price, monthly, image }: { name: string; pric
           )}
         </div>
         <p className="mt-3 text-center text-[10px] text-ink-400">
-          {step === 2 ? 'Redirecting to your account…' : 'Secure checkout · Razorpay'}
+          {step === 2 ? 'Purchase preview' : 'Checkout preview'}
         </p>
       </div>
     </div>

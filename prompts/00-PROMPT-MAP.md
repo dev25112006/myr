@@ -67,5 +67,5 @@ Read order: `MASTER.md` → this map → the segment file (S00–S19) → the re
 ## Content rules reminder (from MASTER)
 - Exact source text; flags preserved; unverified marked `UNVERIFIED:` in code + QA report.
 - Dead links in original (`#`) → preserve destination meaning: render as non-navigating control with same label, note in QA.
-- External destinations (3cx, wa.me, socials, jetcrm, rzp.io) keep exact URLs.
+- External destinations (3cx, wa.me, socials, jetcrm) keep exact URLs.
 - Images: download to `public/assets/` (preferred) or hot-link the original CDN URLs during dev — record choice in QA.

@@ -11,7 +11,7 @@ Add `npm run verify` (script `scripts/verify.mjs`):
 1. **Route coverage:** every route in `audit/inventory.json` appears in the router manifest (imported `src/app/routes.ts` or sitemap array) — fail on missing.
 2. **Link audit:** crawl built `dist/` (or source files) → collect all `href`s:
    - internal `/…` targets must exist in route manifest (allow query/anchor) — report dead internal links (expected known: `/product-category/networking-devices/`, `/#E-Commerce` mapping, `#` dead links → must be on the QA allowlist with flag IDs).
-   - external links must match the audit allowlist (3cx, wa.me, socials, jetcrm, rzp.io, mailto, twitter intents).
+   - external links must match the audit allowlist (3cx, wa.me, socials, jetcrm, mailto, twitter intents).
 3. **Content spot-checks:** assert presence of exact strings (prices `₹14,499`, `₹24,499`, `₹59,499`, `₹65,499.00`, `₹11,988.00`, claims `9,000+`, `250,000`, office typo `Contarcting`, `needS`, `Intregation`) on their routes — ensures flags preserved.
 4. **Form inventory:** each source form (from `inventory.json`) maps to a rendered `<form>`/`SmartForm` on its route — report missing.
 5. **Build gate:** `npm run build` must succeed (TS + bundling).

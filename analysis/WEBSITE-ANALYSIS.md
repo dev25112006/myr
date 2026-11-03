@@ -24,7 +24,7 @@
 | Account recovery | account-recovery@myradvancesolution.com |
 | Live chat | https://1367.3cx.cloud/myradvancesolutionpr (support), /myrsolution (sales), /eli (abuse report) |
 | CRM signup | https://app.jetcrm.in/register/myrsignup |
-| Payment links (Razorpay) | rzp.io/rzp/BRYPjee, rzp.io/rzp/c4ZG37v, rzp.io/rzp/o8XYLr6j (on Privyr page) |
+| Legacy plan checkout | Old external destinations were removed; current plan buttons route to the contact form. |
 | Socials | Facebook /myrnetwork · Instagram /myr_solution/ · LinkedIn /in/myr-advance-solution-04b1151a6/ · X /myrnetwork · WhatsApp |
 
 **Office locations (exact source text preserved):**
@@ -184,7 +184,7 @@ H1 "cctv solution" + CCTV service sections + booking/appointment popup CTA + Boo
 H1 "1800 NUMBER" + toll-free/WhatsApp API service content + lead form (WPForm: name/email/phone/company/requirements + services checkboxes) → footer.
 
 ### 4.10 `/privyr/`
-"Transform Your Leads into Loyal Clients, Right from Your Phone" → audience tabs (Real Estate Agents, Financial Advisors, Trainers & Coaches, Marketing Agencies, Direct Sales Agents, Wedding Planners) → stats (Trusted by over 250,000 businesses across 100+ countries; 250,000 / 100+ / 100 Million / +300%) → feature blocks → "Ready to get started?" → Razorpay payment links (rzp.io) → form → footer. **Flag:** 250,000 vs homepage 9,000+ customer claims coexist — preserve both.
+"Transform Your Leads into Loyal Clients, Right from Your Phone" → audience tabs (Real Estate Agents, Financial Advisors, Trainers & Coaches, Marketing Agencies, Direct Sales Agents, Wedding Planners) → stats (Trusted by over 250,000 businesses across 100+ countries; 250,000 / 100+ / 100 Million / +300%) → feature blocks → "Ready to get started?" → plan enquiries route to the contact form → form → footer. **Flag:** 250,000 vs homepage 9,000+ customer claims coexist — preserve both.
 
 ### 4.11 `/about-us/`
 "Advancing Technology, Enhancing Businesses" → Our Journey (2016 founding text) → Who We Are (+ read more popup 2107) → Timeline 2016–2024 (9 milestones) → Our Strengths (6 tabs w/ descriptions) → Thousands of satisfied customers (3 testimonials: Rakesh Kumar, Sneha Kapoor, Dr. Kavita Rao) → Here to help 24/7 → Our Values → Our Team (3: Rakesh Kumar?, Sneha Kapoor, Dr. Kavita Rao — see manifest) → Our Products and Services → Our Commitment → Looking Ahead → footer.
@@ -203,7 +203,7 @@ Gallery (1–4 images) → title → price (sale: original struck + current) →
 
 ### 4.16 Cart / Checkout / My Account
 - `/cart/`: WooCommerce cart table (add-ons, quantity, totals), "Proceed to checkout", empty-cart message variant.
-- `/checkout/`: billing details form (first name, last name, company, country, street, city, state, postcode, phone, email), order notes, payment section (**actual gateways unverified** — original uses Razorpay; do NOT fake payments), "Place order".
+- `/checkout/`: billing details form (first name, last name, company, country, street, city, state, postcode, phone, email), order notes, PayU hosted checkout when merchant credentials are configured, "Place order".
 - `/my-account/`: Login (username/password/remember/lost password) + Register (email) tabs, plus dashboard when authed (unverified).
 
 ### 4.17 Policies
@@ -268,7 +268,7 @@ Shell: "Team Task & Appointment Panel" (or "Customer Appointment Panel") + sideb
 - Knowledge Base articles.
 - Real WooCommerce checkout gateways, order endpoints, account dashboard.
 - WPForms server-side storage/notifications.
-- Razorpay payment pages behind the 3 rzp.io plan links (external content).
+- Recurring Privyr plan purchases are not configured for online checkout; plan buttons route to sales contact.
 - `[lsft_horizontal_flags]` rendering.
 - `/my-account/lost-password/` page (linked, not in sitemap).
 - Post `/myr/` blog content (duplicate of home).

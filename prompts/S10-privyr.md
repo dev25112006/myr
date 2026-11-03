@@ -9,11 +9,11 @@ Landing page for "All-in-One Lead CRM" (nav item). Third-party product page (Pri
 2. **Audience cards** — Real Estate Agents / Financial Advisors / Trainers & Coaches / Marketing Agencies / Direct Sales Agents / Wedding Planners (+ their descriptions verbatim).
 3. **Trust stats** — "Trusted by over 250,000 businesses across 100+ countries" + figures 250,000 / 100+ / 100 Million / +300% with exact captions from manifest (count-up allowed; values fixed).
 4. **Feature blocks** ("Effortle…" truncated in outline — read full `privyr.md`) — preserve every feature heading/copy.
-5. **Payment CTAs** — source contains Razorpay links `https://rzp.io/rzp/BRYPjee`, `https://rzp.io/rzp/c4ZG37v`, `https://rzp.io/rzp/o8XYLr6j` with visible plan labels (from manifest). Preserve as external links (exact URL + label); DO NOT embed keys or fake checkout. QA-flag: payment destination = external Razorpay page (unverified content).
+5. **Plan CTAs** — use “ENQUIRE ABOUT THIS PLAN” links to `/contact-us/`. Do not send customers to legacy payment destinations or imply recurring billing is available; PayU recurring mandates are not enabled.
 6. **Signup form** (3-field WPForm: fields 3,1,2 — name/email/phone as per manifest) — demo submit.
 7. Footer.
 
 ## Acceptance
 - [ ] 250,000/100+/100 Million/+300% exact — preserved despite differing from homepage 9,000+ (flag §7.2).
-- [ ] All 3 rzp.io links exact and open externally.
+- [ ] All plan CTAs open the internal contact page; no payment is implied for recurring plans.
 - [ ] Audience cards: 6 exact.

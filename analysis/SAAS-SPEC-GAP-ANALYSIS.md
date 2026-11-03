@@ -7,7 +7,7 @@
 
 ## 1. Executive assessment
 
-The current application is a corporate marketing website and one-time commerce storefront. It has useful pieces to preserve: a React site with extensive MYR content, client routing, account registration/login, email verification and recovery flows, a role-aware admin/manager UI, product catalog, cart, customer order history, support submissions/replies, and a Razorpay one-time payment flow with server-side signature and provider-status checks.
+The current application is a corporate marketing website and one-time commerce storefront. It has useful pieces to preserve: a React site with extensive MYR content, client routing, account registration/login, email verification and recovery flows, a role-aware admin/manager UI, product catalog, cart, customer order history, support submissions/replies, and a PayU one-time payment flow with server-side response-hash and provider-status checks.
 
 It is **not yet the multi-product SaaS subscription platform described in the PDF**. There is no organization/tenant model, product workspace, subscription catalog/lifecycle, plan entitlement enforcement, PayU adapter, product launcher, invoice/subscription billing area, multi-tenant product modules, or full ticketing/knowledge/AI support platform. Existing `/crm-*` routes are demo/marketing panel pages, not customer-isolated CRM product workspaces. The current app must retain its corporate website and storefront while a separate SaaS application experience and modular platform backend are added.
 
@@ -21,14 +21,14 @@ The PDF explicitly requires an audit and approved plan before development. This 
 - Backend: custom Node.js HTTP server in `server/index.mjs`.
 - Persistence: MongoDB document containing a whole application-state object in production; local SQLite/JSON state for development; optional PostgreSQL remains a legacy whole-state backend. SaaS now follows the MongoDB-backed app persistence path, not a separate relational database.
 - Existing routes cover MYR marketing pages, a WooCommerce-style catalog/store, checkout/account, admin/manager, policy pages, and demo CRM panel pages.
-- Existing infrastructure/config has Razorpay keys, Resend email settings, app/site origins, and backup configuration. No PayU configuration or worker/queue setup was found.
+- Existing infrastructure/config has PayU merchant settings, Resend email settings, app/site origins, and backup configuration. No worker/queue setup was found.
 
 ### Existing features to preserve and reuse where appropriate
 
 - Marketing site, SEO metadata, route inventory, legal/content pages, public service and product pages.
 - Customer login/register, password hashing, session cookie, email verification, password recovery, account role checks.
 - Product catalog and admin price adjustment for the existing one-time store.
-- Cart, order history, order cancellation while unpaid, Razorpay checkout, webhook handling, server-side payment signature/status verification.
+- Cart, order history, order cancellation while unpaid, PayU hosted checkout, server-side response-hash and payment-status verification.
 - Customer support request and reply UI, admin/manager inbox and status updates, audit-event display.
 - Admin/manager separation for existing site operations.
 
@@ -39,7 +39,7 @@ These features do not automatically satisfy SaaS requirements. For example, a pa
 - Account records are individual users without organizations, memberships, tenant-scoped product records, or owner/member billing permissions.
 - Data is persisted as one application-state object rather than normalized platform/product tables with foreign keys and database constraints.
 - No demonstrated tenant isolation boundary exists because the target organization model is absent.
-- Existing Razorpay checkout covers one-time INR order payment; it does not implement PayU, subscription renewal, recurring mandates, provider-independent subscription billing, reconciliation, or idempotent subscription activation.
+- Existing PayU checkout covers one-time INR order payment; it does not implement subscription renewal, recurring mandates, provider-independent subscription billing, or idempotent subscription activation.
 - Email verification is configurable and defaults off; the SaaS journey requires verification before a workspace becomes entitled.
 - No MFA flow is evident; admin MFA is mandatory in the specification.
 - No plan/entitlement service or server-enforced product limits exist.
@@ -54,8 +54,8 @@ These features do not automatically satisfy SaaS requirements. For example, a pa
 | Public discovery and product marketing | Extensive company/service/store pages exist; target Coaching ERP/CRM/HRM SaaS catalog routes and admin-driven product pages do not | Add product discovery, dedicated SaaS product pages, all-products pricing, product/region/interval selectors, verified-feature content, real screenshots/demo, region/currency selection, SaaS SEO/legal/status/help links. Preserve existing corporate service pages and store. |
 | Account and organization setup | Individual user accounts; no org/workspace | Add verified account lifecycle, organizations, owner/member records, invitations/roles, workspace state, and account settings. |
 | Product/plan catalog | Existing physical/service catalog and editable store prices | Add configurable SaaS products, plans, intervals, regions, currencies, trials, limits, features, add-ons/promos; no plan prices/limits hard-coded in UI. |
-| Checkout | One-time cart/order checkout via Razorpay | Add product-specific subscription checkout with region, plan, interval, tax/fees, trial and renewal/cancellation disclosure, promo validation, account/workspace steps, pending order state, and PayU handoff. |
-| Payments | Razorpay order flow with signature/provider check; no PayU | Add provider-independent payment/subscription interfaces and PayU adapter only after account capabilities/formulas are confirmed in current PayU documentation. Keep secrets server-side; persist transaction before redirect; verify callback hash and server-to-server payment state; compare txn/order/amount/currency; handle delayed, duplicate, failed, and pending events idempotently. |
+| Checkout | One-time cart/order checkout via PayU | Add product-specific subscription checkout with region, plan, interval, tax/fees, trial and renewal/cancellation disclosure, promo validation, account/workspace steps, pending order state, and verified PayU handoff. |
+| Payments | PayU hosted order flow with response-hash/provider check | Add provider-independent subscription billing only after account capabilities and formulas are confirmed in current PayU documentation. Keep secrets server-side; persist transactions before redirect; verify callback hashes and server-side payment status; compare transaction/order/amount/currency; handle delayed, duplicate, failed, and pending events idempotently. |
 | Subscription lifecycle | None | Add trialing, active, payment failed/past due, cancellation scheduled, suspended, cancelled, expired, abandoned transitions; renewal retries/grace, cancellation/reactivation/change plan, scheduled reconciliation, audit trails, and no automatic data deletion. |
 | Entitlements and limits | None | Add per-organization, per-product entitlements derived from subscription; every product API checks tenant ownership, active state/grace policy and plan limit on the backend. |
 | Product experience | `/crm-*` pages are demo panel UI; no Coaching ERP/CRM/HRM launch integration | Build actual product modules or integrations with strict module boundaries; add entitlement-gated launch endpoint and product launcher. Advertise only functioning verified features. |

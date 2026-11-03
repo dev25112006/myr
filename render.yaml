@@ -24,3 +24,9 @@ services:
         sync: false
       - key: TURNSTILE_SECRET_KEY
         sync: false
+      - key: PAYU_MERCHANT_KEY
+        sync: false
+      - key: PAYU_MERCHANT_SALT
+        sync: false
+      - key: PAYU_ENV
+        value: production

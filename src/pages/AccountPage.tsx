@@ -3,21 +3,41 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth, useCart, type InboxEntry } from '@/lib/stores'
 import { inr } from '@/lib/format'
 import { usePopup } from '@/lib/stores'
+import { submitPayUCheckout, type PayUCheckout } from '@/lib/payu-checkout'
 
 type OrderConfirmation = { type: 'paid' | 'request'; orderId: string; testMode?: boolean }
 type Order = { id: string; items: Array<{ id: number; name: string; qty: number; price: number }>; total: number; date: string; status: string; paymentStatus: string }
 export function AccountPage() {
-  const { user } = useAuth(); const { setOpen } = usePopup(); const { items, total } = useCart(); const location = useLocation()
+  const { user } = useAuth(); const { setOpen } = usePopup(); const { items, total, clear } = useCart(); const location = useLocation()
   const confirmation = (location.state as { orderConfirmation?: OrderConfirmation } | null)?.orderConfirmation
   const [orders, setOrders] = useState<Order[]>([]); const [tickets, setTickets] = useState<InboxEntry[]>([])
-  const [subject, setSubject] = useState(''); const [message, setMessage] = useState(''); const [notice, setNotice] = useState('')
+  const [subject, setSubject] = useState(''); const [message, setMessage] = useState(''); const [notice, setNotice] = useState(() => {
+    const payment = new URLSearchParams(location.search).get('payment')
+    return payment === 'paid' ? 'PayU confirmed your payment. Your order is now with our team.' : payment === 'failed' ? 'Payment was not completed. Your order is saved and can be retried from this account.' : ''
+  })
   const [replyText, setReplyText] = useState<Record<string, string>>({})
   const [profile, setProfile] = useState({ name: '', phone: '', timezone: '', address: '', city: '', state: '', postalCode: '', country: 'India' })
   const loadAccount = async () => { const r = await fetch('/api/account', { credentials: 'same-origin' }); if (!r.ok) throw new Error('Unable to load account data.'); const d = await r.json(); setOrders(d.orders); setTickets(d.inbox) }
   const loadProfile = async () => { const r = await fetch('/api/account/profile', { credentials: 'same-origin' }); if (!r.ok) throw new Error('Unable to load profile.'); const d = await r.json(); setProfile({ name: d.profile?.name || '', phone: d.profile?.phone || '', timezone: d.profile?.timezone || '', address: d.profile?.address || '', city: d.profile?.city || '', state: d.profile?.state || '', postalCode: d.profile?.postalCode || '', country: d.profile?.country || 'India' }) }
   useEffect(() => { if (user) { void loadAccount().catch((e) => setNotice(e.message)); void loadProfile().catch((e) => setNotice(e.message)) } }, [user])
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('payment') === 'paid') {
+      clear()
+      void loadAccount().catch(() => {})
+    }
+  }, [location.search, clear])
   const cancelOrder = async (id: string) => { const r = await fetch(`/api/account/orders/${id}/cancel`, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: "{}" }); const d = await r.json(); if (!r.ok) { setNotice(d.error || "Unable to cancel order."); return }; setOrders((previous) => previous.map((o) => o.id === id ? d.order : o)) }
-  const payOrder = async (id: string) => { try { const r = await fetch(`/api/account/orders/${id}/payment`, { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: '{}' }); const d = await r.json(); if (!r.ok) throw new Error(d.error); if (!document.getElementById('razorpay-checkout-script')) { const script = document.createElement('script'); script.id = 'razorpay-checkout-script'; script.src = 'https://checkout.razorpay.com/v1/checkout.js'; script.async = true; document.body.appendChild(script); await new Promise<void>((resolve, reject) => { script.onload = () => resolve(); script.onerror = () => reject(new Error('Unable to load payment checkout.')) }) }; const Razorpay = (window as Window & { Razorpay?: new (options: Record<string, unknown>) => { open: () => void; on: (event: 'payment.failed', handler: (response: { error?: { description?: string } }) => void) => void } }).Razorpay; if (!Razorpay) throw new Error('Payment checkout is unavailable.'); const checkout = new Razorpay({ key: d.payment.keyId, amount: d.payment.amount, currency: d.payment.currency, name: 'MYR Advance Solution', order_id: d.payment.orderId, prefill: { email: user?.email }, handler: async (result: Record<string, string>) => { const verified = await fetch('/api/payments/verify', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ orderId: id, ...result }) }); const resultData = await verified.json(); if (!verified.ok) { setNotice(resultData.error); return }; setOrders((previous) => previous.map((order) => order.id === id ? resultData.order : order)); setNotice(d.payment.testMode ? 'Test payment succeeded. No real charge was made; this order is saved for testing only.' : 'Payment confirmed. Thank you for choosing MYR Advance Solution. Our team will contact you within 24 hours with your order update and next steps.') } }); checkout.on('payment.failed', (response) => setNotice(response.error?.description || 'Payment failed. Please try again.')); checkout.open() } catch (e) { setNotice(e instanceof Error ? e.message : 'Unable to start payment.') } }
+  const payOrder = async (id: string) => {
+    try {
+      const response = await fetch(`/api/account/orders/${id}/payment`, { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: '{}' })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error)
+      submitPayUCheckout(data.payment as PayUCheckout)
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Unable to start payment.')
+    }
+  }
   const submitSupport = async (e: FormEvent) => { e.preventDefault(); setNotice(''); try { const r = await fetch('/api/account/support', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ subject, message }) }); const d = await r.json(); if (!r.ok) throw new Error(d.error); setTickets((previous) => [d.entry, ...previous]); setSubject(''); setMessage(''); setNotice('Support request sent. Our team will follow up.') } catch (error) { setNotice(error instanceof Error ? error.message : 'Unable to submit support request.') } }
   const saveProfile = async (e: FormEvent) => { e.preventDefault(); setNotice(''); try { const response = await fetch('/api/account/profile', { method: 'PATCH', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(profile) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Could not save profile.'); setProfile({ name: data.profile.name || '', phone: data.profile.phone || '', timezone: data.profile.timezone || '', address: data.profile.address || '', city: data.profile.city || '', state: data.profile.state || '', postalCode: data.profile.postalCode || '', country: data.profile.country || 'India' }); setNotice('Profile saved. We will reuse these details for future purchases.') } catch (error) { setNotice(error instanceof Error ? error.message : 'Unable to save profile.') } }
   const resendVerification = async () => { const r = await fetch("/api/auth/resend-verification", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: "{}" }); const d = await r.json(); setNotice(d.message || d.error || "Request complete.") }

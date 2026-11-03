@@ -15,7 +15,7 @@
 - H1 per source (`<title>` quirk says "Cart"; page heading from manifest — preserve source heading, flag title quirk).
 - Two-column: **Billing details** form — fields from manifest (first name, last name, company name (optional), country dropdown, street address, town/city, state, postcode, phone, email, account password (if present), order notes textarea). Exact labels/placeholder text from `checkout.md`.
 - **Your order** summary table from CartContext (product, subtotal; shipping methods if in source; totals).
-- Payment section: source is WooCommerce+Razorpay (gateways `UNVERIFIED`). Rebuild: payment options rendered as **disabled/honest placeholders** — e.g. "Razorpay (original payment gateway) — not configured in this rebuild" with a **demo "Place order"** button that performs client-side validation of billing form + requires cart non-empty, then shows an order-received **demo** confirmation state clearly labeled "DEMO ORDER — no payment processed". NEVER simulate a real successful charge; never collect card details.
+- Payment section: use PayU India hosted checkout when merchant credentials are configured. The server calculates the amount, signs the form, verifies the PayU response and confirms payment with PayU before marking the order paid. Without credentials, accept an order request only; never simulate a successful charge or collect card details.
 - "Please enable JavaScript…" inline validation message equivalent (source WPForms note) where forms exist.
 - Empty cart → redirect/handle like source (checkout with empty cart shows notice — reproduce notice text from manifest if present).
 

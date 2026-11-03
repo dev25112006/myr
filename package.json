@@ -15,6 +15,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "smoke": "node scripts/smoke.mjs",
+    "test:payu": "node --test server/payu-commerce.test.mjs",
     "verify": "npm run build && node scripts/smoke.mjs",
     "backup": "node --env-file-if-exists=.env scripts/backup.mjs",
     "seo": "node scripts/gen-route-meta.mjs && node scripts/gen-sitemap.mjs",

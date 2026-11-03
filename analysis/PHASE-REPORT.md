@@ -135,7 +135,7 @@ Phase 2 (S02–S05): `/services/`, `/website-development/`, `/crm-development/`,
 - Hero + View Pricing (#privyrpricing) / Get Started (popup); audience section + **6 exact audience cards** (icon + title — no body copy exists in source); 12 lead-source logos
 - Stats: 250,000 / 100+ / 100 Million / +300% exact captions (CountUp; **locale='en-US' for 250,000** so grouping matches source — FLAG §7.2 vs homepage 9,000+ preserved)
 - 4 feature blocks (exact copy + bold closers, verified image mapping), Effortless 30-Second Setup, 3 testimonials, 100,000 downloads + store badges
-- **Pricing rendered at source breakpoints**: desktop/tablet widget ₹1,599 + ₹1,439 (c4ZG37v/BRYPjee) vs mobile-only widgets ₹1,449 + ₹1,305 (c4ZG37v/o8XYLr6j + "Automatic renewal. Cancel anytime") — FLAG §7.15; all 3 rzp.io links exact, external, QA-flagged (UNVERIFIED content)
+- **Pricing rendered at source breakpoints**: desktop/tablet widget ₹1,599 + ₹1,439 vs mobile-only widgets ₹1,449 + ₹1,305. Recurring Privyr plan checkouts are not configured; all plan buttons route to the contact form until PayU recurring mandates are enabled.
 - Privacy (PRIVATE/SECURE verbatim) + "Ready to get started?" → Try Now popup
 
 ### New shared/infra

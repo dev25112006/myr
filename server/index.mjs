@@ -8,6 +8,7 @@ import { DatabaseSync } from 'node:sqlite'
 import { MongoClient } from 'mongodb'
 import pg from 'pg'
 import { normalizeNotificationSettings, resolveRecipients, sendEmail as sendTransactionalEmail } from './email-notify.mjs'
+import { checkPayURefundStatus, createPayUCheckout, initiatePayURefund, payuConfigFromEnv, payuConfigured, verifyPayUCallback, verifyPayUPayment } from './payu-commerce.mjs'
 
 const scrypt = promisify(scryptCallback)
 const port = Number(process.env.PORT || 3001)
@@ -16,7 +17,8 @@ const dbPath = path.join(dataDir, 'myr.sqlite')
 const legacyDbPath = path.join(dataDir, 'myr.json')
 const prod = process.env.NODE_ENV === 'production'
 const testCheckoutRequested = process.env.COMMERCE_TEST_MODE === 'true'
-const testCheckoutEnabled = testCheckoutRequested && !prod && String(process.env.RAZORPAY_KEY_ID || '').startsWith('rzp_test_') && Boolean(process.env.RAZORPAY_KEY_SECRET)
+const payuConfig = payuConfigFromEnv()
+const testCheckoutEnabled = testCheckoutRequested && !prod && payuConfig.environment === 'test' && payuConfigured(payuConfig)
 const sessionTtl = 7 * 24 * 60 * 60 * 1000
 const initialCatalog = [
   [2765, 'NewBiz Essentials', '/product/newbiz-essentials/', 14499, 'Website Development'], [2766, 'RevampCommerce Lite', '/product/revampcommerce-lite/', 24499, 'Website Development'], [2767, 'EliteCustom Suite', '/product/elitecustom-suite/', 59499, 'Website Development'],
@@ -105,10 +107,9 @@ async function rawBody(req) {
   for await (const chunk of req) { size += chunk.length; if (size > 128_000) throw Object.assign(new Error('Request too large'), { status: 413 }); chunks.push(chunk) }
   return Buffer.concat(chunks).toString('utf8')
 }
-function safeEqualHex(left, right) {
-  if (typeof left !== 'string' || typeof right !== 'string' || !/^[a-f0-9]+$/i.test(left) || !/^[a-f0-9]+$/i.test(right)) return false
-  const a = Buffer.from(left, 'hex'); const b = Buffer.from(right, 'hex')
-  return a.length === b.length && timingSafeEqual(a, b)
+async function formBody(req) {
+  if (!String(req.headers['content-type'] || '').toLowerCase().startsWith('application/x-www-form-urlencoded')) throw Object.assign(new Error('Expected a URL-encoded form.'), { status: 415 })
+  return Object.fromEntries(new URLSearchParams(await rawBody(req)))
 }
 function recordAudit(actor, action, target, detail = {}) {
   db.audit ||= []
@@ -123,7 +124,7 @@ function cookieHeader(value, maxAge) {
 }
 function csrfCheck(req) {
   if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) return true
-  if (req.url?.startsWith('/api/payments/webhook')) return true
+  if (req.url?.startsWith('/api/payments/payu/return') || req.url?.startsWith('/api/payments/payu/refund-callback')) return true
   const origin = req.headers.origin
   if (!origin) return !prod
   try {
@@ -175,7 +176,7 @@ const loginAttempts = new Map()
 
 async function init() {
   let saved
-  if (testCheckoutRequested && !testCheckoutEnabled) throw new Error('COMMERCE_TEST_MODE requires non-production mode and Razorpay test credentials (rzp_test_ key ID and secret).')
+  if (testCheckoutRequested && !testCheckoutEnabled) throw new Error('COMMERCE_TEST_MODE requires non-production mode, PAYU_ENV=test, and PayU merchant credentials.')
   if (prod && !process.env.MONGODB_URI) throw new Error('Set MONGODB_URI to the production MongoDB connection string.')
   if (process.env.MONGODB_URI) {
     mongoClient = new MongoClient(process.env.MONGODB_URI, { maxPoolSize: 5, serverSelectionTimeoutMS: 10_000 })
@@ -371,7 +372,7 @@ async function handle(req, res) {
       for (const row of input.items) { const product = db.catalog.find((p) => p.id === Number(row.id)); const qty = Number(row.qty); if (!product || !Number.isSafeInteger(qty) || qty < 1 || !Number.isSafeInteger(product.price * qty)) return json(res, 400, { error: 'Product or quantity is invalid.' }); items.push({ id: product.id, name: product.name, price: product.price, qty, category: product.category }) }
       const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0); const shipping = items.some((item) => item.category === 'IP PBX Solution') ? db.settings.shippingFlat : 0; const tax = Math.round(subtotal * db.settings.taxRateBps / 10000); const total = subtotal + tax + shipping
       if (![subtotal, tax, shipping, total, total * 100].every(Number.isSafeInteger)) return json(res, 400, { error: 'Order total is too large. Reduce the quantity and try again.' })
-      return json(res, 200, { items, subtotal, tax, shipping, total, currency: 'INR', commerceReady: db.settings.commerceVerified === true || testCheckoutEnabled, testMode: testCheckoutEnabled, paymentAvailable: Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) })
+      return json(res, 200, { items, subtotal, tax, shipping, total, currency: 'INR', commerceReady: db.settings.commerceVerified === true || testCheckoutEnabled, testMode: payuConfig.environment === 'test' && payuConfigured(payuConfig), paymentAvailable: payuConfigured(payuConfig) })
     }
     if (req.method === 'GET' && pathName === '/api/auth/verify-email') {
       const token = url.searchParams.get('token') || ''; const record = (db.emailTokens || []).find((item) => item.purpose === 'verify' && item.hash === tokenHash(token) && item.expiresAt > Date.now())
@@ -402,18 +403,43 @@ async function handle(req, res) {
       Object.assign(account, await hashPassword(input.password)); db.sessions = db.sessions.filter((item) => item.userId !== account.id); db.emailTokens = db.emailTokens.filter((item) => item.userId !== account.id && item.purpose !== 'reset'); await persist()
       return json(res, 200, { ok: true })
     }
-    if (req.method === 'POST' && pathName === '/api/payments/webhook') {
-      const raw = await rawBody(req); const signature = req.headers['x-razorpay-signature']
-      if (!process.env.RAZORPAY_WEBHOOK_SECRET || !safeEqualHex(createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET).update(raw).digest('hex'), signature)) return json(res, 401, { error: 'Invalid webhook signature' })
-      const event = JSON.parse(raw); const eventId = req.headers['x-razorpay-event-id']
-      db.webhookEvents ||= []
-      if (eventId && db.webhookEvents.includes(eventId)) return json(res, 200, { ok: true, duplicate: true })
-      if (eventId) db.webhookEvents.push(eventId)
-      const payment = event.payload?.payment?.entity
-      const rzpOrderId = payment?.order_id || event.payload?.order?.entity?.id
-      const order = db.orders.find((item) => item.razorpayOrderId === rzpOrderId)
-      if (order && ['order.paid', 'payment.captured'].includes(event.event)) { order.paymentStatus = 'paid'; order.status = order.status === 'Cancelled' ? order.status : 'Paid'; order.razorpayPaymentId = payment?.id || order.razorpayPaymentId; order.updatedAt = new Date().toISOString() }
-      await persist(); return json(res, 200, { ok: true })
+    if (req.method === 'POST' && pathName === '/api/payments/payu/return') {
+      if (!payuConfigured(payuConfig)) return json(res, 503, { error: 'PayU is not configured.' })
+      const input = await formBody(req)
+      const order = db.orders.find((item) => item.id === input.udf1 && item.payuTxnId === input.txnid)
+      if (!order || !verifyPayUCallback(input, payuConfig, order)) return json(res, 400, { error: 'PayU payment response could not be verified.' })
+      const paid = String(input.status || '').toLowerCase() === 'success'
+      if (paid && order.paymentStatus !== 'paid') {
+        let providerPayment
+        try { providerPayment = await verifyPayUPayment(payuConfig, order.payuTxnId) } catch { return json(res, 502, { error: 'Unable to confirm payment status with PayU.' }) }
+        const providerAmount = Math.round(Number(providerPayment?.amt || providerPayment?.amount) * 100)
+        if (providerPayment?.status?.toLowerCase() !== 'success' || providerPayment.txnid !== order.payuTxnId || providerAmount !== order.total * 100 || providerPayment.udf1 !== order.id || providerPayment.udf2 !== order.userId || !providerPayment.mihpayid) return json(res, 409, { error: 'PayU has not confirmed this payment for the expected order.' })
+        order.paymentStatus = 'paid'; order.status = 'Paid'; order.payuPaymentId = String(providerPayment.mihpayid); order.updatedAt = new Date().toISOString()
+        await persist()
+        const customer = db.users.find((item) => item.id === order.userId)
+        if (customer) await triggerNotification({ user: { email: customer.email, role: customer.role }, event: 'payment', subject: `Payment received for ${order.id}`, html: `<p>Hi ${customer.profile?.name || customer.email},</p><p>Your payment for order <strong>${order.id}</strong> has been confirmed by PayU.</p><p>Total paid: ₹${order.total}</p>`, text: `Your payment for order ${order.id} has been confirmed by PayU.` })
+      }
+      const destination = new URL('/my-account/', configuredOrigin(process.env.APP_ORIGIN))
+      destination.searchParams.set('payment', paid ? 'paid' : 'failed')
+      destination.searchParams.set('orderId', order.id)
+      res.writeHead(303, { location: destination.toString(), 'cache-control': 'no-store' })
+      return res.end()
+    }
+    if (req.method === 'POST' && pathName === '/api/payments/payu/refund-callback') {
+      const input = await formBody(req)
+      const requestId = String(input.request_id || input.txn_update_id || '')
+      const order = db.orders.find((item) => item.payuRefundRequestId && item.payuRefundRequestId === requestId)
+      if (!order) return json(res, 200, { ok: true })
+      try {
+        const result = await checkPayURefundStatus(payuConfig, requestId)
+        if (['success', 'failure', 'failed'].includes(result.status)) {
+          if (result.status === 'success') { order.paymentStatus = 'refunded'; order.status = 'Refunded' }
+          else { order.paymentStatus = 'paid'; order.status = 'Paid' }
+          order.updatedAt = new Date().toISOString()
+          await persist()
+        }
+      } catch { return json(res, 502, { error: 'Unable to reconcile PayU refund status.' }) }
+      return json(res, 200, { ok: true })
     }
     if (req.method === 'POST' && pathName === '/api/auth/register') {
       const input = await body(req)
@@ -556,20 +582,14 @@ async function handle(req, res) {
       user.profile = { ...(user.profile || {}), name: normalizedAddress.name || user.profile?.name || '', phone: normalizedAddress.phone || user.profile?.phone || '', address: normalizedAddress.address || user.profile?.address || '', city: normalizedAddress.city || user.profile?.city || '', state: normalizedAddress.state || user.profile?.state || '', postalCode: normalizedAddress.postalCode || user.profile?.postalCode || '', country: normalizedAddress.country || user.profile?.country || 'India', timezone: typeof user.profile?.timezone === 'string' ? user.profile.timezone : '' }
       const order = { id: `MYR-${randomBytes(6).toString('hex').toUpperCase()}`, userId: user.id, email: user.email, items, subtotal, tax, shipping, total, shippingAddress: storedAddress, status: 'Pending payment', paymentStatus: 'unpaid', date: new Date().toISOString(), notes: String(input.notes || '').slice(0, 2000) }
       if (!Number.isSafeInteger(order.total * 100) || order.total * 100 < 100) return json(res, 400, { error: 'The minimum online payment amount is ₹1.00.' })
-      if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
-        let response
-        try { response = await fetch('https://api.razorpay.com/v1/orders', { method: 'POST', headers: { authorization: `Basic ${Buffer.from(`${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`).toString('base64')}`, 'content-type': 'application/json' }, body: JSON.stringify({ amount: order.total * 100, currency: 'INR', receipt: order.id, notes: { myrOrderId: order.id, customerId: user.id } }) }) } catch { return json(res, 502, { error: 'Payment provider is unavailable. Please retry.' }) }
-        let result
-        try { result = await response.json() } catch { return json(res, 502, { error: 'Payment provider returned an invalid response.' }) }
-        if (!response.ok) return json(res, 502, { error: 'Payment provider could not start checkout. Please try again.' })
-        order.razorpayOrderId = result.id; order.status = 'Awaiting payment'
-      }
+      const payment = payuConfigured(payuConfig) ? createPayUCheckout({ config: payuConfig, order, customer: { name: user.profile?.name, email: user.email, phone: user.profile?.phone }, origin: configuredOrigin(process.env.APP_ORIGIN), txnid: `MYR${Date.now()}${randomBytes(4).toString('hex')}` }) : null
+      if (payment) { order.payuTxnId = payment.params.txnid; order.status = 'Awaiting payment' }
       db.orders.unshift(order)
       db.inbox.unshift({ id: randomBytes(12).toString('hex'), type: 'order', subject: `Order ${order.id}`, name: user.email, email: user.email, message: items.map((item) => `${item.name} × ${item.qty}`).join(', '), date: order.date, status: 'New', source: 'Account checkout', ownerId: user.id })
       await persist()
       await triggerNotification({ user: { email: user.email, role: user.role }, event: 'order', subject: `Order confirmation: ${order.id}`, html: `<p>Hi ${user.profile?.name || user.email},</p><p>Your order <strong>${order.id}</strong> has been placed successfully.</p><p>Total: ₹${order.total}</p>`, text: `Your order ${order.id} has been placed successfully.` })
       const { userId, ...safeOrder } = order
-      return json(res, 201, { order: safeOrder, ...(order.razorpayOrderId ? { payment: { provider: 'razorpay', keyId: process.env.RAZORPAY_KEY_ID, orderId: order.razorpayOrderId, amount: order.total * 100, currency: 'INR', testMode: testCheckoutEnabled } } : {}) })
+      return json(res, 201, { order: safeOrder, ...(payment ? { payment: { ...payment, testMode: payuConfig.environment === 'test' } } : {}) })
     }
     const cancelOrderMatch = pathName.match(/^\/api\/account\/orders\/([A-Z0-9-]+)\/cancel$/)
     const retryPaymentMatch = pathName.match(/^\/api\/account\/orders\/([A-Z0-9-]+)\/payment$/)
@@ -578,11 +598,10 @@ async function handle(req, res) {
       const order = db.orders.find((item) => item.id === retryPaymentMatch[1] && item.userId === user.id)
       if (!order) return json(res, 404, { error: 'Order not found.' })
       if (!['Pending payment', 'Awaiting payment'].includes(order.status) || order.paymentStatus === 'paid') return json(res, 409, { error: 'This order is not awaiting payment.' })
-      if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) return json(res, 503, { error: 'Online payment is not configured. Contact support to complete this order.' })
-      const response = await fetch('https://api.razorpay.com/v1/orders', { method: 'POST', headers: { authorization: `Basic ${Buffer.from(`${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`).toString('base64')}`, 'content-type': 'application/json' }, body: JSON.stringify({ amount: order.total * 100, currency: 'INR', receipt: order.id, notes: { myrOrderId: order.id, customerId: user.id } }) })
-      const data = await response.json(); if (!response.ok) return json(res, 502, { error: 'Payment provider could not restart checkout.' })
-      order.razorpayOrderId = data.id; order.status = 'Awaiting payment'; await persist()
-      return json(res, 200, { orderId: order.id, payment: { keyId: process.env.RAZORPAY_KEY_ID, orderId: data.id, amount: order.total * 100, currency: 'INR', testMode: testCheckoutEnabled } })
+      if (!payuConfigured(payuConfig)) return json(res, 503, { error: 'Online payment is not configured. Contact support to complete this order.' })
+      const payment = createPayUCheckout({ config: payuConfig, order, customer: { name: user.profile?.name, email: user.email, phone: user.profile?.phone }, origin: configuredOrigin(process.env.APP_ORIGIN), txnid: `MYR${Date.now()}${randomBytes(4).toString('hex')}` })
+      order.payuTxnId = payment.params.txnid; order.status = 'Awaiting payment'; await persist()
+      return json(res, 200, { orderId: order.id, payment: { ...payment, testMode: payuConfig.environment === 'test' } })
     }
     if (req.method === 'POST' && cancelOrderMatch) {
       if (!requireRole('customer', 'manager', 'admin')) return
@@ -590,28 +609,6 @@ async function handle(req, res) {
       if (!order) return json(res, 404, { error: 'Order not found.' })
       if (order.paymentStatus === 'paid' || !['Pending payment', 'Awaiting payment'].includes(order.status)) return json(res, 409, { error: 'This order can no longer be cancelled online. Contact support for help.' })
       order.status = 'Cancelled'; order.updatedAt = new Date().toISOString(); await persist()
-      const { userId, ...safeOrder } = order
-      return json(res, 200, { order: safeOrder })
-    }
-    if (req.method === 'POST' && pathName === '/api/payments/verify') {
-      if (!requireRole('customer', 'manager', 'admin')) return
-      const input = await body(req)
-      if (typeof input.orderId !== 'string' || typeof input.razorpay_order_id !== 'string' || typeof input.razorpay_payment_id !== 'string' || typeof input.razorpay_signature !== 'string' || !input.razorpay_order_id || !input.razorpay_payment_id || !input.razorpay_signature) return json(res, 400, { error: 'Payment order, payment, and signature fields are required.' })
-      const order = db.orders.find((item) => item.id === input.orderId && item.userId === user.id)
-      if (!order || !order.razorpayOrderId || order.razorpayOrderId !== input.razorpay_order_id) return json(res, 404, { error: 'Payment order not found.' })
-      const expected = createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || '').update(`${order.razorpayOrderId}|${input.razorpay_payment_id}`).digest('hex')
-      if (!process.env.RAZORPAY_KEY_SECRET || !safeEqualHex(expected, input.razorpay_signature)) return json(res, 400, { error: 'Payment verification failed.' })
-      let paymentStatus
-      try {
-        const providerResponse = await fetch(`https://api.razorpay.com/v1/payments/${encodeURIComponent(String(input.razorpay_payment_id || ''))}`, { headers: { authorization: `Basic ${Buffer.from(`${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`).toString('base64')}` } })
-        const providerPayment = await providerResponse.json()
-        if (!providerResponse.ok || providerPayment.order_id !== order.razorpayOrderId || providerPayment.amount !== order.total * 100) return json(res, 400, { error: 'Payment details do not match this order.' })
-        paymentStatus = providerPayment.status
-      } catch { return json(res, 502, { error: 'Unable to confirm payment status with the provider.' }) }
-      if (paymentStatus !== 'captured') return json(res, 409, { error: 'Payment is not captured yet. The order will update after the provider confirms it.' })
-      order.paymentStatus = 'paid'; order.status = 'Paid'; order.razorpayPaymentId = String(input.razorpay_payment_id); order.updatedAt = new Date().toISOString()
-      await persist()
-      await triggerNotification({ user: { email: user.email, role: user.role }, event: 'payment', subject: `Payment received for ${order.id}`, html: `<p>Hi ${user.profile?.name || user.email},</p><p>Your payment for order <strong>${order.id}</strong> has been captured successfully.</p><p>Total paid: ₹${order.total}</p>`, text: `Your payment for order ${order.id} has been captured successfully.` })
       const { userId, ...safeOrder } = order
       return json(res, 200, { order: safeOrder })
     }
@@ -678,6 +675,7 @@ async function handle(req, res) {
       if (!order) return json(res, 404, { error: 'Order not found' })
       const input = await body(req)
       if (!['Pending payment', 'Awaiting payment', 'In progress', 'Completed', 'Cancelled'].includes(input.status)) return json(res, 400, { error: 'Invalid order status. Payment status is set only after verified payment.' })
+      if (['refund_pending', 'refunded'].includes(order.paymentStatus)) return json(res, 409, { error: 'Order status cannot be changed while a refund is pending or after it is complete.' })
       if (['In progress', 'Completed'].includes(input.status) && order.paymentStatus !== 'paid') return json(res, 409, { error: 'Confirm payment before processing or completing this order.' })
       if (input.status === 'Cancelled' && order.paymentStatus === 'paid') return json(res, 409, { error: 'Paid orders require a refund instead of cancellation.' })
       order.status = input.status
@@ -689,14 +687,31 @@ async function handle(req, res) {
     if (req.method === 'POST' && refundMatch) {
       if (!requireRole('admin')) return
       const order = db.orders.find((item) => item.id === refundMatch[1])
-      if (!order || !order.razorpayPaymentId || order.paymentStatus !== 'paid') return json(res, 409, { error: 'This order has no captured payment to refund.' })
-      if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) return json(res, 503, { error: 'Payment provider is not configured.' })
-      const response = await fetch(`https://api.razorpay.com/v1/payments/${encodeURIComponent(order.razorpayPaymentId)}/refund`, { method: 'POST', headers: { authorization: `Basic ${Buffer.from(`${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`).toString('base64')}`, 'content-type': 'application/json' }, body: JSON.stringify({ amount: order.total * 100, notes: { myrOrderId: order.id } }) })
-      const data = await response.json()
-      if (!response.ok) return json(res, 502, { error: 'The payment provider could not process this refund.' })
-      order.paymentStatus = 'refunded'; order.status = 'Refunded'; order.razorpayRefundId = data.id; order.updatedAt = new Date().toISOString(); recordAudit(user, 'order.refund', order.id, { refundId: data.id }); await persist()
+      if (!order || !order.payuPaymentId || order.paymentStatus !== 'paid') return json(res, 409, { error: 'This order has no captured PayU payment to refund.' })
+      if (!payuConfigured(payuConfig)) return json(res, 503, { error: 'PayU is not configured.' })
+      const refundToken = `MYR${randomBytes(9).toString('hex')}`
+      let data
+      try { data = await initiatePayURefund(payuConfig, { paymentId: order.payuPaymentId, token: refundToken, amount: order.total, callbackUrl: `${configuredOrigin(process.env.APP_ORIGIN)}/api/payments/payu/refund-callback` }) } catch { return json(res, 502, { error: 'PayU could not accept the refund request.' }) }
+      if (Number(data.status) !== 1 && Number(data.error_code) !== 102) return json(res, 502, { error: 'PayU could not accept the refund request.' })
+      const refundRequestId = String(data.request_id || data.txn_update_id || '')
+      if (!refundRequestId) return json(res, 502, { error: 'PayU accepted no trackable refund request. Check the PayU dashboard before retrying.' })
+      order.paymentStatus = 'refund_pending'; order.status = 'Refund requested'; order.payuRefundRequestId = refundRequestId; order.updatedAt = new Date().toISOString()
+      recordAudit(user, 'order.refund.request', order.id, { requestId: order.payuRefundRequestId }); await persist()
       const { userId, ...safeOrder } = order
       return json(res, 200, { order: safeOrder })
+    }
+    const refundStatusMatch = pathName.match(/^\/api\/admin\/orders\/([A-Z0-9-]+)\/refund-status$/)
+    if (req.method === 'POST' && refundStatusMatch) {
+      if (!requireRole('admin')) return
+      const order = db.orders.find((item) => item.id === refundStatusMatch[1])
+      if (!order || order.paymentStatus !== 'refund_pending' || !order.payuRefundRequestId) return json(res, 409, { error: 'This order has no pending PayU refund to check.' })
+      let result
+      try { result = await checkPayURefundStatus(payuConfig, order.payuRefundRequestId) } catch { return json(res, 502, { error: 'Unable to check refund status with PayU.' }) }
+      if (result.status === 'success') { order.paymentStatus = 'refunded'; order.status = 'Refunded' }
+      else if (['failure', 'failed'].includes(result.status)) { order.paymentStatus = 'paid'; order.status = 'Paid'; delete order.payuRefundRequestId }
+      order.updatedAt = new Date().toISOString(); await persist()
+      const { userId, ...safeOrder } = order
+      return json(res, 200, { order: safeOrder, refundStatus: result.status || 'pending' })
     }
     const roleMatch = pathName.match(/^\/api\/admin\/users\/([a-f0-9]+)\/role$/)
     if (req.method === 'PATCH' && roleMatch) {
@@ -867,7 +882,7 @@ async function handle(req, res) {
     try { if (!(await stat(filePath)).isFile()) filePath = path.join(distDir, 'index.html') } catch { filePath = path.join(distDir, 'index.html') }
     const contentTypes = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.json': 'application/json; charset=utf-8', '.txt': 'text/plain; charset=utf-8' }
     const file = await readFile(filePath)
-    res.writeHead(200, { 'content-type': contentTypes[path.extname(filePath)] || 'application/octet-stream', 'x-frame-options': 'DENY', 'referrer-policy': 'strict-origin-when-cross-origin', 'permissions-policy': 'camera=(), microphone=(), geolocation=()', 'content-security-policy': "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' https://checkout.razorpay.com https://challenges.cloudflare.com; connect-src 'self' https://api.razorpay.com https://challenges.cloudflare.com; frame-src https://api.razorpay.com https://checkout.razorpay.com https://challenges.cloudflare.com; base-uri 'self'; frame-ancestors 'none'" })
+    res.writeHead(200, { 'content-type': contentTypes[path.extname(filePath)] || 'application/octet-stream', 'x-frame-options': 'DENY', 'referrer-policy': 'strict-origin-when-cross-origin', 'permissions-policy': 'camera=(), microphone=(), geolocation=()', 'content-security-policy': "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' https://challenges.cloudflare.com; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; base-uri 'self'; frame-ancestors 'none'" })
     return res.end(req.method === 'HEAD' ? undefined : file)
   } catch (error) {
     console.error(error)

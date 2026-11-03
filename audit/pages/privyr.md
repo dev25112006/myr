@@ -213,7 +213,7 @@ ANNUAL PLAN
 ---|---|---  
 | ₹1,599/month| ₹1,439/month  
 Skyrocket your sales and productivity today 🚀 Capture, engage, and manage every lead from your phone.| +₹ 1,449 per team account per month| +₹ 1,305 per team account per month  
-| [SELECT PLAN](https://rzp.io/rzp/c4ZG37v)| [SELECT PLAN](https://rzp.io/rzp/BRYPjee)
+| [ENQUIRE ABOUT THIS PLAN](/contact-us/)| [ENQUIRE ABOUT THIS PLAN](/contact-us/)
 
   * MONTHLY PLAN
 
@@ -221,7 +221,7 @@ Skyrocket your sales and productivity today 🚀 Capture, engage, and manage eve
 ---|---  
 | ₹1,449/month  
 Skyrocket your sales and productivity today 🚀 Capture, engage, and manage every lead from your phone.| +₹ 1,449 per team account per month  
-| [SELECT PLAN](https://rzp.io/rzp/c4ZG37v)
+| [ENQUIRE ABOUT THIS PLAN](/contact-us/)
 
   * SAVE 10%  ANNUAL PLAN
 
@@ -229,7 +229,7 @@ Skyrocket your sales and productivity today 🚀 Capture, engage, and manage eve
 ---|---  
 | ₹1,305/month  
 Skyrocket your sales and productivity today 🚀 Capture, engage, and manage every lead from your phone.| +₹ 1,305 per team account per month  
-| [SELECT PLAN](https://rzp.io/rzp/o8XYLr6j) Automatic renewal. Cancel anytime
+| [ENQUIRE ABOUT THIS PLAN](/contact-us/) Automatic renewal. Cancel anytime
 
 #### **Built with Privacy at the Core**
 

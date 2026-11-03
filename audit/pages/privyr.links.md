@@ -22,9 +22,9 @@
 - [internal] Log In -> `/my-account/`
 - [anchor] View Pricing -> `#privyrpricing`
 - [popup/js] Get Started -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjUxODAiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
-- [external] SELECT PLAN -> `https://rzp.io/rzp/c4ZG37v`
-- [external] SELECT PLAN -> `https://rzp.io/rzp/BRYPjee`
-- [external] SELECT PLAN -> `https://rzp.io/rzp/o8XYLr6j`
+- [internal] ENQUIRE ABOUT THIS PLAN -> `/contact-us/`
+- [internal] ENQUIRE ABOUT THIS PLAN -> `/contact-us/`
+- [internal] ENQUIRE ABOUT THIS PLAN -> `/contact-us/`
 - [popup/js] Try Now -> `#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjUxODAiLCJ0b2dnbGUiOmZhbHNlfQ%3D%3D`
 - [internal]  -> `http://myradvancesolution.com`
 - [external] Facebook -> `https://www.facebook.com/myrnetwork`

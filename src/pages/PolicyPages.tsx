@@ -17,7 +17,7 @@ const refundForm: FormConfig = {
     { kind: 'text', name: 'address', label: 'Complete Address', required: true },
     { kind: 'text', name: 'invoice', label: 'Invoice Number', required: true, half: true },
     { kind: 'date', name: 'invoiceDate', label: 'Invoice Date', required: true, half: true },
-    { kind: 'select', name: 'payment', label: 'Payment Method', required: true, options: ['Bank transfer', 'UPI', 'Card', 'Razorpay', 'Other'], half: true },
+    { kind: 'select', name: 'payment', label: 'Payment Method', required: true, options: ['Bank transfer', 'UPI', 'Card', 'PayU', 'Other'], half: true },
     { kind: 'text', name: 'product', label: 'Service/Product Name', required: true, half: true },
     { kind: 'textarea', name: 'items', label: "List product(s) you're requesting a refund for", required: true, rows: 3 },
     { kind: 'textarea', name: 'reason', label: 'Reason for Refund Request', required: true, rows: 4 },

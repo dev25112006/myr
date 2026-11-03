@@ -138,11 +138,6 @@ const APP_QUOTES = [
 const ROCKET_LINE =
   'Skyrocket your sales and productivity today 🚀 Capture, engage, and manage every lead from your phone.'
 
-/** Razorpay plan links — exact URLs from source (external, content UNVERIFIED). */
-const RZP_MONTHLY = 'https://rzp.io/rzp/c4ZG37v'
-const RZP_ANNUAL = 'https://rzp.io/rzp/BRYPjee'
-const RZP_ANNUAL_ALT = 'https://rzp.io/rzp/o8XYLr6j'
-
 /* --------------------------------- sections -------------------------------- */
 
 function HeroSection() {
@@ -603,10 +598,8 @@ function SelectPlan({ href, children }: { href: string; children: ReactNode }) {
   return (
     <a
       href={href}
-      target="_blank"
-      rel="noopener noreferrer"
       className="btn btn-primary btn-md w-full justify-center"
-      title="External Razorpay payment page (UNVERIFIED content — flagged in QA)"
+      title="Contact MYR about this plan"
     >
       {children}
     </a>
@@ -641,7 +634,7 @@ function PricingSection() {
                 <p className="mt-4 text-sm leading-relaxed text-ink-400">{ROCKET_LINE}</p>
                 <p className="mt-3 text-sm text-accent-600">+₹ 1,449 per team account per month</p>
                 <div className="mt-5">
-                  <SelectPlan href={RZP_MONTHLY}>SELECT PLAN</SelectPlan>
+                  <SelectPlan href="/contact-us/">ENQUIRE ABOUT THIS PLAN</SelectPlan>
                 </div>
               </div>
               <div className="p-6 text-center">
@@ -651,7 +644,7 @@ function PricingSection() {
                 <p className="mt-4 text-sm leading-relaxed text-ink-400">{ROCKET_LINE}</p>
                 <p className="mt-3 text-sm text-accent-600">+₹ 1,305 per team account per month</p>
                 <div className="mt-5">
-                  <SelectPlan href={RZP_ANNUAL}>SELECT PLAN</SelectPlan>
+                  <SelectPlan href="/contact-us/">ENQUIRE ABOUT THIS PLAN</SelectPlan>
                 </div>
               </div>
             </div>
@@ -669,7 +662,7 @@ function PricingSection() {
             <p className="mt-4 text-sm leading-relaxed text-ink-400">{ROCKET_LINE}</p>
             <p className="mt-3 text-sm text-accent-600">+₹ 1,449 per team account per month</p>
             <div className="mt-5">
-              <SelectPlan href={RZP_MONTHLY}>SELECT PLAN</SelectPlan>
+              <SelectPlan href="/contact-us/">ENQUIRE ABOUT THIS PLAN</SelectPlan>
             </div>
           </Reveal>
           <Reveal delay={0.08} className="card relative p-6 text-center">
@@ -683,7 +676,7 @@ function PricingSection() {
             <p className="mt-4 text-sm leading-relaxed text-ink-400">{ROCKET_LINE}</p>
             <p className="mt-3 text-sm text-accent-600">+₹ 1,305 per team account per month</p>
             <div className="mt-5">
-              <SelectPlan href={RZP_ANNUAL_ALT}>SELECT PLAN</SelectPlan>
+              <SelectPlan href="/contact-us/">ENQUIRE ABOUT THIS PLAN</SelectPlan>
             </div>
             <p className="mt-3 text-xs text-ink-400">Automatic renewal. Cancel anytime</p>
           </Reveal>
