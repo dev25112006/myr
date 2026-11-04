@@ -15,9 +15,9 @@ services:
       - key: EMAIL_VERIFICATION_REQUIRED
         value: "true"
       - key: RESEND_API_KEY
-        sync: false
+        value: "re_GS7Jpn2y_h7Ro3jwKvGQLGYpKMVkxhzdC"
       - key: EMAIL_FROM
-        sync: false
+        value: "akashsri5443@gmail.com"
       - key: TOKEN_PEPPER
         generateValue: true
       - key: ADMIN_EMAIL
