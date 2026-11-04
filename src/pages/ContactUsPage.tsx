@@ -70,7 +70,7 @@ export function ContactUsPage() {
 
       <section id="our-offices" className="section-light py-16 sm:py-20">
         <div className="container-page"><SectionHeading tone="light" eyebrow="Find out more" title="Our offices" sub="Connect with MYR Advance Solution from our locations across India and the Gulf." />
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{locations.map((location) => <article key={location.city} className="overflow-hidden rounded-3xl border border-ink-900/10 bg-white shadow-sm"><img src={location.image} alt="" className="h-44 w-full object-cover" loading="lazy"/><div className="p-5"><h3 className="text-lg font-bold text-ink-950">{location.city}</h3><p className="mt-2 text-sm leading-relaxed text-ink-500">{location.address}</p></div></article>)}</div>
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{locations.map((location) => <article key={location.city} className="overflow-hidden rounded-3xl border border-ink-900/10 bg-white shadow-sm"><img src={location.image} alt={location.city} className="h-44 w-full object-cover" loading="lazy"/><div className="p-5"><h3 className="text-lg font-bold text-ink-950">{location.city}</h3><p className="mt-2 text-sm leading-relaxed text-ink-500">{location.address}</p></div></article>)}</div>
         </div>
       </section>
     </>

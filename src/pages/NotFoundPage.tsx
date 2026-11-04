@@ -13,7 +13,7 @@ export function NotFoundPage() {
     <div className="container-page flex min-h-[70vh] flex-col items-center justify-center py-24 text-center">
       <img
         src="/assets/2024-10-Go-back-home-find-page.png"
-        alt=""
+        alt="404 not found illustration"
         className="mx-auto mb-8 max-h-56 w-auto object-contain opacity-90"
       />
       <p className="eyebrow">404</p>

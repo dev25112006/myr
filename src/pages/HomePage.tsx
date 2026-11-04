@@ -409,7 +409,7 @@ function AnimatedWebsitePreview() {
           </h2>
           <div className="dental-ad-scanner" aria-hidden="true">
             <div className="dental-ad-scanner-art">
-              <img src="/assets/dental-scanner-hero.svg" alt="" />
+              <img src="/assets/dental-scanner-hero.svg" alt="Dental scanner hero illustration" aria-hidden="true" />
               <span className="dental-ad-scanner-glint" />
             </div>
           </div>
@@ -424,7 +424,7 @@ function AnimatedWebsitePreview() {
           </div>
         </div>
         <div className="dental-ad-endcard">
-          <img src="/assets/2024-08-MYR-LOGO.png" alt="" />
+          <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution logo" />
         </div>
       </div>
       <div className="dental-ad-bezel" />
@@ -667,7 +667,7 @@ function WhoWeAreSection() {
           >
             <img
               src="/assets/2025-02-it-expert-2.png"
-              alt=""
+              alt="Image"
               loading="lazy"
               className="w-full max-w-md rounded-[2rem] object-contain"
             />
@@ -752,7 +752,7 @@ function MissionSection() {
           <div className="flex justify-center">
             <img
               src="/assets/2024-08-buy-toll-free-number-768x644-1.png"
-              alt=""
+              alt="Image"
               loading="lazy"
               className="w-full max-w-md rounded-[2rem] object-contain drop-shadow-[0_30px_60px_rgba(2,6,23,0.25)]"
             />
@@ -1050,7 +1050,7 @@ function StoriesSection() {
             >
               <img
                 src={t.image}
-                alt=""
+                alt="Image"
                 loading="lazy"
                 className="mx-auto h-20 w-20 rounded-full object-cover"
               />
@@ -1214,7 +1214,7 @@ function SupportBlockSection() {
             />
             <img
               src="/assets/2024-08-Live-Support-Chat.png"
-              alt=""
+              alt="Image"
               loading="lazy"
               className="relative mx-auto max-h-72 w-auto object-contain drop-shadow-[0_24px_48px_rgba(45,226,230,0.25)]"
             />
@@ -1268,7 +1268,7 @@ function IphoneAppLaunch() {
 
   return (
     <div role="group" aria-label="iPhone 18 Pro Max app preview" className="relative h-auto w-[85%] max-w-[300px] sm:w-[80%] sm:max-w-[290px] aspect-[.482] drop-shadow-[0_30px_55px_rgba(2,6,23,.5)]">
-      <img src="/assets/iphone18-frame.png" alt="" className="absolute inset-0 h-full w-full rounded-[10%] object-fill" />
+      <img src="/assets/iphone18-frame.png" alt="iPhone frame mockup" className="absolute inset-0 h-full w-full rounded-[10%] object-fill" aria-hidden="true" />
       <div className="absolute inset-x-[5%] bottom-[4%] top-[11%] overflow-hidden rounded-[8%] bg-black">
         {/* Home screen */}
         <div
@@ -1285,7 +1285,7 @@ function IphoneAppLaunch() {
                   } transition-transform duration-500`}
                 >
                   {app.myr ? (
-                    <img src="/assets/2024-08-MYR-LOGO.png" alt="" className="h-[60%] w-[60%] object-contain" />
+                    <img src="/assets/2024-08-MYR-LOGO.png" alt="Image" className="h-[60%] w-[60%] object-contain" />
                   ) : (
                     app.icon
                   )}
@@ -1299,7 +1299,7 @@ function IphoneAppLaunch() {
               const app = CTA_APPS.find((a) => a.label === name)!
               return (
                 <span key={name} className={`grid h-9 w-9 place-items-center rounded-[22%] text-[11px] font-bold shadow-md ${app.color}`}>
-                  {app.myr ? <img src="/assets/2024-08-MYR-LOGO.png" alt="" className="h-[60%] w-[60%] object-contain" /> : app.icon}
+                  {app.myr ? <img src="/assets/2024-08-MYR-LOGO.png" alt="Image" className="h-[60%] w-[60%] object-contain" /> : app.icon}
                 </span>
               )
             })}

@@ -56,7 +56,7 @@ export function SupportBlock({
         <div className="absolute inset-0 rounded-full bg-accent-400/15 blur-3xl" aria-hidden />
         <img
           src={image}
-          alt=""
+          alt="Support block illustration"
           loading="lazy"
           className="relative mx-auto max-h-72 w-auto object-contain drop-shadow-[0_24px_48px_rgba(45,226,230,0.25)]"
         />

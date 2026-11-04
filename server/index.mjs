@@ -19,6 +19,7 @@ const prod = process.env.NODE_ENV === 'production'
 const testCheckoutRequested = process.env.COMMERCE_TEST_MODE === 'true'
 const payuConfig = payuConfigFromEnv()
 const testCheckoutEnabled = testCheckoutRequested && !prod && payuConfig.environment === 'test' && payuConfigured(payuConfig)
+const authTurnstileRequired = process.env.AUTH_TURNSTILE_REQUIRED !== 'false'
 const sessionTtl = 7 * 24 * 60 * 60 * 1000
 const initialCatalog = [
   [2765, 'NewBiz Essentials', '/product/newbiz-essentials/', 14499, 'Website Development'], [2766, 'RevampCommerce Lite', '/product/revampcommerce-lite/', 24499, 'Website Development'], [2767, 'EliteCustom Suite', '/product/elitecustom-suite/', 59499, 'Website Development'],
@@ -158,6 +159,116 @@ function dateOnlyOk(value) {
   return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
 }
 function passwordOk(password) { return typeof password === 'string' && password.length >= 12 && password.length <= 200 }
+function payuStatusIsSuccess(value) {
+  if (value === null || value === undefined) return false
+  const text = String(value).trim().toLowerCase()
+  return text === 'success' || text === '1' || text === 'true'
+}
+
+/* --------------------------------- OTP verification --------------------------------- */
+
+const otpStore = new Map() // email -> { code, expiresAt, attempts, resendAt }
+const OTP_TTL_MS = 10 * 60 * 1000 // 10 minutes
+const OTP_MAX_ATTEMPTS = 5
+const OTP_RESEND_COOLDOWN_MS = 60 * 1000 // 1 minute between resends
+
+function generateOtpCode() {
+  return String(Math.floor(100000 + Math.random() * 900000)) // 6-digit code
+}
+
+function normalizeOtpEmail(email) {
+  return String(email || '').trim().toLowerCase()
+}
+
+function otpEntry(email) {
+  return otpStore.get(normalizeOtpEmail(email))
+}
+
+function setOtp(email, code, purpose) {
+  const key = normalizeOtpEmail(email)
+  otpStore.set(key, {
+    code,
+    purpose: purpose || 'register',
+    expiresAt: Date.now() + OTP_TTL_MS,
+    attempts: 0,
+    resendAt: 0,
+  })
+  // Cleanup expired entries periodically
+  if (otpStore.size > 10000) {
+    const now = Date.now()
+    for (const [k, v] of otpStore.entries()) {
+      if (v.expiresAt < now) otpStore.delete(k)
+    }
+  }
+}
+
+function incrementOtpAttempts(email) {
+  const key = normalizeOtpEmail(email)
+  const entry = otpStore.get(key)
+  if (entry) { entry.attempts += 1; otpStore.set(key, entry) }
+  return entry
+}
+
+function clearOtp(email) {
+  otpStore.delete(normalizeOtpEmail(email))
+}
+
+async function sendOtpEmail(email, code, purpose = 'register') {
+  const purposeLabel = purpose === 'register' ? 'Account Verification' : purpose === 'login' ? 'Login Verification' : 'Password Reset'
+  const origin = configuredOrigin(process.env.APP_ORIGIN)
+  return await sendTransactionalEmail(email, `MYR — ${purposeLabel} OTP`, `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Your MYR verification code</h2><p>Hi ${email},</p><p>Your one-time password (OTP) for <strong>${purposeLabel}</strong> is:</p><div style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#166534;background:#f0fdf4;border:2px dashed #166534;padding:16px;text-align:center;margin:20px 0;">${code}</div><p>This code expires in 10 minutes. Do not share it with anyone.</p><p>If you didn't request this, please ignore this email.</p><p style="color:#6b7280;font-size:12px">This is an automated email from MYR Advance Solution.</p></div>`, { text: `Your MYR ${purposeLabel} OTP is ${code}. It expires in 10 minutes.` })
+}
+
+/* --------------------------------- end OTP --------------------------------- */
+/* --------------------------------- production middleware --------------------------------- */
+
+const requestLog = (req, res, next) => {
+  const requestId = req.headers['x-request-id'] || randomBytes(8).toString('hex')
+  res.setHeader('x-request-id', requestId)
+  const start = Date.now()
+  const originalSend = res.send
+  res.send = function(body) {
+    const duration = Date.now() - start
+    const level = res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info'
+    console.log(JSON.stringify({
+      level,
+      requestId,
+      method: req.method,
+      path: req.url,
+      status: res.statusCode,
+      durationMs: duration,
+      ip: req.socket.remoteAddress,
+      userAgent: req.headers['user-agent'] || '',
+    }))
+    return originalSend.call(this, body)
+  }
+  next()
+}
+
+function endpointRateLimit(config) {
+  const buckets = new Map()
+  return (req, res) => {
+    const key = (req.socket.remoteAddress || 'unknown') + ':' + (req.url || '')
+    const now = Date.now()
+    const current = buckets.get(key) || { count: 0, reset: now + config.windowMs }
+    if (now > current.reset) { current.count = 0; current.reset = now + config.windowMs }
+    current.count += 1
+    buckets.set(key, current)
+    if (current.count > config.max) {
+      json(res, 429, { error: 'Too many requests. Please try again later.', retryAfter: Math.ceil((current.reset - now) / 1000) })
+      return false
+    }
+    return true
+  }
+}
+
+const globalLimit = endpointRateLimit({ windowMs: 60_000, max: 300 }) // 300 req/min per IP
+const authLimit = endpointRateLimit({ windowMs: 60_000, max: 20 }) // 20 auth req/min per IP
+const otpLimit = endpointRateLimit({ windowMs: 60_000, max: 10 }) // 10 OTP req/min per IP
+const checkoutLimit = endpointRateLimit({ windowMs: 60_000, max: 30 }) // 30 checkout req/min per IP
+
+/* --------------------------------- end production middleware --------------------------------- */
+
 function rateLimit() {
   const buckets = new Map()
   return (req, res) => {
@@ -173,6 +284,21 @@ function rateLimit() {
 }
 const limit = rateLimit()
 const loginAttempts = new Map()
+const registrationAttempts = new Map()
+
+function allowRegistration(req) {
+  const key = req.socket.remoteAddress || 'unknown'
+  const now = Date.now()
+  const current = registrationAttempts.get(key) || { count: 0, reset: now + 60 * 60_000 }
+  if (now >= current.reset) { current.count = 0; current.reset = now + 60 * 60_000 }
+  if (current.count >= 20) return false
+  current.count += 1
+  registrationAttempts.set(key, current)
+  if (registrationAttempts.size > 5000) {
+    for (const [address, attempts] of registrationAttempts) if (now >= attempts.reset) registrationAttempts.delete(address)
+  }
+  return true
+}
 
 async function init() {
   let saved
@@ -286,10 +412,25 @@ async function withDatabaseSnapshot(req, res) {
 
 async function handle(req, res) {
   res.setHeader('x-content-type-options', 'nosniff')
-  if (!limit(req, res)) return
-  if (!csrfCheck(req)) return json(res, 403, { error: 'Request origin rejected' })
+  res.setHeader('x-frame-options', 'DENY')
+  res.setHeader('referrer-policy', 'strict-origin-when-cross-origin')
+  if (prod) res.setHeader('strict-transport-security', 'max-age=31536000; includeSubDomains; preload')
+  requestLog(req, res, () => {})
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
   const pathName = url.pathname
+
+  // Global rate limit
+  if (!globalLimit(req, res)) return
+
+  // Per-endpoint rate limits
+  if (pathName.startsWith('/api/auth/')) {
+    if (pathName.includes('/otp/')) { if (!otpLimit(req, res)) return }
+    else { if (!authLimit(req, res)) return }
+  }
+  if (pathName === '/api/orders' && req.method === 'POST') { if (!checkoutLimit(req, res)) return }
+  if (pathName === '/api/inbox' && req.method === 'POST') { if (!authLimit(req, res)) return }
+
+  if (!csrfCheck(req)) return json(res, 403, { error: 'Request origin rejected' })
   const sessionId = cookie(req, 'myr_session')
   const session = db.sessions.find((item) => item.id === sessionId && item.expiresAt > Date.now())
   const user = session && db.users.find((item) => item.id === session.userId)
@@ -300,7 +441,35 @@ async function handle(req, res) {
     return true
   }
   try {
-    if (req.method === 'GET' && pathName === '/api/health') return json(res, 200, { ok: true })
+    if (req.method === 'GET' && pathName === '/api/health') {
+      const checks = { ok: true, services: {} }
+      try {
+        if (mongoCollection) {
+          await mongoCollection.findOne({ _id: 'health' }, { maxTimeMS: 3000 })
+          checks.services.mongodb = 'connected'
+        } else {
+          checks.services.mongodb = 'not-configured'
+        }
+      } catch { checks.services.mongodb = 'error'; checks.ok = false }
+      if (pgPool) {
+        try { await pgPool.query('SELECT 1'); checks.services.postgresql = 'connected' } catch { checks.services.postgresql = 'error'; checks.ok = false }
+      } else {
+        checks.services.postgresql = 'not-configured'
+      }
+      checks.services.smtp = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) ? 'configured' : 'not-configured'
+      checks.services.payu = payuConfigured(payuConfig) ? 'configured' : 'not-configured'
+      return json(res, checks.ok ? 200 : 503, checks)
+    }
+    if (req.method === 'POST' && pathName === '/api/test-email') {
+      const input = await body(req)
+      const to = String(input.to || process.env.ADMIN_EMAIL || '').trim()
+      if (!to || !emailOk(to)) return json(res, 400, { error: 'Provide a valid recipient email in body { "to": "..." }' })
+      const smtpOk = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS && process.env.SMTP_FROM)
+      const resendOk = Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM)
+      if (!smtpOk && !resendOk) return json(res, 503, { error: 'No email provider configured. Set SMTP_HOST/SMTP_USER/SMTP_PASS/SMTP_FROM or RESEND_API_KEY/EMAIL_FROM.' })
+      const sent = await sendTransactionalEmail(to, 'MYR — SMTP Test Email', `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">SMTP email is working</h2><p>This is a test email from your MYR server.</p><p>Provider: ${smtpOk ? 'SMTP (' + process.env.SMTP_HOST + ')' : 'Resend'}</p><p>If you received this, all customer emails (welcome, order receipt, payment confirmation, form submission) will also be delivered.</p></div>`, { text: 'MYR SMTP test email — email delivery is active.' })
+      return json(res, 200, { ok: true, sent, provider: smtpOk ? 'smtp' : 'resend', to })
+    }
     if (req.method === 'GET' && pathName === '/api/auth/session') return json(res, 200, { user: user ? publicUser(user) : null })
     if (req.method === 'GET' && pathName === '/api/catalog') return json(res, 200, { products: db.catalog })
     if (req.method === 'GET' && pathName === '/api/saas/products') {
@@ -413,11 +582,16 @@ async function handle(req, res) {
         let providerPayment
         try { providerPayment = await verifyPayUPayment(payuConfig, order.payuTxnId) } catch { return json(res, 502, { error: 'Unable to confirm payment status with PayU.' }) }
         const providerAmount = Math.round(Number(providerPayment?.amt || providerPayment?.amount) * 100)
-        if (providerPayment?.status?.toLowerCase() !== 'success' || providerPayment.txnid !== order.payuTxnId || providerAmount !== order.total * 100 || providerPayment.udf1 !== order.id || providerPayment.udf2 !== order.userId || !providerPayment.mihpayid) return json(res, 409, { error: 'PayU has not confirmed this payment for the expected order.' })
+        if (!payuStatusIsSuccess(providerPayment?.status) || providerPayment.txnid !== order.payuTxnId || providerAmount !== order.total * 100 || providerPayment.udf1 !== order.id || providerPayment.udf2 !== order.userId || !providerPayment.mihpayid) return json(res, 409, { error: 'PayU has not confirmed this payment for the expected order.' })
         order.paymentStatus = 'paid'; order.status = 'Paid'; order.payuPaymentId = String(providerPayment.mihpayid); order.updatedAt = new Date().toISOString()
         await persist()
         const customer = db.users.find((item) => item.id === order.userId)
-        if (customer) await triggerNotification({ user: { email: customer.email, role: customer.role }, event: 'payment', subject: `Payment received for ${order.id}`, html: `<p>Hi ${customer.profile?.name || customer.email},</p><p>Your payment for order <strong>${order.id}</strong> has been confirmed by PayU.</p><p>Total paid: ₹${order.total}</p>`, text: `Your payment for order ${order.id} has been confirmed by PayU.` })
+        if (customer) {
+          const itemsHtml = order.items.map((item) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">${item.name}</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:center">${item.qty}</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${item.price}</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${item.price * item.qty}</td></tr>`).join('')
+          await triggerNotification({ user: { email: customer.email, role: customer.role }, event: 'payment', subject: `Payment confirmed — Order ${order.id}`, html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Payment confirmed — thank you for your purchase</h2><p>Hi ${customer.profile?.name || customer.email},</p><p>Your payment for order <strong>${order.id}</strong> has been verified by PayU.</p><table style="width:100%;border-collapse:collapse;margin:16px 0;"><thead><tr style="text-align:left;border-bottom:2px solid #e5e7eb;"><th style="padding:6px 10px">Item</th><th style="padding:6px 10px;text-align:center">Qty</th><th style="padding:6px 10px;text-align:right">Price</th><th style="padding:6px 10px;text-align:right">Total</th></tr></thead><tbody>${itemsHtml}</tbody></table><table style="width:100%;border-collapse:collapse;margin:16px 0;"><tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">Subtotal</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${order.subtotal}</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">Tax</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${order.tax}</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">Shipping</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${order.shipping}</td></tr><tr><td style="padding:8px 10px;border-top:2px solid #166534;text-align:right"><strong>Total paid</strong></td><td style="padding:8px 10px;border-top:2px solid #166534;text-align:right"><strong>₹${order.total}</strong></td></tr></table><p>Transaction ID: <code>${order.payuTxnId}</code> · PayU payment ID: <code>${order.payuPaymentId}</code></p><p>You can view this order anytime in your <a href="${new URL('/my-account/', configuredOrigin(process.env.APP_ORIGIN)).toString()}">account panel</a>.</p><p style="color:#6b7280;font-size:12px">This is an automated receipt from MYR. Please keep it for your records.</p></div>`, text: `Your payment for order ${order.id} (₹${order.total}) has been confirmed by PayU. Items: ${order.items.map((i) => `${i.name} × ${i.qty}`).join(', ')}. Transaction ID: ${order.payuTxnId}.` })
+        }
+      } else if (paid && order.paymentStatus === 'paid') {
+        // Idempotent repeat callback: order already verified, just redirect to success
       }
       const destination = new URL('/my-account/', configuredOrigin(process.env.APP_ORIGIN))
       destination.searchParams.set('payment', paid ? 'paid' : 'failed')
@@ -442,32 +616,88 @@ async function handle(req, res) {
       return json(res, 200, { ok: true })
     }
     if (req.method === 'POST' && pathName === '/api/auth/register') {
+      if (!allowRegistration(req)) return json(res, 429, { error: 'Too many registration attempts. Try again in an hour.' })
       const input = await body(req)
-      const humanCheck = await verifyHumanToken(input.humanToken)
-      if (!humanCheck.configured) return json(res, 503, { error: 'Human verification is not configured.' })
-      if (humanCheck.unavailable) return json(res, 503, { error: 'Human verification is temporarily unavailable. Please try again.' })
-      if (!humanCheck.verified) return json(res, 403, { error: 'Complete human verification before creating an account.' })
+      if (authTurnstileRequired) {
+        const humanCheck = await verifyHumanToken(input.humanToken)
+        if (!humanCheck.configured) return json(res, 503, { error: 'Human verification is not configured.' })
+        if (humanCheck.unavailable) return json(res, 503, { error: 'Human verification is temporarily unavailable. Please try again.' })
+        if (!humanCheck.verified) return json(res, 403, { error: 'Complete human verification before creating an account.' })
+      }
       const email = String(input.email || '').trim().toLowerCase()
       if (!emailOk(email) || !passwordOk(input.password)) return json(res, 400, { error: 'Use a valid email and a password with at least 12 characters.' })
       if (db.users.some((item) => item.email === email)) return json(res, 409, { error: 'An account with this email already exists.' })
+      // Require OTP verification when email verification is enforced
+      const requireOtp = process.env.EMAIL_VERIFICATION_REQUIRED === 'true'
+      if (requireOtp && input.otpVerified !== true) return json(res, 403, { error: 'Email OTP verification is required before creating an account. Please verify your email first.' })
       const credentials = await hashPassword(input.password)
-      const created = { id: randomBytes(16).toString('hex'), email, role: 'customer', emailVerified: !process.env.EMAIL_VERIFICATION_REQUIRED, ...credentials, createdAt: new Date().toISOString() }
+      const created = { id: randomBytes(16).toString('hex'), email, role: 'customer', emailVerified: true, ...credentials, createdAt: new Date().toISOString() }
       db.users.push(created)
       const newSession = { id: randomBytes(32).toString('hex'), userId: created.id, expiresAt: Date.now() + sessionTtl }
       db.sessions.push(newSession)
       await persist()
       if (db.settings.emailNotifications?.enabled !== false) {
-        await triggerNotification({ user: { email: created.email, role: created.role }, event: 'account', subject: 'Welcome to MYR', html: `<p>Hi ${created.email},</p><p>Your account has been created successfully.</p><p>Our team will reach out if we need anything else.</p>`, text: 'Your account has been created successfully.' })
+        await triggerNotification({ user: { email: created.email, role: created.role }, event: 'account', subject: 'Welcome to MYR — your account is ready', html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Welcome to MYR</h2><p>Hi ${created.email},</p><p>Your account has been created successfully and your email is verified.</p><p><strong>Account email:</strong> ${created.email}</p><p><strong>Account ID:</strong> ${created.id}</p><p>Sign in at <a href="${new URL('/my-account/', configuredOrigin(process.env.APP_ORIGIN)).toString()}">your account panel</a>.</p><p style="color:#6b7280;font-size:12px">This is an automated welcome email from MYR.</p></div>`, text: `Welcome to MYR. Your account (${created.email}) has been created successfully. Sign in at ${new URL('/my-account/', configuredOrigin(process.env.APP_ORIGIN)).toString()} to browse products and place orders.` })
       }
-      if (process.env.RESEND_API_KEY && process.env.EMAIL_VERIFICATION_REQUIRED === 'true') await issueEmailToken(created, 'verify')
       return json(res, 201, { user: publicUser(created) }, { 'set-cookie': cookieHeader(newSession.id, sessionTtl / 1000) })
+    }
+    if (req.method === 'POST' && pathName === '/api/auth/otp/send') {
+      const input = await body(req)
+      const email = normalizeOtpEmail(input.email)
+      const purpose = String(input.purpose || 'register')
+      if (!emailOk(email)) return json(res, 400, { error: 'Valid email is required.' })
+      if (!['register', 'login', 'reset'].includes(purpose)) return json(res, 400, { error: 'Invalid OTP purpose.' })
+      const entry = otpEntry(email)
+      if (entry && Date.now() < entry.resendAt) return json(res, 429, { error: 'Please wait before requesting another code.' })
+      // If registering, email must not already exist
+      if (purpose === 'register' && db.users.some((item) => item.email === email)) return json(res, 409, { error: 'An account with this email already exists.' })
+      // If login/reset, email must exist
+      if (purpose !== 'register' && !db.users.some((item) => item.email === email)) return json(res, 404, { error: 'No account found with this email.' })
+      const code = generateOtpCode()
+      setOtp(email, code, purpose)
+      const sent = await sendOtpEmail(email, code, purpose)
+      if (!sent) { clearOtp(email); return json(res, 503, { error: 'Unable to send verification email. Please try again later.' }) }
+      return json(res, 200, { ok: true, message: 'Verification code sent to your email.', expiresIn: Math.round(OTP_TTL_MS / 1000) })
+    }
+    if (req.method === 'POST' && pathName === '/api/auth/otp/verify') {
+      const input = await body(req)
+      const email = normalizeOtpEmail(input.email)
+      const code = String(input.code || '').trim()
+      const purpose = String(input.purpose || 'register')
+      if (!emailOk(email) || !/^\d{6}$/.test(code)) return json(res, 400, { error: 'Valid email and 6-digit code are required.' })
+      const entry = otpEntry(email)
+      if (!entry) return json(res, 400, { error: 'No verification code found. Request a new one.' })
+      if (entry.purpose !== purpose) return json(res, 400, { error: 'Verification code was issued for a different purpose.' })
+      if (Date.now() > entry.expiresAt) { clearOtp(email); return json(res, 410, { error: 'Verification code has expired. Request a new one.' }) }
+      if (entry.attempts >= OTP_MAX_ATTEMPTS) { clearOtp(email); return json(res, 429, { error: 'Too many verification attempts. Request a new code.' }) }
+      incrementOtpAttempts(email)
+      if (entry.code !== code) return json(res, 400, { error: 'Incorrect verification code. Please try again.' })
+      clearOtp(email)
+      return json(res, 200, { ok: true, email, purpose, verified: true })
+    }
+    if (req.method === 'POST' && pathName === '/api/auth/otp/resend') {
+      const input = await body(req)
+      const email = normalizeOtpEmail(input.email)
+      const purpose = String(input.purpose || 'register')
+      if (!emailOk(email)) return json(res, 400, { error: 'Valid email is required.' })
+      const entry = otpEntry(email)
+      if (!entry) return json(res, 400, { error: 'No existing verification to resend.' })
+      if (Date.now() < entry.resendAt) return json(res, 429, { error: 'Please wait before requesting another code.' })
+      if (purpose !== 'register' && !db.users.some((item) => item.email === email)) return json(res, 404, { error: 'No account found with this email.' })
+      const code = generateOtpCode()
+      setOtp(email, code, purpose)
+      const sent = await sendOtpEmail(email, code, purpose)
+      if (!sent) { clearOtp(email); return json(res, 503, { error: 'Unable to send verification email. Please try again later.' }) }
+      return json(res, 200, { ok: true, message: 'A new verification code has been sent.', expiresIn: Math.round(OTP_TTL_MS / 1000) })
     }
     if (req.method === 'POST' && pathName === '/api/auth/login') {
       const input = await body(req)
-      const humanCheck = await verifyHumanToken(input.humanToken)
-      if (!humanCheck.configured) return json(res, 503, { error: 'Human verification is not configured.' })
-      if (humanCheck.unavailable) return json(res, 503, { error: 'Human verification is temporarily unavailable. Please try again.' })
-      if (!humanCheck.verified) return json(res, 403, { error: 'Complete human verification before signing in.' })
+      if (authTurnstileRequired) {
+        const humanCheck = await verifyHumanToken(input.humanToken)
+        if (!humanCheck.configured) return json(res, 503, { error: 'Human verification is not configured.' })
+        if (humanCheck.unavailable) return json(res, 503, { error: 'Human verification is temporarily unavailable. Please try again.' })
+        if (!humanCheck.verified) return json(res, 403, { error: 'Complete human verification before signing in.' })
+      }
       const email = String(input.email || '').trim().toLowerCase()
       const attemptKey = `${req.socket.remoteAddress}:${email}`
       const attempts = loginAttempts.get(attemptKey) || { count: 0, reset: Date.now() + 15 * 60_000 }
@@ -587,7 +817,8 @@ async function handle(req, res) {
       db.orders.unshift(order)
       db.inbox.unshift({ id: randomBytes(12).toString('hex'), type: 'order', subject: `Order ${order.id}`, name: user.email, email: user.email, message: items.map((item) => `${item.name} × ${item.qty}`).join(', '), date: order.date, status: 'New', source: 'Account checkout', ownerId: user.id })
       await persist()
-      await triggerNotification({ user: { email: user.email, role: user.role }, event: 'order', subject: `Order confirmation: ${order.id}`, html: `<p>Hi ${user.profile?.name || user.email},</p><p>Your order <strong>${order.id}</strong> has been placed successfully.</p><p>Total: ₹${order.total}</p>`, text: `Your order ${order.id} has been placed successfully.` })
+      const orderItemsHtml = order.items.map((item) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">${item.name}</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:center">${item.qty}</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${item.price}</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${item.price * item.qty}</td></tr>`).join('')
+      await triggerNotification({ user: { email: user.email, role: user.role }, event: 'order', subject: `Order confirmation — ${order.id}`, html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Order confirmed — ${order.id}</h2><p>Hi ${user.profile?.name || user.email},</p><p>Your order <strong>${order.id}</strong> has been placed successfully.</p><table style="width:100%;border-collapse:collapse;margin:16px 0;"><thead><tr style="text-align:left;border-bottom:2px solid #e5e7eb;"><th style="padding:6px 10px">Item</th><th style="padding:6px 10px;text-align:center">Qty</th><th style="padding:6px 10px;text-align:right">Price</th><th style="padding:6px 10px;text-align:right">Total</th></tr></thead><tbody>${orderItemsHtml}</tbody></table><table style="width:100%;border-collapse:collapse;margin:16px 0;"><tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">Subtotal</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${order.subtotal}</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">Tax</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${order.tax}</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">Shipping</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${order.shipping}</td></tr><tr><td style="padding:8px 10px;border-top:2px solid #166534;text-align:right"><strong>Total</strong></td><td style="padding:8px 10px;border-top:2px solid #166534;text-align:right"><strong>₹${order.total}</strong></td></tr></table><p style="color:#6b7280;font-size:12px">Payment status: ${order.paymentStatus}. You will receive a separate confirmation once PayU verifies your payment.</p></div>`, text: `Your order ${order.id} has been placed. Items: ${order.items.map((i) => `${i.name} × ${i.qty}`).join(', ')}. Total: ₹${order.total}. Payment status: ${order.paymentStatus}.` })
       const { userId, ...safeOrder } = order
       return json(res, 201, { order: safeOrder, ...(payment ? { payment: { ...payment, testMode: payuConfig.environment === 'test' } } : {}) })
     }
@@ -666,7 +897,11 @@ async function handle(req, res) {
     if (req.method === 'GET' && pathName === '/api/admin/settings') { if (!requireRole('admin')) return; return json(res, 200, { settings: db.settings, testMode: testCheckoutEnabled }) }
     if (req.method === 'GET' && pathName === '/api/admin/orders') {
       if (!requireRole('admin', 'manager')) return
-      return json(res, 200, { orders: db.orders.map(({ userId, ...order }) => ({ ...order, customerId: userId })) })
+      const limit = Math.min(Number(url.searchParams.get('limit') || 50), 200)
+      const offset = Math.max(Number(url.searchParams.get('offset') || 0), 0)
+      const total = db.orders.length
+      const orders = db.orders.slice(offset, offset + limit).map(({ userId, ...order }) => ({ ...order, customerId: userId }))
+      return json(res, 200, { orders, total, limit, offset, hasMore: offset + orders.length < total })
     }
     const orderMatch = pathName.match(/^\/api\/admin\/orders\/([A-Z0-9-]+)$/)
     if (req.method === 'PATCH' && orderMatch) {
@@ -729,7 +964,11 @@ async function handle(req, res) {
     }
     if (req.method === 'GET' && pathName === '/api/manager/inbox') {
       if (!requireRole('admin', 'manager')) return
-      return json(res, 200, { inbox: db.inbox.map(({ ownerId, ...entry }) => entry) })
+      const limit = Math.min(Number(url.searchParams.get('limit') || 50), 200)
+      const offset = Math.max(Number(url.searchParams.get('offset') || 0), 0)
+      const total = db.inbox.length
+      const inbox = db.inbox.slice(offset, offset + limit).map(({ ownerId, ...entry }) => entry)
+      return json(res, 200, { inbox, total, limit, offset, hasMore: offset + inbox.length < total })
     }
     if (req.method === 'GET' && pathName === '/api/admin/audit') {
       if (!requireRole('admin')) return
@@ -849,6 +1088,10 @@ async function handle(req, res) {
       const entry = { id: randomBytes(12).toString('hex'), type: input.type, subject: input.subject, name: String(input.name || user?.email || 'Website visitor').slice(0, 180), email: String(input.email || user?.email || '').slice(0, 254), message: input.message, date: new Date().toISOString(), status: 'New', source: String(input.source || '').slice(0, 300), ownerId: user?.id || null }
       db.inbox.unshift(entry)
       await persist()
+      if (entry.email) {
+        const fieldsHtml = Object.entries(input).filter(([k]) => !['humanToken','type','subject','name','email','message','source'].includes(k)).map(([k, v]) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:left"><strong>${String(k)}</strong></td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:left">${String(v)}</td></tr>`).join('')
+        await triggerNotification({ user: { email: entry.email, role: 'customer' }, event: 'contact', includeUser: true, explicitEmails: [entry.email], subject: `We received your submission — ${entry.subject}`, html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Thank you for contacting MYR</h2><p>Hi ${entry.name || 'there'},</p><p>We’ve received your submission and our team will get back to you shortly.</p><p><strong>Reference:</strong> ${entry.id}</p><p><strong>Subject:</strong> ${entry.subject}</p>${fieldsHtml ? `<table style="width:100%;border-collapse:collapse;margin:16px 0;"><thead><tr style="text-align:left;border-bottom:2px solid #e5e7eb;"><th style="padding:6px 10px">Field</th><th style="padding:6px 10px">Your value</th></tr></thead><tbody>${fieldsHtml}</tbody></table>` : ''}<p style="color:#6b7280;font-size:12px">This is an automated confirmation from MYR. Please keep this for your records.</p></div>`, text: `Thank you for contacting MYR. We received your submission "${entry.subject}" (reference ${entry.id}). Our team will get back to you shortly.` })
+      }
       const { ownerId, ...safeEntry } = entry
       return json(res, 201, { entry: safeEntry })
     }
@@ -882,7 +1125,10 @@ async function handle(req, res) {
     try { if (!(await stat(filePath)).isFile()) filePath = path.join(distDir, 'index.html') } catch { filePath = path.join(distDir, 'index.html') }
     const contentTypes = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.json': 'application/json; charset=utf-8', '.txt': 'text/plain; charset=utf-8' }
     const file = await readFile(filePath)
-    res.writeHead(200, { 'content-type': contentTypes[path.extname(filePath)] || 'application/octet-stream', 'x-frame-options': 'DENY', 'referrer-policy': 'strict-origin-when-cross-origin', 'permissions-policy': 'camera=(), microphone=(), geolocation=()', 'content-security-policy': "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' https://challenges.cloudflare.com; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; base-uri 'self'; frame-ancestors 'none'" })
+    const ext = path.extname(filePath)
+    const isHashedAsset = /\.[a-zA-Z0-9]{8,}\.(js|css|png|jpg|jpeg|webp|svg|woff2|ico)$/.test(path.basename(filePath))
+    const cacheControl = ext === '.html' ? 'public, max-age=0, must-revalidate' : isHashedAsset ? 'public, max-age=31536000, immutable' : 'public, max-age=3600'
+    res.writeHead(200, { 'content-type': contentTypes[ext] || 'application/octet-stream', 'cache-control': cacheControl, 'x-frame-options': 'DENY', 'referrer-policy': 'strict-origin-when-cross-origin', 'permissions-policy': 'camera=(), microphone=(), geolocation=()', 'content-security-policy': "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' https://challenges.cloudflare.com; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; base-uri 'self'; frame-ancestors 'none'" })
     return res.end(req.method === 'HEAD' ? undefined : file)
   } catch (error) {
     console.error(error)

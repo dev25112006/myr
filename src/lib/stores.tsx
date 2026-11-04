@@ -173,13 +173,16 @@ type AuthCtx = {
   users: AuthUser[]
   serverInbox: InboxEntry[]
   login: (identifier: string, password: string, humanToken: string) => Promise<void>
-  register: (email: string, password: string, humanToken: string) => Promise<void>
+  register: (email: string, password: string, humanToken: string, otpVerified?: boolean) => Promise<void>
   refreshUsers: () => Promise<void>
   setUserRole: (id: string, role: AuthUser['role']) => Promise<void>
   refreshInbox: () => Promise<void>
   submitInbox: (entry: Omit<InboxEntry, 'id' | 'date' | 'status'> & { humanToken: string }) => Promise<void>
   setServerInboxStatus: (id: string, status: InboxEntry['status']) => Promise<void>
   logout: () => void
+  otpSend: (email: string, purpose: 'register' | 'login' | 'reset') => Promise<{ ok: boolean; message?: string; expiresIn?: number }>
+  otpVerify: (email: string, code: string, purpose: 'register' | 'login' | 'reset') => Promise<{ ok: boolean; email?: string; purpose?: string; verified?: boolean }>
+  otpResend: (email: string, purpose: 'register' | 'login' | 'reset') => Promise<{ ok: boolean; message?: string; expiresIn?: number }>
 }
 
 const AuthContext = createContext<AuthCtx | null>(null)
@@ -221,6 +224,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const submitInbox = useCallback(async (entry: Omit<InboxEntry, 'id' | 'date' | 'status'>) => {
     await api('/api/inbox', { method: 'POST', body: JSON.stringify(entry) })
   }, [api])
+  const otpSend = useCallback(async (email: string, purpose: 'register' | 'login' | 'reset') => {
+    return await api('/api/auth/otp/send', { method: 'POST', body: JSON.stringify({ email, purpose }) }) as Promise<{ ok: boolean; message?: string; expiresIn?: number }>
+  }, [api])
+  const otpVerify = useCallback(async (email: string, code: string, purpose: 'register' | 'login' | 'reset') => {
+    return await api('/api/auth/otp/verify', { method: 'POST', body: JSON.stringify({ email, code, purpose }) }) as Promise<{ ok: boolean; email?: string; purpose?: string; verified?: boolean }>
+  }, [api])
+  const otpResend = useCallback(async (email: string, purpose: 'register' | 'login' | 'reset') => {
+    return await api('/api/auth/otp/resend', { method: 'POST', body: JSON.stringify({ email, purpose }) }) as Promise<{ ok: boolean; message?: string; expiresIn?: number }>
+  }, [api])
   const setServerInboxStatus = useCallback(async (id: string, status: InboxEntry['status']) => {
     const data = await api(`/api/manager/inbox/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) })
     setServerInbox((previous) => previous.map((entry) => entry.id === id ? data.entry : entry))
@@ -240,9 +252,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: identifier, password, humanToken }) })
         setUser(data.user)
       },
-      register: async (email, password, humanToken) => {
+      register: async (email, password, humanToken, otpVerified) => {
         setAuthError('')
-        const data = await api('/api/auth/register', { method: 'POST', body: JSON.stringify({ email, password, humanToken }) })
+        const data = await api('/api/auth/register', { method: 'POST', body: JSON.stringify({ email, password, humanToken, otpVerified }) })
         setUser(data.user)
       },
       refreshUsers,
@@ -250,9 +262,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshInbox,
       submitInbox,
       setServerInboxStatus,
+      otpSend,
+      otpVerify,
+      otpResend,
       logout: async () => { await api('/api/auth/logout', { method: 'POST', body: '{}' }); setUser(null); setUsers([]); window.dispatchEvent(new Event('myr:cart-logout')) },
     }),
-    [user, authLoading, authError, users, serverInbox, api, refreshUsers, setUserRole, refreshInbox, submitInbox, setServerInboxStatus],
+    [user, authLoading, authError, users, serverInbox, api, refreshUsers, setUserRole, refreshInbox, submitInbox, setServerInboxStatus, otpSend, otpVerify, otpResend],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

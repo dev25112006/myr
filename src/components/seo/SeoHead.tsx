@@ -5,7 +5,7 @@ import { ORGANIZATION_LD, WEBSITE_LD, breadcrumbLd, pageLd } from '@/lib/seoLd'
 
 const SITE = typeof window !== 'undefined' ? window.location.origin : ''
 const CANONICAL_SITE = SITE && !/^https?:\/\/(localhost|127\.0\.0\.1)(:|$)/.test(SITE)
-  ? 'https://www.myradvancesolution.com'
+  ? SITE
   : SITE
 const DEFAULT_OG = `${CANONICAL_SITE}/assets/2025-01-website-front-hero-image.png`
 
@@ -67,6 +67,23 @@ export function SeoHead() {
     upsertMeta('name', 'robots', robots)
     upsertMeta('name', 'theme-color', '#f1f3f9')
     upsertLink('canonical', canonical)
+
+    /* Hreflang for multi-region (India + US) */
+    ;(() => {
+      let el = document.head.querySelector<HTMLLinkElement>('link[rel="alternate"][hreflang="en-IN"]')
+      if (!el) { el = document.createElement('link'); el.rel = 'alternate'; el.hreflang = 'en-IN'; document.head.appendChild(el) }
+      el.href = canonical
+    })()
+    ;(() => {
+      let el = document.head.querySelector<HTMLLinkElement>('link[rel="alternate"][hreflang="en-US"]')
+      if (!el) { el = document.createElement('link'); el.rel = 'alternate'; el.hreflang = 'en-US'; document.head.appendChild(el) }
+      el.href = canonical.replace('www.myradvancesolution.com', 'us.myradvancesolution.com')
+    })()
+    ;(() => {
+      let el = document.head.querySelector<HTMLLinkElement>('link[rel="alternate"][hreflang="x-default"]')
+      if (!el) { el = document.createElement('link'); el.rel = 'alternate'; el.hreflang = 'x-default'; document.head.appendChild(el) }
+      el.href = canonical
+    })()
 
     /* Open Graph */
     upsertMeta('property', 'og:type', isHome ? 'website' : 'article')

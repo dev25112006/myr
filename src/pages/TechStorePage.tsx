@@ -365,7 +365,7 @@ export function TechStorePage() {
               className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-card transition hover:border-flame-400/50 hover:shadow-xl"
             >
               <div className="relative h-28 overflow-hidden bg-paper">
-                <img src={b.image} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                <img src={b.image} alt={b.title} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                 {b.badge && (
                   <span className="absolute left-3 top-3 rounded-full bg-flame-500 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow">
                     {b.badge}
