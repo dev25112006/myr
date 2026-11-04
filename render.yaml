@@ -17,9 +17,9 @@ services:
       - key: TOKEN_PEPPER
         generateValue: true
       - key: ADMIN_EMAIL
-        sync: false
+        value: "admin.demo@example.com"
       - key: ADMIN_PASSWORD
-        sync: false
+        value: "MyrAdminDemo#2026"
       - key: VITE_TURNSTILE_SITE_KEY
         value: 0x4AAAAAAFzMayG1z7fkefc0
       - key: TURNSTILE_SECRET_KEY
