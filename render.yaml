@@ -21,7 +21,7 @@ services:
       - key: ADMIN_PASSWORD
         sync: false
       - key: VITE_TURNSTILE_SITE_KEY
-        sync: false
+        value: 0x4AAAAAAFzMayG1z7fkefc0
       - key: TURNSTILE_SECRET_KEY
         sync: false
       - key: AUTH_TURNSTILE_REQUIRED
