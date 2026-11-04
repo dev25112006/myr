@@ -25,9 +25,9 @@ services:
       - key: TURNSTILE_SECRET_KEY
         sync: false
       - key: AUTH_TURNSTILE_REQUIRED
-        value: "false"
+        value: "true"
       - key: VITE_AUTH_TURNSTILE_REQUIRED
-        value: "false"
+        value: "true"
       - key: PAYU_MERCHANT_KEY
         sync: false
       - key: PAYU_MERCHANT_SALT
