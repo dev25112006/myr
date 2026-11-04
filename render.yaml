@@ -13,7 +13,7 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: EMAIL_VERIFICATION_REQUIRED
-        value: "true"
+        value: "false"
       - key: RESEND_API_KEY
         value: "re_GS7Jpn2y_h7Ro3jwKvGQLGYpKMVkxhzdC"
       - key: EMAIL_FROM
