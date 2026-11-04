@@ -13,7 +13,11 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: EMAIL_VERIFICATION_REQUIRED
-        value: "false"
+        value: "true"
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
       - key: TOKEN_PEPPER
         generateValue: true
       - key: ADMIN_EMAIL
