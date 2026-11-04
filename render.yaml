@@ -15,7 +15,7 @@ services:
       - key: EMAIL_VERIFICATION_REQUIRED
         value: "true"
       - key: RESEND_API_KEY
-        value: ""
+        value: "placeholder-key"
       - key: EMAIL_FROM
         value: "akashsri5443@gmail.com"
       - key: TOKEN_PEPPER
