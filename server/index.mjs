@@ -1069,7 +1069,11 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       if (!emailOk(email) || !passwordOk(input.password)) return json(res, 400, { error: 'Use a valid email and a password with at least 12 characters.' })
       if (db.users.some((item) => item.email === email)) return json(res, 409, { error: 'An account with this email already exists.' })
       // Require OTP verification when email verification is enforced
-      const requireOtp = process.env.EMAIL_VERIFICATION_REQUIRED === 'true'
+      // But only if the email service is actually configured; otherwise skip so
+      // registration can succeed in deployments without SMTP/Resend set up.
+      const emailServiceConfigured = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS
+        || (!!process.env.RESEND_API_KEY && process.env.EMAIL_FROM))
+      const requireOtp = process.env.EMAIL_VERIFICATION_REQUIRED === 'true' && emailServiceConfigured
       if (requireOtp && !otpVerifiedRecently(email)) return json(res, 403, { error: 'Email OTP verification is required before creating an account. Please verify your email first.' })
       const credentials = await hashPassword(input.password)
       const created = { id: randomBytes(16).toString('hex'), email, role: 'customer', emailVerified: true, ...credentials, createdAt: new Date().toISOString() }
