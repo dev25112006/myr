@@ -93,6 +93,9 @@ export async function sendEmail(to, subject, html, { env = process.env, text } =
   const smtpPort = Number(env.SMTP_PORT || 587)
   const smtpFrom = env.SMTP_FROM || env.EMAIL_FROM || smtpUser
 
+  // Delivery must never reject: every caller has already committed its write, and
+  // an email transport failure surfacing as an exception turns a successful
+  // order/registration/contact into a 500 for the user.
   try {
     if (smtpHost && smtpUser && smtpPass) {
       const transporter = nodemailer.createTransport({
@@ -100,6 +103,9 @@ export async function sendEmail(to, subject, html, { env = process.env, text } =
         port: Number.isFinite(smtpPort) ? smtpPort : 587,
         secure: String(env.SMTP_SECURE || '').toLowerCase() === 'true' || Number(env.SMTP_PORT || 587) === 465,
         auth: { user: smtpUser, pass: smtpPass },
+        connectionTimeout: 10_000,
+        greetingTimeout: 10_000,
+        socketTimeout: 20_000,
       })
       await transporter.sendMail({ from: smtpFrom || smtpUser, to: uniqueRecipients, subject, html, text: text || html?.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() })
       return true
@@ -109,14 +115,20 @@ export async function sendEmail(to, subject, html, { env = process.env, text } =
   }
 
   if (!env.RESEND_API_KEY || !env.EMAIL_FROM) return false
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ from: env.EMAIL_FROM, to: uniqueRecipients, subject, html }),
-  })
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ from: env.EMAIL_FROM, to: uniqueRecipients, subject, html }),
+      signal: AbortSignal.timeout(15_000),
+    })
 
-  if (!response.ok) {
-    console.error('Email provider request failed:', response.status)
+    if (!response.ok) {
+      console.error('Email provider request failed:', response.status)
+      return false
+    }
+  } catch (error) {
+    console.error('Resend delivery failed:', error)
     return false
   }
 

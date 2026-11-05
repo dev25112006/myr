@@ -8,7 +8,7 @@ import { DatabaseSync } from 'node:sqlite'
 import { MongoClient } from 'mongodb'
 import pg from 'pg'
 import { normalizeNotificationSettings, resolveRecipients, sendEmail as sendTransactionalEmail } from './email-notify.mjs'
-import { checkPayURefundStatus, createPayUCheckout, initiatePayURefund, payuConfigFromEnv, payuConfigured, verifyPayUCallback, verifyPayUPayment } from './payu-commerce.mjs'
+import { checkPayURefundStatus, createPayUCheckout, initiatePayURefund, payuConfigFromEnv, payuConfigured, verifyPayUCallbackDetail, verifyPayUPayment } from './payu-commerce.mjs'
 
 const scrypt = promisify(scryptCallback)
 const port = Number(process.env.PORT || 3001)
@@ -48,7 +48,20 @@ function configuredOrigin(value) {
   return `http://localhost:${port}`
 }
 
+/**
+ * Auth records accumulate forever: every login appends a session and every
+ * verification/reset appends a token, and only individual flows ever removed
+ * their own. Trim the expired ones as part of each write so the store stays
+ * bounded without a separate sweeper.
+ */
+function pruneExpiredAuthRecords() {
+  const now = Date.now()
+  if (Array.isArray(db.sessions)) db.sessions = db.sessions.filter((item) => item && item.expiresAt > now)
+  if (Array.isArray(db.emailTokens)) db.emailTokens = db.emailTokens.filter((item) => item && item.expiresAt > now)
+}
+
 async function persist() {
+  pruneExpiredAuthRecords()
   if (mongoCollection) {
     await mongoCollection.updateOne(
       { _id: 'primary' },
@@ -90,27 +103,51 @@ async function issueSaasEmailToken(user) {
   await sendTransactionalEmail(user.email, 'Verify your MYR SaaS email', `<p>Use the link below to verify your SaaS email:</p><p><a href="${origin}/api/saas/verify-email?token=${token}">Continue</a></p><p>This link expires in 24 hours.</p>`)
 }
 
+/**
+ * Resolves the recipients for an event and starts delivery without blocking the
+ * caller. A slow or broken mail server must not stall — or, if it threw, fail —
+ * a request whose database write already succeeded, so the delivery promise is
+ * detached and only logged.
+ */
 function triggerNotification({ user, event = 'default', subject, html, text, includeUser = true, roles = [], explicitEmails = [] }) {
-  const recipients = resolveRecipients({
-    users: db.users,
-    settings: db.settings?.emailNotifications || normalizeNotificationSettings({}),
-    event,
-    user,
-    includeUser,
-    roles,
-    explicitEmails,
-  })
-  if (!recipients.length) return false
-  return sendTransactionalEmail(recipients, subject, html, { text })
+  try {
+    const recipients = resolveRecipients({
+      users: db.users,
+      settings: db.settings?.emailNotifications || normalizeNotificationSettings({}),
+      event,
+      user,
+      includeUser,
+      roles,
+      explicitEmails,
+    })
+    if (!recipients.length) return Promise.resolve(false)
+    void Promise.resolve(sendTransactionalEmail(recipients, subject, html, { text })).catch((error) => {
+      console.error('[notify] delivery failed', { event, subject, message: error?.message || error })
+      return false
+    })
+    return Promise.resolve(true)
+  } catch (error) {
+    console.error('[notify] failed', { event, subject, message: error?.message || error })
+    return Promise.resolve(false)
+  }
 }
 function publicUser(user) { return { id: user.id, email: user.email, role: user.role, emailVerified: user.emailVerified !== false, createdAt: user.createdAt } }
 function json(res, status, data, headers = {}) {
   res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', ...headers })
   res.end(JSON.stringify(data))
 }
-async function body(req) {
-  let raw = ''
-  for await (const chunk of req) { raw += chunk; if (raw.length > 32_000) throw Object.assign(new Error('Request too large'), { status: 413 }) }
+async function body(req, maxBytes = 128_000) {
+  // Concatenate as Buffers: appending string chunks directly splits multi-byte
+  // UTF-8 characters that straddle a chunk boundary and corrupt the JSON.
+  const chunks = []
+  let size = 0
+  for await (const chunk of req) {
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk))
+    size += buffer.length
+    if (size > maxBytes) throw Object.assign(new Error('Request too large'), { status: 413 })
+    chunks.push(buffer)
+  }
+  const raw = Buffer.concat(chunks).toString('utf8')
   try { return raw ? JSON.parse(raw) : {} } catch { throw Object.assign(new Error('Invalid JSON'), { status: 400 }) }
 }
 async function rawBody(req) {
@@ -149,6 +186,15 @@ function csrfCheck(req) {
   } catch { return false }
 }
 function emailOk(email) { return typeof email === 'string' && email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) }
+/** True when either configured provider (SMTP or Resend) can actually send mail. */
+function emailProviderConfigured() {
+  const smtpOk = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS)
+  const resendOk = Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM)
+  return smtpOk || resendOk
+}
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char])
+}
 async function verifyHumanToken(token) {
   if (!process.env.TURNSTILE_SECRET_KEY) return { configured: false, verified: false }
   if (typeof token !== 'string' || !token.trim()) return { configured: true, verified: false }
@@ -173,6 +219,143 @@ function payuStatusIsSuccess(value) {
   if (value === null || value === undefined) return false
   const text = String(value).trim().toLowerCase()
   return text === 'success' || text === '1' || text === 'true'
+}
+
+/**
+ * Every PayU transaction id issued for an order. A customer who presses "pay
+ * now" twice gets two valid transaction ids; if the first one is the one that
+ * actually captured money, verification and reconciliation must still recognise
+ * it instead of reporting a mismatch and leaving the payment unsettled.
+ */
+function orderTxnIds(order) {
+  const ids = new Set()
+  if (order?.payuTxnId) ids.add(String(order.payuTxnId))
+  for (const id of Array.isArray(order?.payuTxnIds) ? order.payuTxnIds : []) if (id) ids.add(String(id))
+  return [...ids]
+}
+
+function rememberPayUTxnId(order, txnid) {
+  const id = String(txnid || '')
+  if (!id) return
+  const ids = new Set(orderTxnIds(order))
+  ids.add(id)
+  order.payuTxnIds = [...ids]
+  order.payuTxnId = id
+}
+
+/**
+ * Server-side confirmation from PayU's Verify Payment API. The transaction id and
+ * amount are what bind the provider record to our order; the udf echo is only
+ * enforced when PayU actually returned it, because some transaction modes omit it.
+ */
+function providerConfirmsOrder(providerPayment, order) {
+  if (!providerPayment || !payuStatusIsSuccess(providerPayment.status)) return false
+  if (!orderTxnIds(order).includes(String(providerPayment.txnid || ''))) return false
+  const providerAmount = Math.round(Number(providerPayment.amt ?? providerPayment.amount) * 100)
+  if (!Number.isSafeInteger(providerAmount) || providerAmount !== order.total * 100) return false
+  if (!String(providerPayment.mihpayid || '')) return false
+  if (providerPayment.udf1 && providerPayment.udf1 !== order.id) return false
+  if (providerPayment.udf2 && providerPayment.udf2 !== order.userId) return false
+  return true
+}
+
+async function sendPaymentReceiptEmail(order) {
+  const customer = db.users.find((item) => item.id === order.userId)
+  if (!customer) return false
+  const accountUrl = new URL('/my-account/', configuredOrigin(process.env.APP_ORIGIN)).toString()
+  const itemsHtml = order.items.map((item) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">${item.name}</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:center">${item.qty}</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${item.price}</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${item.price * item.qty}</td></tr>`).join('')
+  const html = `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Payment confirmed — thank you for your purchase</h2><p>Hi ${customer.profile?.name || customer.email},</p><p>Your payment for order <strong>${order.id}</strong> has been verified by PayU.</p><table style="width:100%;border-collapse:collapse;margin:16px 0;"><thead><tr style="text-align:left;border-bottom:2px solid #e5e7eb;"><th style="padding:6px 10px">Item</th><th style="padding:6px 10px;text-align:center">Qty</th><th style="padding:6px 10px;text-align:right">Price</th><th style="padding:6px 10px;text-align:right">Total</th></tr></thead><tbody>${itemsHtml}</tbody></table><table style="width:100%;border-collapse:collapse;margin:16px 0;"><tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">Subtotal</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${order.subtotal}</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">Tax</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${order.tax}</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">Shipping</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${order.shipping}</td></tr><tr><td style="padding:8px 10px;border-top:2px solid #166534;text-align:right"><strong>Total paid</strong></td><td style="padding:8px 10px;border-top:2px solid #166534;text-align:right"><strong>₹${order.total}</strong></td></tr></table><p>Transaction ID: <code>${order.payuTxnId}</code> · PayU payment ID: <code>${order.payuPaymentId}</code></p><p>You can view this order anytime in your <a href="${accountUrl}">account panel</a>.</p><p style="color:#6b7280;font-size:12px">This is an automated receipt from MYR. Please keep it for your records.</p></div>`
+  const text = `Your payment for order ${order.id} (₹${order.total}) has been confirmed by PayU. Items: ${order.items.map((i) => `${i.name} × ${i.qty}`).join(', ')}. Transaction ID: ${order.payuTxnId}.`
+  // The receipt goes to the customer alone; admins get their own notification so
+  // neither party sees the other's address in the To: header. Delivery is
+  // detached so a slow mail server cannot hold the payment redirect open.
+  void Promise.resolve(sendTransactionalEmail(customer.email, `Receipt — Payment confirmed for order ${order.id}`, html, { text })).then((sent) => {
+    if (!sent) console.error('[payu] receipt email was not delivered', { orderId: order.id, to: customer.email })
+    return sent
+  }).catch((error) => { console.error('[payu] receipt delivery failed', { orderId: order.id, message: error?.message }); return false })
+  void triggerNotification({ user: null, includeUser: false, roles: ['admin'], event: 'payment', subject: `Payment received — order ${order.id} (₹${order.total})`, html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Payment received</h2><p>Order <strong>${order.id}</strong> from ${customer.email} has been confirmed by PayU.</p><ul>${order.items.map((item) => `<li>${item.name} × ${item.qty} — ₹${item.price * item.qty}</li>`).join('')}</ul><p><strong>Total: ₹${order.total}</strong> · PayU payment ID: ${order.payuPaymentId}</p><p>Update it from the admin panel.</p></div>`, text: `Payment received for order ${order.id} from ${customer.email}. Total ₹${order.total}. PayU payment ID ${order.payuPaymentId}.` })
+  return true
+}
+
+/** Marks an order paid exactly once and fans out the receipt + admin notification. */
+async function settlePaidOrder(order, providerPayment, source) {
+  if (order.paymentStatus === 'paid') return false
+  order.paymentStatus = 'paid'
+  order.status = 'Paid'
+  order.payuPaymentId = String(providerPayment.mihpayid)
+  order.updatedAt = new Date().toISOString()
+  order.lastPaymentCheck = { at: order.updatedAt, result: 'paid', source }
+  // A paid SaaS checkout unlocks the workspace it was bought for.
+  if (order.organizationId) {
+    const organization = (db.organizations || []).find((item) => item.id === order.organizationId)
+    if (organization && organization.status !== 'active') {
+      organization.status = 'active'
+      organization.activatedAt = order.updatedAt
+    }
+  }
+  await persist()
+  try { await sendPaymentReceiptEmail(order) } catch (error) { console.error('[payu] receipt delivery failed', { orderId: order.id, message: error?.message }) }
+  console.log('[payu] order settled', { orderId: order.id, txnid: order.payuTxnId, payuPaymentId: order.payuPaymentId, source })
+  return true
+}
+
+/**
+ * A browser return callback can be lost (closed tab, dropped network, provider
+ * hiccup) even though PayU already captured the money. Re-check a few awaiting
+ * orders against Verify Payment so the payment still settles, the receipt goes
+ * out and both panels update without the customer having to do anything.
+ */
+const paymentReconcileIntervalMs = 2 * 60_000
+async function reconcileAwaitingPayments(limit = 5) {
+  if (!payuConfigured(payuConfig)) return 0
+  const now = Date.now()
+  // Phase 1 — pick the candidates from a locked snapshot. Mutating `db` outside
+  // the mongo/PG snapshot queue (as this job used to) races concurrent requests
+  // and gets clobbered by the next read, so every access goes through
+  // `exclusive()`. No network call happens while the lock is held.
+  const candidates = await exclusive(() => db.orders.filter((order) => {
+    if (order.paymentStatus === 'paid') return false
+    if (!orderTxnIds(order).length) return false
+    if (!['Awaiting payment', 'Pending payment'].includes(order.status)) return false
+    if (!order.lastPaymentCheck) return true
+    const checkedAt = Date.parse(order.lastPaymentCheck.at)
+    return Number.isFinite(checkedAt) && now - checkedAt > paymentReconcileIntervalMs
+  }).slice(0, limit).map((order) => ({ id: order.id, txnids: orderTxnIds(order) })))
+  if (!candidates.length) return 0
+
+  let settled = 0
+  for (const candidate of candidates) {
+    // A retried checkout can have several ids; check them until one is confirmed.
+    let providerPayment = null
+    let failure = null
+    for (const txnid of candidate.txnids) {
+      try {
+        const result = await verifyPayUPayment(payuConfig, txnid)
+        if (result) { providerPayment = result; break }
+      } catch (error) {
+        failure = error
+        console.error('[payu] reconciliation unavailable', { orderId: candidate.id, txnid, message: error?.message })
+        break
+      }
+    }
+    // Phase 2 — re-read the order under a fresh lock and only then write, so the
+    // result is applied to current state rather than a detached copy.
+    const result = await exclusive(async () => {
+      const order = db.orders.find((item) => item.id === candidate.id)
+      if (!order || order.paymentStatus === 'paid') return false
+      if (!failure && providerConfirmsOrder(providerPayment, order)) {
+        return settlePaidOrder(order, providerPayment, 'background reconciliation')
+      }
+      order.lastPaymentCheck = {
+        at: new Date().toISOString(),
+        result: failure ? 'unavailable' : `provider:${String(providerPayment?.status || 'unknown').toLowerCase()}`,
+      }
+      await persist()
+      return false
+    })
+    if (result) settled += 1
+  }
+  return settled
 }
 
 /* --------------------------------- OTP verification --------------------------------- */
@@ -201,7 +384,9 @@ function setOtp(email, code, purpose) {
     purpose: purpose || 'register',
     expiresAt: Date.now() + OTP_TTL_MS,
     attempts: 0,
-    resendAt: 0,
+    // A fresh send is not subject to the resend cooldown; only subsequent
+    // resend attempts are, so `resendAt` must start in the future.
+    resendAt: Date.now() + OTP_RESEND_COOLDOWN_MS,
   })
   // Cleanup expired entries periodically
   if (otpStore.size > 10000) {
@@ -223,22 +408,48 @@ function clearOtp(email) {
   otpStore.delete(normalizeOtpEmail(email))
 }
 
+/**
+ * Server-side record that an address actually passed OTP verification.
+ * The register endpoint used to trust a client-supplied `otpVerified: true`
+ * (the UI hard-codes it), which made the whole check meaningless.
+ */
+const otpVerifiedRegistrations = new Map() // email -> expiry epoch ms
+const OTP_VERIFIED_TTL_MS = 15 * 60 * 1000
+
+function markOtpVerified(email) {
+  const now = Date.now()
+  for (const [key, expiresAt] of otpVerifiedRegistrations) if (expiresAt <= now) otpVerifiedRegistrations.delete(key)
+  if (otpVerifiedRegistrations.size > 10_000) otpVerifiedRegistrations.clear()
+  otpVerifiedRegistrations.set(normalizeOtpEmail(email), now + OTP_VERIFIED_TTL_MS)
+}
+
+function otpVerifiedRecently(email) {
+  const key = normalizeOtpEmail(email)
+  const expiresAt = otpVerifiedRegistrations.get(key)
+  if (!expiresAt) return false
+  if (expiresAt <= Date.now()) { otpVerifiedRegistrations.delete(key); return false }
+  return true
+}
+
 async function sendOtpEmail(email, code, purpose = 'register') {
   const purposeLabel = purpose === 'register' ? 'Account Verification' : purpose === 'login' ? 'Login Verification' : 'Password Reset'
-  const origin = configuredOrigin(process.env.APP_ORIGIN)
-  return await sendTransactionalEmail(email, `MYR — ${purposeLabel} OTP`, `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Your MYR verification code</h2><p>Hi ${email},</p><p>Your one-time password (OTP) for <strong>${purposeLabel}</strong> is:</p><div style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#166534;background:#f0fdf4;border:2px dashed #166534;padding:16px;text-align:center;margin:20px 0;">${code}</div><p>This code expires in 10 minutes. Do not share it with anyone.</p><p>If you didn't request this, please ignore this email.</p><p style="color:#6b7280;font-size:12px">This is an automated email from MYR Advance Solution.</p></div>`, { text: `Your MYR ${purposeLabel} OTP is ${code}. It expires in 10 minutes.` })
+  // The address is user-supplied and lands inside HTML, so it is escaped before
+  // interpolation (an attacker requesting an OTP for `<img src=x onerror=...>`
+  // would otherwise inject markup into the message body).
+  return await sendTransactionalEmail(email, `MYR — ${purposeLabel} OTP`, `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Your MYR verification code</h2><p>Hi ${escapeHtml(email)},</p><p>Your one-time password (OTP) for <strong>${purposeLabel}</strong> is:</p><div style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#166534;background:#f0fdf4;border:2px dashed #166534;padding:16px;text-align:center;margin:20px 0;">${code}</div><p>This code expires in 10 minutes. Do not share it with anyone.</p><p>If you didn't request this, please ignore this email.</p><p style="color:#6b7280;font-size:12px">This is an automated email from MYR Advance Solution.</p></div>`, { text: `Your MYR ${purposeLabel} OTP is ${code}. It expires in 10 minutes.` })
 }
 
 /* --------------------------------- end OTP --------------------------------- */
 /* --------------------------------- production middleware --------------------------------- */
 
+// Request logging + x-request-id. This hooks `res.on('finish')` rather than a
+// `res.send` method, which Node's http.ServerResponse never has (so the old
+// version silently logged nothing).
 const requestLog = (req, res, next) => {
-  const requestId = req.headers['x-request-id'] || randomBytes(8).toString('hex')
+  const requestId = String(req.headers['x-request-id'] || '').slice(0, 64) || randomBytes(8).toString('hex')
   res.setHeader('x-request-id', requestId)
   const start = Date.now()
-  const originalSend = res.send
-  res.send = function(body) {
-    const duration = Date.now() - start
+  res.on('finish', () => {
     const level = res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info'
     console.log(JSON.stringify({
       level,
@@ -246,20 +457,36 @@ const requestLog = (req, res, next) => {
       method: req.method,
       path: req.url,
       status: res.statusCode,
-      durationMs: duration,
-      ip: req.socket.remoteAddress,
+      durationMs: Date.now() - start,
+      ip: clientIp(req),
       userAgent: req.headers['user-agent'] || '',
     }))
-    return originalSend.call(this, body)
-  }
+  })
   next()
+}
+
+// Behind Render (or any reverse proxy) every request arrives from the proxy, so
+// keying rate limits on the socket address collapses every user into one bucket
+// and lets a single visitor lock the site down. Prefer the forwarded client.
+function clientIp(req) {
+  const forwarded = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+  if (forwarded && /^\d{1,3}(\.\d{1,3}){3}$/.test(forwarded)) return forwarded
+  if (forwarded && forwarded.includes(':')) return forwarded
+  return req.socket.remoteAddress || 'unknown'
 }
 
 function endpointRateLimit(config) {
   const buckets = new Map()
+  let lastPrune = 0
   return (req, res) => {
-    const key = (req.socket.remoteAddress || 'unknown') + ':' + (req.url || '')
+    const key = clientIp(req) + ':' + (req.url || '')
     const now = Date.now()
+    // Buckets are per (IP, path); without pruning this Map grows forever and
+    // becomes a slow memory leak under scanner traffic.
+    if (buckets.size > 20_000 && now - lastPrune > 60_000) {
+      lastPrune = now
+      for (const [bucketKey, bucket] of buckets) if (now > bucket.reset) buckets.delete(bucketKey)
+    }
     const current = buckets.get(key) || { count: 0, reset: now + config.windowMs }
     if (now > current.reset) { current.count = 0; current.reset = now + config.windowMs }
     current.count += 1
@@ -279,25 +506,11 @@ const checkoutLimit = endpointRateLimit({ windowMs: 60_000, max: 30 }) // 30 che
 
 /* --------------------------------- end production middleware --------------------------------- */
 
-function rateLimit() {
-  const buckets = new Map()
-  return (req, res) => {
-    const key = req.socket.remoteAddress || 'unknown'
-    const now = Date.now()
-    const current = buckets.get(key) || { count: 0, reset: now + 60_000 }
-    if (now > current.reset) { current.count = 0; current.reset = now + 60_000 }
-    current.count += 1
-    buckets.set(key, current)
-    if (current.count > 120) { json(res, 429, { error: 'Too many requests' }); return false }
-    return true
-  }
-}
-const limit = rateLimit()
 const loginAttempts = new Map()
 const registrationAttempts = new Map()
 
 function allowRegistration(req) {
-  const key = req.socket.remoteAddress || 'unknown'
+  const key = clientIp(req)
   const now = Date.now()
   const current = registrationAttempts.get(key) || { count: 0, reset: now + 60 * 60_000 }
   if (now >= current.reset) { current.count = 0; current.reset = now + 60 * 60_000 }
@@ -383,8 +596,15 @@ async function init() {
   await persist()
 }
 
-async function withDatabaseSnapshot(req, res) {
-  if (mongoCollection && req.url?.startsWith('/api/')) {
+/**
+ * Runs `work` against a freshly-read database snapshot while holding the same
+ * cross-instance lock a request handler holds, then persists if `work` wrote.
+ * Background jobs (payment reconciliation) use this instead of touching `db`
+ * directly, so they can neither read stale state nor interleave with a request
+ * that is mid-write. No network I/O should happen inside `work`.
+ */
+async function exclusive(work) {
+  if (mongoCollection) {
     const previous = mongoQueue
     let release
     mongoQueue = new Promise((resolve) => { release = resolve })
@@ -392,32 +612,112 @@ async function withDatabaseSnapshot(req, res) {
     try {
       const current = await mongoCollection.findOne({ _id: 'primary' })
       if (current?.state) db = { ...db, ...current.state }
-      await handle(req, res)
-    } catch (error) {
-      if (!res.headersSent) json(res, 500, { error: 'Internal server error' })
-      else res.destroy(error)
-      console.error(error)
+      return await work()
     } finally {
       release()
     }
-    return
   }
-  if (!pgPool || !req.url?.startsWith('/api/')) return handle(req, res)
-  const client = await pgPool.connect()
+  if (pgPool) {
+    const client = await pgPool.connect()
+    try {
+      await client.query('BEGIN')
+      await client.query('SELECT pg_advisory_xact_lock(742819340)')
+      const result = await client.query('SELECT state FROM myr_app_state WHERE id = 1 FOR UPDATE')
+      if (result.rows[0]?.state) db = { ...db, ...result.rows[0].state }
+      requestClient = client
+      const value = await work()
+      await client.query('COMMIT')
+      return value
+    } catch (error) {
+      try { await client.query('ROLLBACK') } catch {}
+      throw error
+    } finally {
+      requestClient = undefined
+      client.release()
+    }
+  }
+  return await work()
+}
+
+async function withDatabaseSnapshot(req, res) {
+  // Only API traffic goes through the snapshot queue; static requests share the
+  // in-memory state and need no lock.
+  if (!req.url?.startsWith('/api/')) return handle(req, res)
   try {
-    await client.query('BEGIN')
-    await client.query('SELECT pg_advisory_xact_lock(742819340)')
-    const result = await client.query('SELECT state FROM myr_app_state WHERE id = 1 FOR UPDATE')
-    if (result.rows[0]?.state) db = { ...db, ...result.rows[0].state }
-    requestClient = client
-    await handle(req, res)
-    await client.query('COMMIT')
+    await exclusive(() => handle(req, res))
   } catch (error) {
-    try { await client.query('ROLLBACK') } catch {}
     if (!res.headersSent) json(res, 500, { error: 'Internal server error' })
     else res.destroy(error)
     console.error(error)
-  } finally { requestClient = undefined; client.release() }
+  }
+}
+
+/* ------------------------- SaaS catalog projection ------------------------- */
+/**
+ * This deployment's only product data is the published store catalog, so the
+ * SaaS surfaces project it into the documented `{ products: [...] }` product/plan
+ * shape instead of returning a bare array (which every client already treated as
+ * an object, so the endpoint rendered nothing).
+ *
+ * Only products whose own name states a billing term become purchasable plans;
+ * everything else is exposed with `interval: "custom"` and is therefore offered
+ * as "contact sales" rather than being silently sold as a subscription.
+ */
+function saasPlanInterval(name) {
+  if (/(monthly|per\s*month|\bmonth\b)/i.test(name)) return 'month'
+  if (/(annual|yearly|per\s*year|\byear\b)/i.test(name)) return 'year'
+  return 'custom'
+}
+
+function saasSlug(value) {
+  return String(value || '').replace(/^\/+|\/+$/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase()
+}
+
+function saasProducts() {
+  const products = new Map()
+  for (const item of db.catalog) {
+    if (!item || typeof item.name !== 'string' || typeof item.slug !== 'string') continue
+    const slug = saasSlug(item.slug)
+    if (!slug) continue
+    let product = products.get(slug)
+    if (!product) {
+      product = { id: slug, slug, name: item.name, summary: `${item.category || 'Software'} from MYR`, category: item.category || 'General', features: [], hasLaunchTarget: false, plans: [] }
+      products.set(slug, product)
+    } else if (item.name.length < product.name.length) {
+      // The shortest label is the umbrella name; longer ones carry plan suffixes.
+      product.name = item.name
+    }
+    product.plans.push({
+      id: String(item.id),
+      slug: `${slug}-${item.id}`,
+      name: item.name,
+      interval: saasPlanInterval(item.name),
+      currency: 'INR',
+      amountMinor: Number.isSafeInteger(item.price) ? item.price * 100 : null,
+      price: item.price,
+      trialDays: 0,
+      limits: {},
+      features: [],
+      regionCodes: [],
+      enterprise: false,
+      enabled: true,
+    })
+  }
+  return [...products.values()]
+}
+
+function saasOrganizationView(org) {
+  return {
+    id: org.id,
+    name: org.name,
+    countryCode: org.countryCode,
+    billingCountryCode: org.billingCountryCode || org.countryCode,
+    status: org.status,
+    // There is no separate membership table in this deployment; ownership is the
+    // only membership, and it is always the caller's own organization here.
+    role: 'owner',
+    createdAt: org.createdAt,
+  }
 }
 
 async function handle(req, res) {
@@ -471,6 +771,9 @@ async function handle(req, res) {
       return json(res, checks.ok ? 200 : 503, checks)
     }
     if (req.method === 'POST' && pathName === '/api/test-email') {
+      // Sending mail to an arbitrary address from an unauthenticated caller is an
+      // open relay; only an admin may trigger a test delivery.
+      if (!requireRole('admin')) return
       const input = await body(req)
       const to = String(input.to || process.env.ADMIN_EMAIL || '').trim()
       if (!to || !emailOk(to)) return json(res, 400, { error: 'Provide a valid recipient email in body { "to": "..." }' })
@@ -483,15 +786,13 @@ async function handle(req, res) {
     if (req.method === 'GET' && pathName === '/api/auth/session') return json(res, 200, { user: user ? publicUser(user) : null })
     if (req.method === 'GET' && pathName === '/api/catalog') return json(res, 200, { products: db.catalog })
     if (req.method === 'GET' && pathName === '/api/saas/products') {
-      const products = db.catalog.filter((item) => item && typeof item.name === 'string' && typeof item.slug === 'string').map((item) => ({
-        id: item.id,
-        slug: item.slug,
-        name: item.name,
-        category: item.category || 'General',
-        price: item.price,
-        type: item.type || 'simple',
-      }))
-      return json(res, 200, products)
+      return json(res, 200, { products: saasProducts() })
+    }
+
+    if (req.method === 'GET' && pathName === '/api/saas/organizations') {
+      if (!user) return json(res, 401, { error: 'Sign in required.' })
+      const organizations = (db.organizations || []).filter((org) => org.ownerId === user.id).map(saasOrganizationView)
+      return json(res, 200, { organizations })
     }
 
     if (req.method === 'POST' && pathName === '/api/saas/organizations') {
@@ -499,7 +800,7 @@ async function handle(req, res) {
       const input = await body(req)
       const name = String(input.name || '').trim()
       const countryCode = String(input.countryCode || '').trim().toUpperCase()
-      if (!name || !countryCode) return json(res, 400, { error: 'Name and country code are required.' })
+      if (name.length < 2 || name.length > 180 || !/^[A-Z]{2}$/.test(countryCode)) return json(res, 400, { error: 'Provide a name (2–180 characters) and a two-letter country code.' })
       db.organizations = db.organizations || []
       const org = {
         id: randomBytes(12).toString('hex'),
@@ -511,7 +812,7 @@ async function handle(req, res) {
       }
       db.organizations.unshift(org)
       await persist()
-      return json(res, 201, { ok: true, organization: { id: org.id, name: org.name, status: org.status } })
+      return json(res, 201, { ok: true, organization: saasOrganizationView(org) })
     }
     const productReviewsMatch = pathName.match(/^\/api\/products\/(\d+)\/reviews$/)
     if (productReviewsMatch && req.method === 'GET') {
@@ -583,7 +884,7 @@ async function handle(req, res) {
     if (req.method === 'POST' && pathName === '/api/auth/resend-verification') {
       if (!user) return json(res, 401, { error: 'Sign in required.' })
       if (user.emailVerified !== false) return json(res, 200, { ok: true, message: 'This email is already verified.' })
-      if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) return json(res, 503, { error: 'Email delivery is not configured yet.' })
+      if (!emailProviderConfigured()) return json(res, 503, { error: 'Email delivery is not configured yet.' })
       await issueEmailToken(user, 'verify')
       return json(res, 200, { ok: true, message: 'Verification email sent.' })
     }
@@ -621,56 +922,50 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       if (organization.status !== 'pending' && organization.status !== 'active') return json(res, 400, { error: 'Organization is not in a valid state for checkout.' })
       const plan = (db.catalog || []).find((item) => String(item.id) === planId)
       if (!plan) return json(res, 404, { error: 'Plan not found in catalog.' })
-      if (plan.currency !== 'INR') return json(res, 400, { error: 'Only INR currency is supported.' })
-      if (plan.enterprise) return json(res, 400, { error: 'Enterprise plans are not supported for PayU checkout.' })
-      if (!['month', 'year'].includes(plan.interval)) return json(res, 400, { error: 'Only monthly or annual intervals are supported.' })
-      if (plan.trialDays && plan.trialDays > 0) return json(res, 400, { error: 'Plans with trials are not supported.' })
+      const interval = saasPlanInterval(plan.name)
+      if (!['month', 'year'].includes(interval)) return json(res, 400, { error: 'Only monthly or annual plans can be purchased online. Contact sales for the rest.' })
       if (db.settings.commerceVerified !== true && !testCheckoutEnabled) return json(res, 409, { error: 'Checkout is paused until an admin verifies the tax and shipping settings.' })
       const taxRateBps = db.settings.taxRateBps || 0
-      const shippingFlat = db.settings.shippingFlat || 0
       const subtotal = plan.price
       const tax = Math.round(subtotal * taxRateBps / 10000)
-      const total = subtotal + tax + shippingFlat
+      // Software delivery has no shipping charge, so the store's flat rate is not
+      // applied to a subscription order.
+      const total = subtotal + tax
+      if (!Number.isSafeInteger(total * 100) || total * 100 < 100) return json(res, 400, { error: 'The minimum online payment amount is ₹1.00.' })
       const orderId = 's-' + randomBytes(12).toString('hex')
       const order = {
         id: orderId,
         userId: user.id,
+        email: user.email,
         organizationId: organization.id,
-        planId: plan.id,
+        planId: String(plan.id),
         items: [{ id: plan.id, name: plan.name, price: subtotal, qty: 1, category: plan.category || 'General' }],
         subtotal,
         tax,
-        shipping: shippingFlat,
+        shipping: 0,
         total,
         currency: 'INR',
-        paymentStatus: 'pending',
+        paymentStatus: 'unpaid',
         status: 'Pending payment',
         payuTxnId: '',
         payuPaymentId: '',
+        date: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
+      if (!payuConfigured(payuConfig)) return json(res, 503, { error: 'Online payment is not configured. Contact sales to complete this order.' })
+      const payment = createPayUCheckout({ config: payuConfig, order, customer: { name: user.profile?.name, email: user.email, phone: user.profile?.phone }, origin: configuredOrigin(process.env.APP_ORIGIN), txnid: `MYR${Date.now()}${randomBytes(4).toString('hex')}` })
+      order.payuTxnId = payment.params.txnid
+      order.status = 'Awaiting payment'
       db.orders = db.orders || []
       db.orders.unshift(order)
       await persist()
-      const action = `${configuredOrigin(process.env.APP_ORIGIN)}/api/payments/payu/return`
-      const params = new URLSearchParams({
-        orgId: organization.id,
-        planId: plan.id,
-        orderId: orderId,
-        userId: user.id,
-        amount: String(total * 100),
-        tax: String(tax),
-        currency: 'INR',
-        udf1: orderId,
-        udf2: String(user.id),
-        returnUrl: `${action}?success=true`,
-        cancelUrl: `${action}?success=false`,
-      }).toString()
-      return json(res, 200, { order: { id: orderId, currency: 'INR', subtotalMinor: subtotal * 100, taxMinor: tax * 100, totalMinor: total * 100 }, payment: { action, params } })
+      // The client posts this form straight to PayU; posting it back at our own
+      // return URL (as this used to) meant PayU never received the payment.
+      return json(res, 201, { order: { id: orderId, currency: 'INR', subtotalMinor: subtotal * 100, taxMinor: tax * 100, totalMinor: total * 100 }, payment: { ...payment, testMode: payuConfig.environment === 'test' } })
     }
     if (req.method === 'POST' && pathName === '/api/auth/request-password-reset') {
-      if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) return json(res, 503, { error: 'Password reset email is not configured. Contact support for account recovery.' })
+      if (!emailProviderConfigured()) return json(res, 503, { error: 'Password reset email is not configured. Contact support for account recovery.' })
       const input = await body(req); const email = String(input.email || '').trim().toLowerCase(); const account = db.users.find((item) => item.email === email)
       if (account) await issueEmailToken(account, 'reset')
       return json(res, 200, { ok: true, message: 'If an account exists for that email, reset instructions have been sent.' })
@@ -681,39 +976,69 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       const record = (db.emailTokens || []).find((item) => item.purpose === 'reset' && item.hash === tokenHash(String(input.token || '')) && item.expiresAt > Date.now())
       if (!record) return json(res, 400, { error: 'Reset link is invalid or expired.' })
       const account = db.users.find((item) => item.id === record.userId); if (!account) return json(res, 404, { error: 'Account not found.' })
-      Object.assign(account, await hashPassword(input.password)); db.sessions = db.sessions.filter((item) => item.userId !== account.id); db.emailTokens = db.emailTokens.filter((item) => item.userId !== account.id && item.purpose !== 'reset'); await persist()
+      Object.assign(account, await hashPassword(input.password)); db.sessions = db.sessions.filter((item) => item.userId !== account.id); db.emailTokens = db.emailTokens.filter((item) => !(item.userId === account.id && item.purpose === 'reset')); await persist()
       return json(res, 200, { ok: true })
     }
-    if (req.method === 'POST' && pathName === '/api/payments/payu/return') {
+    if ((req.method === 'POST' || req.method === 'GET') && pathName === '/api/payments/payu/return') {
       if (!payuConfigured(payuConfig)) return json(res, 503, { error: 'PayU is not configured.' })
-      const input = await formBody(req)
-      let order = db.orders.find((item) => item.id === input.udf1)
-      if (!order) return json(res, 400, { error: 'Order not found.' })
-      // Update payuTxnId from callback so verification can succeed
-      order.payuTxnId = input.txnid
-      await persist()
-      if (!verifyPayUCallback(input, payuConfig, order)) return json(res, 400, { error: 'PayU payment response could not be verified.' })
-      const paid = String(input.status || '').toLowerCase() === 'success'
-      if (paid && order.paymentStatus !== 'paid') {
-        let providerPayment
-        try { providerPayment = await verifyPayUPayment(payuConfig, order.payuTxnId) } catch { return json(res, 502, { error: 'Unable to confirm payment status with PayU.' }) }
-        const providerAmount = Math.round(Number(providerPayment?.amt || providerPayment?.amount) * 100)
-        if (!payuStatusIsSuccess(providerPayment?.status) || providerPayment.txnid !== order.payuTxnId || providerAmount !== order.total * 100 || providerPayment.udf1 !== order.id || providerPayment.udf2 !== order.userId || !providerPayment.mihpayid) return json(res, 409, { error: 'PayU has not confirmed this payment for the expected order.' })
-        order.paymentStatus = 'paid'; order.status = 'Paid'; order.payuPaymentId = String(providerPayment.mihpayid); order.updatedAt = new Date().toISOString()
-        await persist()
-        const customer = db.users.find((item) => item.id === order.userId)
-        if (customer) {
-          const itemsHtml = order.items.map((item) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">${item.name}</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:center">${item.qty}</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${item.price}</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${item.price * item.qty}</td></tr>`).join('')
-          await triggerNotification({ user: { email: customer.email, role: customer.role }, event: 'payment', subject: `Payment confirmed — Order ${order.id}`, html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Payment confirmed — thank you for your purchase</h2><p>Hi ${customer.profile?.name || customer.email},</p><p>Your payment for order <strong>${order.id}</strong> has been verified by PayU.</p><table style="width:100%;border-collapse:collapse;margin:16px 0;"><thead><tr style="text-align:left;border-bottom:2px solid #e5e7eb;"><th style="padding:6px 10px">Item</th><th style="padding:6px 10px;text-align:center">Qty</th><th style="padding:6px 10px;text-align:right">Price</th><th style="padding:6px 10px;text-align:right">Total</th></tr></thead><tbody>${itemsHtml}</tbody></table><table style="width:100%;border-collapse:collapse;margin:16px 0;"><tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">Subtotal</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${order.subtotal}</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">Tax</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${order.tax}</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">Shipping</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:right">₹${order.shipping}</td></tr><tr><td style="padding:8px 10px;border-top:2px solid #166534;text-align:right"><strong>Total paid</strong></td><td style="padding:8px 10px;border-top:2px solid #166534;text-align:right"><strong>₹${order.total}</strong></td></tr></table><p>Transaction ID: <code>${order.payuTxnId}</code> · PayU payment ID: <code>${order.payuPaymentId}</code></p><p>You can view this order anytime in your <a href="${new URL('/my-account/', configuredOrigin(process.env.APP_ORIGIN)).toString()}">account panel</a>.</p><p style="color:#6b7280;font-size:12px">This is an automated receipt from MYR. Please keep it for your records.</p></div>`, text: `Your payment for order ${order.id} (₹${order.total}) has been confirmed by PayU. Items: ${order.items.map((i) => `${i.name} × ${i.qty}`).join(', ')}. Transaction ID: ${order.payuTxnId}.` })
-        }
-      } else if (paid && order.paymentStatus === 'paid') {
-        // Idempotent repeat callback: order already verified, just redirect to success
+      const input = req.method === 'GET' ? Object.fromEntries(url.searchParams) : await formBody(req)
+      const redirectToAccount = (state) => {
+        // A SaaS subscription lands back in the workspace it unlocks; a store
+        // purchase lands in the account panel that lists it.
+        const saasOrder = String(input.udf1 || '').startsWith('s-')
+        const destination = new URL(saasOrder ? '/workspace/' : '/my-account/', configuredOrigin(process.env.APP_ORIGIN))
+        destination.searchParams.set('payment', state)
+        destination.searchParams.set('orderId', String(input.udf1 || ''))
+        res.writeHead(303, { location: destination.toString(), 'cache-control': 'no-store' })
+        res.end()
       }
-      const destination = new URL('/my-account/', configuredOrigin(process.env.APP_ORIGIN))
-      destination.searchParams.set('payment', paid ? 'paid' : 'failed')
-      destination.searchParams.set('orderId', order.id)
-      res.writeHead(303, { location: destination.toString(), 'cache-control': 'no-store' })
-      return res.end()
+      const order = db.orders.find((item) => item.id === input.udf1)
+      if (!order) {
+        console.error('[payu:return] unknown order reference', { udf1: String(input.udf1 || '').slice(0, 64), txnid: String(input.txnid || '').slice(0, 64) })
+        return json(res, 400, { error: 'Order not found.' })
+      }
+      // The transaction id is only adopted from the callback once the response has
+      // been authenticated: verifying against the ids we generated is what stops a
+      // forged callback from rewriting the record before the check runs. Every id
+      // previously issued for this order is accepted, so a retried checkout whose
+      // first attempt is the one that captured money still verifies.
+      const knownTxnIds = orderTxnIds(order)
+      const callbackTxnId = String(input.txnid || '')
+      const expectedOrder = knownTxnIds.includes(callbackTxnId) ? { ...order, payuTxnId: callbackTxnId } : order
+      const callback = verifyPayUCallbackDetail(input, payuConfig, expectedOrder)
+      if (!callback.ok) {
+        console.error('[payu:return] rejected PayU response', { orderId: order.id, reason: callback.reason, providerStatus: String(input.status || ''), callbackAmount: String(input.amount || ''), callbackTxnId: callbackTxnId, expectedTxnIds: knownTxnIds, expectedAmount: order.total })
+        order.lastPaymentCheck = { at: new Date().toISOString(), result: `rejected:${callback.reason}` }
+        await persist()
+        if (['merchant-key-mismatch', 'txnid-mismatch', 'order-reference-mismatch', 'amount-mismatch'].includes(callback.reason)) return json(res, 400, { error: 'PayU payment response does not match this order.', reason: callback.reason })
+        return json(res, 400, { error: 'PayU payment response could not be verified.', reason: callback.reason })
+      }
+      rememberPayUTxnId(order, callbackTxnId)
+      const providerStatus = String(input.status || '').toLowerCase()
+      if (providerStatus !== 'success') {
+        order.lastPaymentCheck = { at: new Date().toISOString(), result: `provider:${providerStatus || 'unknown'}` }
+        order.updatedAt = new Date().toISOString()
+        await persist()
+        return redirectToAccount(providerStatus === 'pending' ? 'pending' : 'failed')
+      }
+      if (order.paymentStatus === 'paid') return redirectToAccount('paid')
+      let providerPayment
+      try {
+        providerPayment = await verifyPayUPayment(payuConfig, callbackTxnId)
+      } catch (error) {
+        console.error('[payu:return] Verify Payment unavailable', { orderId: order.id, txnid: callbackTxnId, message: error?.message })
+        order.lastPaymentCheck = { at: new Date().toISOString(), result: 'unavailable' }
+        await persist()
+        return redirectToAccount('pending')
+      }
+      if (!providerConfirmsOrder(providerPayment, order)) {
+        console.error('[payu:return] Verify Payment did not confirm the order', { orderId: order.id, txnid: callbackTxnId, providerStatus: providerPayment?.status, providerTxnId: providerPayment?.txnid, providerAmount: providerPayment?.amt ?? providerPayment?.amount })
+        order.lastPaymentCheck = { at: new Date().toISOString(), result: `provider-mismatch:${providerPayment?.status || 'unknown'}` }
+        await persist()
+        return redirectToAccount('failed')
+      }
+      await settlePaidOrder(order, providerPayment, 'PayU return callback')
+      return redirectToAccount('paid')
     }
     if (req.method === 'POST' && pathName === '/api/payments/payu/refund-callback') {
       const input = await formBody(req)
@@ -745,7 +1070,7 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       if (db.users.some((item) => item.email === email)) return json(res, 409, { error: 'An account with this email already exists.' })
       // Require OTP verification when email verification is enforced
       const requireOtp = process.env.EMAIL_VERIFICATION_REQUIRED === 'true'
-      if (requireOtp && input.otpVerified !== true) return json(res, 403, { error: 'Email OTP verification is required before creating an account. Please verify your email first.' })
+      if (requireOtp && !otpVerifiedRecently(email)) return json(res, 403, { error: 'Email OTP verification is required before creating an account. Please verify your email first.' })
       const credentials = await hashPassword(input.password)
       const created = { id: randomBytes(16).toString('hex'), email, role: 'customer', emailVerified: true, ...credentials, createdAt: new Date().toISOString() }
       db.users.push(created)
@@ -787,8 +1112,12 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       if (Date.now() > entry.expiresAt) { clearOtp(email); return json(res, 410, { error: 'Verification code has expired. Request a new one.' }) }
       if (entry.attempts >= OTP_MAX_ATTEMPTS) { clearOtp(email); return json(res, 429, { error: 'Too many verification attempts. Request a new code.' }) }
       incrementOtpAttempts(email)
-      if (entry.code !== code) return json(res, 400, { error: 'Incorrect verification code. Please try again.' })
+      if (entry.code !== code) {
+        if (entry.attempts >= OTP_MAX_ATTEMPTS) { clearOtp(email); return json(res, 429, { error: 'Too many verification attempts. Request a new code.' }) }
+        return json(res, 400, { error: 'Incorrect verification code. Please try again.' })
+      }
       clearOtp(email)
+      if (purpose === 'register') markOtpVerified(email)
       return json(res, 200, { ok: true, email, purpose, verified: true })
     }
     if (req.method === 'POST' && pathName === '/api/auth/otp/resend') {
@@ -815,7 +1144,7 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
         if (!humanCheck.verified) return json(res, 403, { error: 'Complete human verification before signing in.' })
       }
       const email = String(input.email || '').trim().toLowerCase()
-      const attemptKey = `${req.socket.remoteAddress}:${email}`
+      const attemptKey = `${clientIp(req)}:${email}`
       const attempts = loginAttempts.get(attemptKey) || { count: 0, reset: Date.now() + 15 * 60_000 }
       if (Date.now() > attempts.reset) { attempts.count = 0; attempts.reset = Date.now() + 15 * 60_000 }
       if (attempts.count >= 10) return json(res, 429, { error: 'Too many sign-in attempts. Try again in 15 minutes.' })
@@ -947,7 +1276,10 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       if (!['Pending payment', 'Awaiting payment'].includes(order.status) || order.paymentStatus === 'paid') return json(res, 409, { error: 'This order is not awaiting payment.' })
       if (!payuConfigured(payuConfig)) return json(res, 503, { error: 'Online payment is not configured. Contact support to complete this order.' })
       const payment = createPayUCheckout({ config: payuConfig, order, customer: { name: user.profile?.name, email: user.email, phone: user.profile?.phone }, origin: configuredOrigin(process.env.APP_ORIGIN), txnid: `MYR${Date.now()}${randomBytes(4).toString('hex')}` })
-      order.payuTxnId = payment.params.txnid; order.status = 'Awaiting payment'; await persist()
+      // Keep the previous transaction id: the customer may return from the first
+      // attempt having actually paid, and that payment must still be verifiable.
+      rememberPayUTxnId(order, payment.params.txnid)
+      order.status = 'Awaiting payment'; await persist()
       return json(res, 200, { orderId: order.id, payment: { ...payment, testMode: payuConfig.environment === 'test' } })
     }
     if (req.method === 'POST' && cancelOrderMatch) {
@@ -976,7 +1308,7 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       const input = await body(req); const message = String(input.message || '').trim()
       if (message.length < 2 || message.length > 12000) return json(res, 400, { error: 'Reply must contain 2 to 12,000 characters.' })
       entry.replies ||= []; entry.replies.push({ id: randomBytes(8).toString('hex'), author: 'customer', message, date: new Date().toISOString() }); entry.status = 'New'; await persist()
-      await triggerNotification({ user: { email: entry.email, role: 'customer' }, event: 'support', subject: `New update on your MYR request: ${entry.subject}`, html: `<p>Hi ${entry.name || entry.email},</p><p>We have a new update on your request: <strong>${entry.subject}</strong></p><p>${message}</p>`, text: `New update on your request: ${entry.subject}` })
+      void triggerNotification({ user: { email: entry.email, role: 'customer' }, event: 'support', subject: `New update on your MYR request: ${entry.subject}`, html: `<p>Hi ${escapeHtml(entry.name || entry.email)},</p><p>We have a new update on your request: <strong>${escapeHtml(entry.subject)}</strong></p><p>${escapeHtml(message)}</p>`, text: `New update on your request: ${entry.subject}` })
       const { ownerId, ...safeEntry } = entry; return json(res, 201, { entry: safeEntry })
     }
     if (req.method === 'GET' && pathName === '/api/admin/users') {
@@ -1029,8 +1361,13 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       if (['refund_pending', 'refunded'].includes(order.paymentStatus)) return json(res, 409, { error: 'Order status cannot be changed while a refund is pending or after it is complete.' })
       if (['In progress', 'Completed'].includes(input.status) && order.paymentStatus !== 'paid') return json(res, 409, { error: 'Confirm payment before processing or completing this order.' })
       if (input.status === 'Cancelled' && order.paymentStatus === 'paid') return json(res, 409, { error: 'Paid orders require a refund instead of cancellation.' })
+      // A verified payment must never be rolled back to an unpaid-looking status:
+      // that would hide a captured sale from both panels and re-open checkout.
+      if (order.paymentStatus === 'paid' && ['Pending payment', 'Awaiting payment'].includes(input.status)) return json(res, 409, { error: 'This order is paid. Payment status is set only by a verified PayU payment.' })
+      const previousStatus = order.status
       order.status = input.status
-      recordAudit(user, 'order.status.update', order.id, { status: order.status })
+      order.updatedAt = new Date().toISOString()
+      recordAudit(user, 'order.status.update', order.id, { previousStatus, status: order.status })
       await persist(); const { userId, ...safeOrder } = order
       return json(res, 200, { order: safeOrder })
     }
@@ -1048,6 +1385,7 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       if (!refundRequestId) return json(res, 502, { error: 'PayU accepted no trackable refund request. Check the PayU dashboard before retrying.' })
       order.paymentStatus = 'refund_pending'; order.status = 'Refund requested'; order.payuRefundRequestId = refundRequestId; order.updatedAt = new Date().toISOString()
       recordAudit(user, 'order.refund.request', order.id, { requestId: order.payuRefundRequestId }); await persist()
+      void triggerNotification({ user: { email: order.email, role: 'customer' }, event: 'payment', subject: `Refund requested — order ${order.id}`, html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2>Your refund request is being processed</h2><p>Hi ${escapeHtml(order.email)},</p><p>We have requested a refund of <strong>₹${order.total}</strong> for order <strong>${order.id}</strong>. PayU will confirm once it settles; we will email you again then.</p></div>`, text: `We have requested a refund of ₹${order.total} for order ${order.id}.` })
       const { userId, ...safeOrder } = order
       return json(res, 200, { order: safeOrder })
     }
@@ -1058,8 +1396,16 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       if (!order || order.paymentStatus !== 'refund_pending' || !order.payuRefundRequestId) return json(res, 409, { error: 'This order has no pending PayU refund to check.' })
       let result
       try { result = await checkPayURefundStatus(payuConfig, order.payuRefundRequestId) } catch { return json(res, 502, { error: 'Unable to check refund status with PayU.' }) }
-      if (result.status === 'success') { order.paymentStatus = 'refunded'; order.status = 'Refunded' }
-      else if (['failure', 'failed'].includes(result.status)) { order.paymentStatus = 'paid'; order.status = 'Paid'; delete order.payuRefundRequestId }
+      if (result.status === 'success') {
+        const previousStatus = order.paymentStatus
+        order.paymentStatus = 'refunded'; order.status = 'Refunded'
+        recordAudit(user, 'order.refund.complete', order.id, { requestId: order.payuRefundRequestId, previousStatus, amount: order.total })
+        void triggerNotification({ user: { email: order.email, role: 'customer' }, event: 'payment', subject: `Refund completed — order ${order.id}`, html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Your refund has been processed</h2><p>Hi ${escapeHtml(order.email)},</p><p>The refund of <strong>₹${order.total}</strong> for order <strong>${order.id}</strong> has been completed by PayU.</p><p>It typically reaches the original payment method within 5–7 working days.</p></div>`, text: `Your refund of ₹${order.total} for order ${order.id} has been completed by PayU.` })
+      } else if (['failure', 'failed'].includes(result.status)) {
+        const previousStatus = order.paymentStatus
+        order.paymentStatus = 'paid'; order.status = 'Paid'; delete order.payuRefundRequestId
+        recordAudit(user, 'order.refund.failed', order.id, { requestId: result.detail?.request_id || '', previousStatus, status: result.status })
+      }
       order.updatedAt = new Date().toISOString(); await persist()
       const { userId, ...safeOrder } = order
       return json(res, 200, { order: safeOrder, refundStatus: result.status || 'pending' })
@@ -1097,8 +1443,9 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       const input = await body(req); const message = String(input.message || '').trim()
       if (message.length < 2 || message.length > 12000) return json(res, 400, { error: 'Reply must contain 2 to 12,000 characters.' })
       entry.replies ||= []; entry.replies.push({ id: randomBytes(8).toString('hex'), author: user.email, message, date: new Date().toISOString() }); entry.status = 'In progress'; await persist()
-      await sendTransactionalEmail(entry.email, `Update on your MYR request: ${entry.subject}`, `<p>${message.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])}</p>`)
-      await triggerNotification({ user: { email: entry.email, role: 'customer' }, event: 'support', subject: `Staff update: ${entry.subject}`, html: `<p>Hi ${entry.name || entry.email},</p><p>Our team sent an update on your request: <strong>${entry.subject}</strong></p><p>${message}</p>`, text: `Our team sent an update on your request: ${entry.subject}` })
+      // One message to the customer only. The previous code sent a direct email and
+      // then a notification with the same content, so every reply doubled up.
+      void triggerNotification({ user: { email: entry.email, role: 'customer' }, event: 'support', roles: ['customer'], subject: `Staff update: ${entry.subject}`, html: `<p>Hi ${escapeHtml(entry.name || entry.email)},</p><p>Our team sent an update on your request: <strong>${escapeHtml(entry.subject)}</strong></p><p>${escapeHtml(message)}</p>`, text: `Our team sent an update on your request: ${entry.subject}` })
       const { ownerId, ...safeEntry } = entry; return json(res, 201, { entry: safeEntry })
     }
     if (req.method === 'GET' && pathName === '/api/manager/team') {
@@ -1162,7 +1509,9 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
     }
     if (req.method === 'POST' && pathName === '/api/manager/leads/import') {
       if (!requireRole('admin', 'manager')) return
-      const input = await body(req)
+      // 100 leads with up to 12,000-character notes each exceed the default
+      // JSON body cap, so legitimate imports were rejected as "too large".
+      const input = await body(req, 2 * 1024 * 1024)
       if (!Array.isArray(input.rows) || input.rows.length < 1 || input.rows.length > 100) return json(res, 400, { error: 'Import must include between 1 and 100 leads.' })
       const rows = []
       for (const row of input.rows) {
@@ -1196,17 +1545,22 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
     }
     if (req.method === 'POST' && pathName === '/api/inbox') {
       const input = await body(req)
+      // Enforce the challenge whenever Turnstile is configured. Previously a
+      // missing secret made every public form fail with a hard 503 even though
+      // nothing was configured to check.
       const humanCheck = await verifyHumanToken(input.humanToken)
-      if (!humanCheck.configured) return json(res, 503, { error: 'Human verification is not configured.' })
-      if (humanCheck.unavailable) return json(res, 503, { error: 'Human verification is temporarily unavailable. Please try again.' })
-      if (!humanCheck.verified) return json(res, 403, { error: 'Human verification failed. Please try again.' })
+      if (humanCheck.configured || authTurnstileRequired) {
+        if (!humanCheck.configured) return json(res, 503, { error: 'Human verification is not configured.' })
+        if (humanCheck.unavailable) return json(res, 503, { error: 'Human verification is temporarily unavailable. Please try again.' })
+        if (!humanCheck.verified) return json(res, 403, { error: 'Human verification failed. Please try again.' })
+      }
       if (!['lead', 'ticket', 'form'].includes(input.type) || typeof input.subject !== 'string' || !input.subject.trim() || input.subject.length > 180 || typeof input.message !== 'string' || !input.message.trim() || input.message.length > 12_000 || (input.name !== undefined && (typeof input.name !== 'string' || input.name.length > 180)) || (input.email !== undefined && (typeof input.email !== 'string' || input.email.length > 254 || (input.email && !emailOk(input.email))))) return json(res, 400, { error: 'Invalid submission' })
       const entry = { id: randomBytes(12).toString('hex'), type: input.type, subject: input.subject, name: String(input.name || user?.email || 'Website visitor').slice(0, 180), email: String(input.email || user?.email || '').slice(0, 254), message: input.message, date: new Date().toISOString(), status: 'New', source: String(input.source || '').slice(0, 300), ownerId: user?.id || null }
       db.inbox.unshift(entry)
       await persist()
       if (entry.email) {
-        const fieldsHtml = Object.entries(input).filter(([k]) => !['humanToken','type','subject','name','email','message','source'].includes(k)).map(([k, v]) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:left"><strong>${String(k)}</strong></td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:left">${String(v)}</td></tr>`).join('')
-        await triggerNotification({ user: { email: entry.email, role: 'customer' }, event: 'contact', includeUser: true, explicitEmails: [entry.email], subject: `We received your submission — ${entry.subject}`, html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Thank you for contacting MYR</h2><p>Hi ${entry.name || 'there'},</p><p>We’ve received your submission and our team will get back to you shortly.</p><p><strong>Reference:</strong> ${entry.id}</p><p><strong>Subject:</strong> ${entry.subject}</p>${fieldsHtml ? `<table style="width:100%;border-collapse:collapse;margin:16px 0;"><thead><tr style="text-align:left;border-bottom:2px solid #e5e7eb;"><th style="padding:6px 10px">Field</th><th style="padding:6px 10px">Your value</th></tr></thead><tbody>${fieldsHtml}</tbody></table>` : ''}<p style="color:#6b7280;font-size:12px">This is an automated confirmation from MYR. Please keep this for your records.</p></div>`, text: `Thank you for contacting MYR. We received your submission "${entry.subject}" (reference ${entry.id}). Our team will get back to you shortly.` })
+        const fieldsHtml = Object.entries(input).filter(([k]) => !['humanToken', 'type', 'subject', 'name', 'email', 'message', 'source'].includes(k)).map(([k, v]) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:left"><strong>${escapeHtml(k)}</strong></td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:left">${escapeHtml(v)}</td></tr>`).join('')
+        void triggerNotification({ user: { email: entry.email, role: 'customer' }, event: 'contact', includeUser: true, explicitEmails: [entry.email], subject: `We received your submission — ${entry.subject}`, html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Thank you for contacting MYR</h2><p>Hi ${escapeHtml(entry.name || 'there')},</p><p>We’ve received your submission and our team will get back to you shortly.</p><p><strong>Reference:</strong> ${entry.id}</p><p><strong>Subject:</strong> ${escapeHtml(entry.subject)}</p>${fieldsHtml ? `<table style="width:100%;border-collapse:collapse;margin:16px 0;"><thead><tr style="text-align:left;border-bottom:2px solid #e5e7eb;"><th style="padding:6px 10px">Field</th><th style="padding:6px 10px">Your value</th></tr></thead><tbody>${fieldsHtml}</tbody></table>` : ''}<p style="color:#6b7280;font-size:12px">This is an automated confirmation from MYR. Please keep this for your records.</p></div>`, text: `Thank you for contacting MYR. We received your submission "${entry.subject}" (reference ${entry.id}). Our team will get back to you shortly.` })
       }
       const { ownerId, ...safeEntry } = entry
       return json(res, 201, { entry: safeEntry })
@@ -1236,7 +1590,10 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       res.writeHead(200, { 'content-type': pathName.endsWith('.xml') ? 'application/xml; charset=utf-8' : 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=300', 'x-content-type-options': 'nosniff' })
       return res.end(req.method === 'HEAD' ? undefined : content)
     }
-    const candidatePath = path.resolve(distDir, `.${decodeURIComponent(pathName)}`)
+    // A malformed percent-escape throws URIError; that is a bad request, not a 500.
+    let decodedPath = pathName
+    try { decodedPath = decodeURIComponent(pathName) } catch { return json(res, 400, { error: 'Malformed request path.' }) }
+    const candidatePath = path.resolve(distDir, `.${decodedPath}`)
     let filePath = candidatePath.startsWith(`${distDir}${path.sep}`) ? candidatePath : path.join(distDir, 'index.html')
     try { if (!(await stat(filePath)).isFile()) filePath = path.join(distDir, 'index.html') } catch { filePath = path.join(distDir, 'index.html') }
     const contentTypes = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.json': 'application/json; charset=utf-8', '.txt': 'text/plain; charset=utf-8' }
@@ -1253,6 +1610,11 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
 }
 
 await init()
+// Recover payments whose browser callback never arrived (and retry any that
+// could not be confirmed at return time).
+const runPaymentReconciliation = () => { void reconcileAwaitingPayments().catch((error) => console.error('[payu] reconciliation failed', error?.message || error)) }
+setTimeout(runPaymentReconciliation, 15_000).unref?.()
+setInterval(runPaymentReconciliation, paymentReconcileIntervalMs).unref?.()
 const server = createServer((req, res) => { void withDatabaseSnapshot(req, res) })
 server.listen(port, '0.0.0.0', () => console.log(`MYR API listening on :${port}`))
 
@@ -1280,3 +1642,14 @@ async function shutdown(signal) {
 }
 process.on('SIGTERM', () => { void shutdown('SIGTERM') })
 process.on('SIGINT', () => { void shutdown('SIGINT') })
+// A stray rejected promise (from a detached email send, a provider call, etc.)
+// would otherwise take the whole process down with an unhandled exception.
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection:', reason)
+})
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught exception:', error)
+  // State may be half-written after an uncaught exception, so restart rather
+  // than keep serving from it. Render brings the service straight back up.
+  void shutdown('uncaughtException')
+})

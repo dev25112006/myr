@@ -19,11 +19,6 @@ export function payuSha512(value) {
   return createHash('sha512').update(value, 'utf8').digest('hex')
 }
 
-function safeEqualHex(left, right) {
-  if (typeof left !== 'string' || typeof right !== 'string' || !/^[a-f0-9]{128}$/i.test(left) || !/^[a-f0-9]{128}$/i.test(right)) return false
-  return timingSafeEqual(Buffer.from(left, 'hex'), Buffer.from(right, 'hex'))
-}
-
 function requestHash(config, params) {
   return payuSha512([
     config.key,
@@ -64,15 +59,26 @@ export function createPayUCheckout({ config, order, customer, origin, txnid }) {
   return { provider: 'payu', action: config.paymentUrl, params }
 }
 
-export function verifyPayUCallback(data, config, order) {
-  if (!payuConfigured(config) || !order || data.key !== config.key || data.txnid !== order.payuTxnId || data.udf1 !== order.id) return false
-  const amountMinor = Math.round(Number(data.amount) * 100)
-  if (!Number.isSafeInteger(amountMinor) || amountMinor !== order.total * 100) return false
-  const hashParts = [
-    config.salt,
-    String(data.status || ''),
-    String(data.splitInfo || ''),
-    '', '', '', '', '',
+/**
+ * PayU documents four reverse-hash shapes. Which one a merchant receives depends on
+ * whether the account has payment splitting enabled and whether PayU added
+ * `additional_charges` to the transaction, so a non-split transaction must NOT be
+ * hashed with a `splitInfo` slot (that was the production bug: every response was
+ * hashed as a split response and therefore never matched).
+ *
+ *   sha512(SALT|status||||||udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key)
+ *   sha512(SALT|status|splitInfo||||||udf5|...|key)
+ *   sha512(additional_charges|SALT|status||||||udf5|...|key)
+ *   sha512(additional_charges|SALT|status|splitInfo||||||udf5|...|key)
+ *
+ * The empty slot count between `status`/`splitInfo` and `udf5` is always five.
+ * Every candidate is derived from the merchant salt, so accepting any of them still
+ * proves the response was produced by PayU. The `splitInfo` slot is emitted both
+ * with PayU's echoed value and as an empty slot, because PayU posts the field only
+ * on some account configurations.
+ */
+export function payuReverseHashCandidates(data, config) {
+  const tail = [
     String(data.udf5 || ''),
     String(data.udf4 || ''),
     String(data.udf3 || ''),
@@ -85,8 +91,52 @@ export function verifyPayUCallback(data, config, order) {
     String(data.txnid || ''),
     String(data.key || ''),
   ]
-  if (data.additional_charges) hashParts.unshift(String(data.additional_charges))
-  return safeEqualHex(payuSha512(hashParts.join('|')), data.hash)
+  const status = String(data.status || '')
+  const emptySlots = ['', '', '', '', '']
+  const splitInfo = String(data.splitInfo || '')
+  const structures = [
+    [config.salt, status, ...emptySlots, ...tail],
+    [config.salt, status, splitInfo, ...emptySlots, ...tail],
+    [config.salt, status, '', ...emptySlots, ...tail],
+  ]
+  const charges = data.additional_charges === undefined || data.additional_charges === null ? '' : String(data.additional_charges)
+  const candidates = []
+  for (const parts of structures) {
+    candidates.push(parts.join('|'))
+    if (charges) candidates.push([charges, ...parts].join('|'))
+  }
+  return candidates
+}
+
+function matchesAnyCandidate(data, config) {
+  if (typeof data.hash !== 'string' || !/^[a-f0-9]{128}$/i.test(data.hash)) return false
+  const supplied = Buffer.from(data.hash, 'hex')
+  return payuReverseHashCandidates(data, config).some((candidate) => {
+    const expected = Buffer.from(payuSha512(candidate), 'hex')
+    return expected.length === supplied.length && timingSafeEqual(expected, supplied)
+  })
+}
+
+/**
+ * Full PayU response validation with a machine-readable reason so a failed
+ * callback can be diagnosed from server logs instead of a generic 400.
+ */
+export function verifyPayUCallbackDetail(data, config, order) {
+  if (!payuConfigured(config)) return { ok: false, reason: 'payu-not-configured' }
+  if (!order) return { ok: false, reason: 'order-not-found' }
+  if (!data || typeof data !== 'object') return { ok: false, reason: 'malformed-response' }
+  if (data.key !== config.key) return { ok: false, reason: 'merchant-key-mismatch' }
+  if (data.txnid !== order.payuTxnId) return { ok: false, reason: 'txnid-mismatch' }
+  if (data.udf1 !== order.id) return { ok: false, reason: 'order-reference-mismatch' }
+  const amountMinor = Math.round(Number(data.amount) * 100)
+  if (!Number.isSafeInteger(amountMinor)) return { ok: false, reason: 'amount-unreadable' }
+  if (amountMinor !== order.total * 100) return { ok: false, reason: 'amount-mismatch' }
+  if (!matchesAnyCandidate(data, config)) return { ok: false, reason: 'hash-mismatch' }
+  return { ok: true, reason: 'verified' }
+}
+
+export function verifyPayUCallback(data, config, order) {
+  return verifyPayUCallbackDetail(data, config, order).ok
 }
 
 export async function payuServiceRequest(config, command, variables, fetchImpl = fetch) {

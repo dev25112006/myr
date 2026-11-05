@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import test from 'node:test'
-import { createPayUCheckout, payuConfigFromEnv, payuServiceRequest, verifyPayUCallback } from './payu-commerce.mjs'
+import { createPayUCheckout, payuConfigFromEnv, payuServiceRequest, verifyPayUCallback, verifyPayUCallbackDetail } from './payu-commerce.mjs'
 
 const config = { key: 'merchant-key', salt: 'merchant-salt', paymentUrl: 'https://test.payu.in/_payment', serviceUrl: 'https://test.payu.in/merchant/postservice.php?form=2' }
 const order = { id: 'MYR-ABC123', userId: 'user-123', total: 1250, payuTxnId: 'MYR1720000000000abcd', items: [{ name: 'MYR Product' }] }
@@ -47,6 +47,63 @@ test('PayU callback hash must match order identity and amount', () => {
   assert.equal(verifyPayUCallback(callback, config, order), true)
   assert.equal(verifyPayUCallback({ ...callback, amount: '1.00' }, config, order), false)
   assert.equal(verifyPayUCallback({ ...callback, hash: '0'.repeat(128) }, config, order), false)
+})
+
+const callbackFields = () => ({
+  key: config.key,
+  txnid: order.payuTxnId,
+  amount: '1250.00',
+  productinfo: 'MYR Product',
+  firstname: 'A Customer',
+  email: customer.email,
+  udf1: order.id,
+  udf2: order.userId,
+  udf3: '',
+  udf4: '',
+  udf5: '',
+  status: 'success',
+})
+const signWith = (parts) => createHash('sha512').update(parts.join('|')).digest('hex')
+const tail = (data) => [data.udf5, data.udf4, data.udf3, data.udf2, data.udf1, data.email, data.firstname, data.productinfo, data.amount, data.txnid, data.key]
+const empties = ['', '', '', '', '']
+
+test('accepts every documented PayU reverse-hash variant', () => {
+  const data = callbackFields()
+  const variants = {
+    // sha512(SALT|status||||||udf5|...|key) — plain non-split transaction. This is
+    // the shape PayU sends for an ordinary order and the one production missed.
+    regular: [config.salt, data.status, ...empties, ...tail(data)],
+    // sha512(SALT|status|splitInfo||||||udf5|...|key)
+    splitEchoed: [config.salt, data.status, '{"splitStatus":"splitNotReceived","splitSegments":[]}', ...empties, ...tail(data)],
+    splitEmptySlot: [config.salt, data.status, '', ...empties, ...tail(data)],
+    // sha512(additional_charges|SALT|status||||||udf5|...|key)
+    withCharges: ['2.00', config.salt, data.status, ...empties, ...tail(data)],
+    withChargesAndSplit: ['2.00', config.salt, data.status, '{"splitStatus":"splitNotReceived","splitSegments":[]}', ...empties, ...tail(data)],
+  }
+  for (const [name, parts] of Object.entries(variants)) {
+    const splitInfo = '{"splitStatus":"splitNotReceived","splitSegments":[]}'
+    const payload = { ...data, hash: signWith(parts), additional_charges: name.startsWith('withCharges') ? '2.00' : undefined, splitInfo: /Echoed|Split/.test(name) ? splitInfo : '' }
+    assert.equal(verifyPayUCallback(payload, config, order), true, `${name} variant must verify`)
+    assert.deepEqual(verifyPayUCallbackDetail(payload, config, order), { ok: true, reason: 'verified' })
+  }
+})
+
+test('callback verification reports why a response was rejected', () => {
+  const data = callbackFields()
+  const good = { ...data, hash: signWith([config.salt, data.status, ...empties, ...tail(data)]) }
+  assert.equal(verifyPayUCallbackDetail({ ...good, hash: signWith(['not', 'the', 'salt']) }, config, order).reason, 'hash-mismatch')
+  assert.equal(verifyPayUCallbackDetail({ ...good, amount: '1.00' }, config, order).reason, 'amount-mismatch')
+  assert.equal(verifyPayUCallbackDetail({ ...good, key: 'other-key' }, config, order).reason, 'merchant-key-mismatch')
+  assert.equal(verifyPayUCallbackDetail({ ...good, txnid: 'SOMEOTHERTXN' }, config, order).reason, 'txnid-mismatch')
+  assert.equal(verifyPayUCallbackDetail({ ...good, udf1: 'MYR-OTHER' }, config, order).reason, 'order-reference-mismatch')
+  assert.equal(verifyPayUCallbackDetail(good, config, null).reason, 'order-not-found')
+})
+
+test('a tampered amount cannot be re-signed without the salt', () => {
+  const data = callbackFields()
+  const tampered = { ...data, amount: '1.00' }
+  tampered.hash = signWith([config.salt, tampered.status, ...empties, ...tail(tampered)])
+  assert.equal(verifyPayUCallbackDetail(tampered, config, order).reason, 'amount-mismatch')
 })
 
 test('PayU Verify Payment uses a signed form-encoded service request', async () => {

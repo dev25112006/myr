@@ -6,7 +6,7 @@ All routes use same-origin session cookies and JSON unless noted. SaaS records a
 
 ### `GET /api/saas/products`
 
-Returns active products and enabled plans only. Plan amount is represented in minor currency units. The endpoint does not return drafts.
+Returns `{ "products": [...] }` with active products and their plans only. Plan amount is represented in minor currency units (`amountMinor`, with `price` in rupees for this deployment's catalog projection). Only products whose name states a billing term (`Monthly`/`Annual`) get a purchasable `month`/`year` interval; everything else is `interval: "custom"` and is offered as contact-sales. The endpoint does not return drafts.
 
 ## SaaS email verification
 
@@ -26,7 +26,7 @@ Body: `{ "name": "Example Institute", "countryCode": "IN" }`. The owner comes fr
 
 ### `GET /api/saas/organizations` — signed-in user
 
-Returns organizations where the session user has active membership.
+Returns `{ "organizations": [...] }` for organizations owned by the session user, each with `id`, `name`, `countryCode`, `billingCountryCode`, `status`, `role`, and `createdAt`.
 
 ### `PATCH /api/saas/organizations/{organizationId}/billing-profile` — owner/admin/billing member
 
@@ -114,7 +114,7 @@ Sensitive admin mutations are audit logged. Plan deletion and invitation cancell
 
 ## Checkout, payments and billing (Phase 2)
 
-- `POST /api/saas/checkout` — verified organization billing member submits `{ "organizationId": "...", "planId": "..." }`. The server validates active catalog, region, INR allow-list and explicit tax configuration, creates a pending order/subscription, computes the total, then returns a PayU hosted form payload. The browser never supplies the charge amount.
+- `POST /api/saas/checkout` — verified organization owner submits `{ "organizationId": "...", "planId": "..." }`. The server validates the catalog plan (monthly/annual interval only), applies the configured tax rate (no shipping charge for software), creates the order in `Awaiting payment`, records every PayU transaction id issued for it, and returns `{ order, payment }` with a PayU hosted form payload. The browser never supplies the charge amount. On a verified payment the order is marked paid and the organization is activated.
 - `POST /api/saas/payments/payu/return` — PayU URL-encoded return callback; verifies reverse hash and PayU Verify Payment before changing billing state. Redirects to `/workspace/` with a result code.
 - `POST /api/saas/payments/payu/webhook` — URL-encoded PayU event callback; verifies signature and reconciles transaction with PayU before applying idempotent activation.
 - `GET /api/saas/orders/{orderId}` — read-only, organization-billing-member-scoped status query.

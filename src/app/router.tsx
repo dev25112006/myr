@@ -43,6 +43,14 @@ const TalkToSalesPage = lazy(() => import('@/pages/RemainingPages').then((m) => 
 const WebsitePlanProductPage = lazy(() => import('@/pages/StoreCatalogPages').then((m) => ({ default: m.WebsitePlanProductPage })))
 const DigitalMarketingProductPage = lazy(() => import('@/pages/StoreCatalogPages').then((m) => ({ default: m.DigitalMarketingProductPage })))
 const Ip100ProductPage = lazy(() => import('@/pages/StoreCatalogPages').then((m) => ({ default: m.Ip100ProductPage })))
+const SaaSPlatformPage = lazy(() => import('@/pages/SaaSPlatformPage').then((m) => ({ default: m.SaaSPlatformPage })))
+const SaaSProductPage = lazy(() => import('@/pages/SaaSProductPage').then((m) => ({ default: m.SaaSProductPage })))
+const SaaSWorkspacePage = lazy(() => import('@/pages/SaaSWorkspacePage').then((m) => ({ default: m.SaaSWorkspacePage })))
+const SaaSCheckoutPage = lazy(() => import('@/pages/SaaSCheckoutPage').then((m) => ({ default: m.SaaSCheckoutPage })))
+const SaaSSupportPage = lazy(() => import('@/pages/SaaSSupportPage').then((m) => ({ default: m.SaaSSupportPage })))
+const SaaSAdminPage = lazy(() => import('@/pages/SaaSAdminPage').then((m) => ({ default: m.SaaSAdminPage })))
+const SaaSSupportAdminPage = lazy(() => import('@/pages/SaaSSupportAdminPage').then((m) => ({ default: m.SaaSSupportAdminPage })))
+const SaaSProductModulePage = lazy(() => import('@/pages/SaaSProductModulePage').then((m) => ({ default: m.SaaSProductModulePage })))
 
 function RouteFallback() {
   return (
@@ -59,10 +67,6 @@ export function AppRoutes() {
       <Routes>
         <Route element={<Layout />}>
           {/* Phase 1 */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/myr" element={<HomePage />} />
-
-          {/* Phase 2 */}
           <Route path="/" element={<HomePage />} />
           <Route path="/myr" element={<HomePage />} />
 
@@ -128,6 +132,17 @@ export function AppRoutes() {
           <Route path="/my-account/lost-password/" element={<AccountRecoveryPage />} />
           <Route path="/my-account/reset-password/" element={<AccountRecoveryPage />} />
           <Route path="/my-account/verify-email/" element={<VerifyEmailPage />} />
+
+          {/* MYR Software (SaaS) */}
+          <Route path="/software/" element={<SaaSPlatformPage />} />
+          <Route path="/software/:slug/" element={<SaaSProductPage />} />
+          <Route path="/pricing/" element={<SaaSPlatformPage />} />
+          <Route path="/subscribe/" element={<SaaSCheckoutPage />} />
+          <Route path="/workspace/" element={<SaaSWorkspacePage />} />
+          <Route path="/workspace/product/:slug/" element={<SaaSProductModulePage />} />
+          <Route path="/support/" element={<SaaSSupportPage />} />
+          <Route path="/saas-admin/" element={<SaaSAdminPage />} />
+          <Route path="/saas-admin/support/" element={<SaaSSupportAdminPage />} />
 
           {/* Phase 6 */}
           <Route path="/privacy-policy/" element={<PolicyPage pathname="/privacy-policy/" />} />

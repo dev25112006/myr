@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { cn, inr } from '@/lib/format'
 import { WEBSITE_PLANS } from '@/content/plans'
 import { useCart } from '@/lib/stores'
@@ -1062,12 +1062,12 @@ function StoriesSection() {
               <p className="mt-3 text-sm leading-relaxed text-ink-400">
                 <Bold text={t.quote} />
               </p>
-              <a
-                href="#"
+              <Link
+                to="/about-us/"
                 className="mt-4 inline-block text-sm font-medium text-accent-600 underline"
               >
                 Read the full story
-              </a>
+              </Link>
             </div>
           ))}
         </div>

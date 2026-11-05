@@ -15,13 +15,14 @@ export function AccountPage() {
     const payment = new URLSearchParams(location.search).get('payment')
     const orderId = new URLSearchParams(location.search).get('orderId')
     if (payment === 'paid') return `Payment confirmed for order ${orderId || ''}. Your receipt has been sent to your email.`
+    if (payment === 'pending') return `We received your payment for order ${orderId || ''} but are still confirming it with PayU. It will appear in your orders and by email as soon as confirmation completes — no further action is needed.`
     if (payment === 'failed') return 'Payment was not completed. Your order is saved and can be retried from this account.'
     return ''
   })
   const paidOrder = orders.find((o) => o.paymentStatus === 'paid')
   const [replyText, setReplyText] = useState<Record<string, string>>({})
   const [profile, setProfile] = useState({ name: '', phone: '', timezone: '', address: '', city: '', state: '', postalCode: '', country: 'India' })
-  const loadAccount = async () => { const r = await fetch('/api/account', { credentials: 'same-origin' }); if (!r.ok) throw new Error('Unable to load account data.'); const d = await r.json(); setOrders(d.orders); setTickets(d.inbox) }
+  const loadAccount = async () => { const r = await fetch('/api/account', { credentials: 'same-origin' }); if (!r.ok) throw new Error('Unable to load account data.'); const d = await r.json(); setOrders(d.orders); setTickets((d.inbox || []).filter((entry: InboxEntry) => entry.type === 'ticket')) }
   const loadProfile = async () => { const r = await fetch('/api/account/profile', { credentials: 'same-origin' }); if (!r.ok) throw new Error('Unable to load profile.'); const d = await r.json(); setProfile({ name: d.profile?.name || '', phone: d.profile?.phone || '', timezone: d.profile?.timezone || '', address: d.profile?.address || '', city: d.profile?.city || '', state: d.profile?.state || '', postalCode: d.profile?.postalCode || '', country: d.profile?.country || 'India' }) }
   useEffect(() => { if (user) { void loadAccount().catch((e) => setNotice(e.message)); void loadProfile().catch((e) => setNotice(e.message)) } }, [user])
   useEffect(() => {

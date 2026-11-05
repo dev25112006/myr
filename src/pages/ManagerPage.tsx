@@ -9,6 +9,14 @@ export function ManagerPage() {
   const { user, serverInbox: inbox, setServerInboxStatus, refreshInbox } = useAuth()
   const [filter, setFilter] = useState<InboxEntry['type'] | 'all'>('all')
   const [orders, setOrders] = useState<Array<{ id: string; email: string; total: number; status: string; paymentStatus: string; payuPaymentId?: string; date: string; items: Array<{ name: string; qty: number }>; shippingAddress?: { name: string; address: string; city: string; state: string; postalCode: string; country: string; phone: string } | null }>>([])
+  const refreshOrders = async () => {
+    try {
+      const response = await fetch('/api/admin/orders', { credentials: 'same-origin' })
+      if (!response.ok) return
+      const data = await response.json() as { orders: typeof orders }
+      setOrders(data.orders)
+    } catch { /* transient network failure — the next interval refresh retries */ }
+  }
   useEffect(() => {
     if (!user || !['admin', 'manager'].includes(user.role)) return
     let active = true
@@ -18,7 +26,12 @@ export function ManagerPage() {
     window.addEventListener('focus', refresh)
     return () => { active = false; window.clearInterval(timer); window.removeEventListener('focus', refresh) }
   }, [user])
-  const updateOrder = async (id: string, status: string) => { const r = await fetch(`/api/admin/orders/${id}`, { method: 'PATCH', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status }) }); const d = await r.json(); if (r.ok) setOrders((previous) => previous.map((o) => o.id === id ? { ...o, status: d.order.status } : o)) }
+  const updateOrder = async (id: string, status: string) => {
+    const r = await fetch(`/api/admin/orders/${id}`, { method: 'PATCH', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status }) })
+    const d = await r.json().catch(() => ({}) as { error?: string; order?: { status: string } })
+    if (!r.ok) { window.alert(d.error || 'Unable to update this order.'); void refreshOrders(); return }
+    if (d.order) setOrders((previous) => previous.map((o) => o.id === id ? { ...o, status: d.order!.status } : o))
+  }
   const requestRefund = async (id: string) => {
     const response = await fetch(`/api/admin/orders/${id}/refund`, { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: '{}' })
     const data = await response.json()

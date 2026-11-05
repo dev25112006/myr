@@ -86,8 +86,8 @@ export function SmartForm({
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!turnstileSiteKey || !humanToken) {
-      setSubmitError(turnstileSiteKey ? 'Complete the human verification challenge before submitting.' : 'Human verification is not configured. Please try again later.')
+    if (turnstileSiteKey && !humanToken) {
+      setSubmitError('Complete the human verification challenge before submitting.')
       return
     }
     const errs = validate(config, values)
@@ -288,7 +288,7 @@ export function SmartForm({
       </div>
       {submitError && <p className="text-sm text-flame-600 sm:col-span-2" role="alert">{submitError}</p>}
       <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row sm:items-center">
-        <button type="submit" className={cn('btn btn-primary btn-md sm:w-auto', sending && 'opacity-70')} disabled={sending || !turnstileSiteKey || !humanToken}>
+        <button type="submit" className={cn('btn btn-primary btn-md sm:w-auto', sending && 'opacity-70')} disabled={sending || Boolean(turnstileSiteKey) && !humanToken}>
           {sending ? 'Sending…' : (config.submitLabel ?? 'Submit')}
         </button>
         <p className="text-[11px] text-ink-400">

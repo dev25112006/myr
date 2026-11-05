@@ -24,8 +24,15 @@ export function ModulesPage() {
     let cancelled = false
     fetch('/api/saas/products', { signal: AbortSignal.timeout(3000) })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('catalog unavailable'))))
-      .then((data: unknown) => {
-        if (cancelled || !Array.isArray(data)) return
+      .then((payload: unknown) => {
+        if (cancelled) return
+        // The endpoint documents `{ products: [...] }`; older builds returned a
+        // bare array, so accept both shapes rather than silently showing nothing.
+        const data: unknown[] = Array.isArray(payload)
+          ? payload
+          : payload && typeof payload === 'object' && Array.isArray((payload as { products?: unknown }).products)
+            ? (payload as { products: unknown[] }).products
+            : []
         const items: CatalogItem[] = data
           .flatMap((p): CatalogItem[] => {
             if (!p || typeof p !== 'object') return []
