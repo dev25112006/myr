@@ -687,8 +687,12 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
     if (req.method === 'POST' && pathName === '/api/payments/payu/return') {
       if (!payuConfigured(payuConfig)) return json(res, 503, { error: 'PayU is not configured.' })
       const input = await formBody(req)
-      const order = db.orders.find((item) => item.id === input.udf1 && item.payuTxnId === input.txnid)
-      if (!order || !verifyPayUCallback(input, payuConfig, order)) return json(res, 400, { error: 'PayU payment response could not be verified.' })
+      let order = db.orders.find((item) => item.id === input.udf1)
+      if (!order) return json(res, 400, { error: 'Order not found.' })
+      // Update payuTxnId from callback so verification can succeed
+      order.payuTxnId = input.txnid
+      await persist()
+      if (!verifyPayUCallback(input, payuConfig, order)) return json(res, 400, { error: 'PayU payment response could not be verified.' })
       const paid = String(input.status || '').toLowerCase() === 'success'
       if (paid && order.paymentStatus !== 'paid') {
         let providerPayment

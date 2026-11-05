@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process'
 
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm'
 const apiPort = Number(process.env.PORT || 3001)
-const apiHealthUrl = `http://127.0.0.1:${apiPort}/api/health`
+const apiHealthUrl = `http://localhost:${apiPort}/api/health`
 let apiAlreadyRunning = false
 try {
   const response = await fetch(apiHealthUrl, { signal: AbortSignal.timeout(1200) })
