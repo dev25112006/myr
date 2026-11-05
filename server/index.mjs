@@ -80,6 +80,16 @@ async function issueEmailToken(user, purpose) {
   await sendTransactionalEmail(user.email, purpose === 'reset' ? 'Reset your MYR account password' : 'Verify your MYR account email', `<p>Use the link below to ${purpose === 'reset' ? 'reset your password' : 'verify your email'}:</p><p><a href="${origin}${route}${token}">Continue</a></p><p>This link expires in ${purpose === 'reset' ? '60 minutes' : '24 hours'}.</p>`)
 }
 
+async function issueSaasEmailToken(user) {
+  const token = randomBytes(32).toString('hex')
+  db.emailTokens ||= []
+  db.emailTokens = db.emailTokens.filter((item) => !(item.userId === user.id && item.purpose === 'saas_verify'))
+  db.emailTokens.push({ userId: user.id, purpose: 'saas_verify', hash: tokenHash(token), expiresAt: Date.now() + 24 * 60 * 60 * 1000 })
+  await persist()
+  const origin = configuredOrigin(process.env.APP_ORIGIN)
+  await sendTransactionalEmail(user.email, 'Verify your MYR SaaS email', `<p>Use the link below to verify your SaaS email:</p><p><a href="${origin}/api/saas/verify-email?token=${token}">Continue</a></p><p>This link expires in 24 hours.</p>`)
+}
+
 function triggerNotification({ user, event = 'default', subject, html, text, includeUser = true, roles = [], explicitEmails = [] }) {
   const recipients = resolveRecipients({
     users: db.users,
@@ -347,7 +357,7 @@ async function init() {
   db.reviews ||= []
   db.settings = { taxRateBps: 0, shippingFlat: 0, commerceVerified: false, emailNotifications: normalizeNotificationSettings({}), ...(db.settings || {}) }
   db.settings.emailNotifications = normalizeNotificationSettings(db.settings.emailNotifications)
-  if (process.env.EMAIL_VERIFICATION_REQUIRED === 'true' && (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM)) throw new Error('Set RESEND_API_KEY and EMAIL_FROM before requiring email verification.')
+  if (process.env.EMAIL_VERIFICATION_REQUIRED === 'true' && !process.env.EMAIL_FROM) throw new Error('Set EMAIL_FROM before requiring email verification.')
   if (process.env.ADMIN_EMAIL || process.env.ADMIN_PASSWORD) {
     const email = String(process.env.ADMIN_EMAIL || '').trim().toLowerCase()
     const password = process.env.ADMIN_PASSWORD || ''
@@ -483,6 +493,26 @@ async function handle(req, res) {
       }))
       return json(res, 200, products)
     }
+
+    if (req.method === 'POST' && pathName === '/api/saas/organizations') {
+      if (!user) return json(res, 401, { error: 'Sign in required.' })
+      const input = await body(req)
+      const name = String(input.name || '').trim()
+      const countryCode = String(input.countryCode || '').trim().toUpperCase()
+      if (!name || !countryCode) return json(res, 400, { error: 'Name and country code are required.' })
+      db.organizations = db.organizations || []
+      const org = {
+        id: randomBytes(12).toString('hex'),
+        name,
+        countryCode,
+        status: 'pending',
+        ownerId: user.id,
+        createdAt: new Date().toISOString(),
+      }
+      db.organizations.unshift(org)
+      await persist()
+      return json(res, 201, { ok: true, organization: { id: org.id, name: org.name, status: org.status } })
+    }
     const productReviewsMatch = pathName.match(/^\/api\/products\/(\d+)\/reviews$/)
     if (productReviewsMatch && req.method === 'GET') {
       const productId = Number(productReviewsMatch[1])
@@ -556,6 +586,88 @@ async function handle(req, res) {
       if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) return json(res, 503, { error: 'Email delivery is not configured yet.' })
       await issueEmailToken(user, 'verify')
       return json(res, 200, { ok: true, message: 'Verification email sent.' })
+    }
+if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
+      const token = url.searchParams.get('token') || ''
+      const record = (db.emailTokens || [])
+        .find((item) => item.purpose === 'saas_verify' && item.hash === tokenHash(token) && item.expiresAt > Date.now())
+      if (!record) return json(res, 400, { error: 'Verification link is invalid or expired.' })
+      const account = db.users.find((item) => item.id === record.userId)
+      if (!account) return json(res, 404, { error: 'Account not found.' })
+      account.saasVerified = true
+      db.emailTokens = db.emailTokens.filter((item) => item !== record)
+      await persist()
+      return json(res, 200, { ok: true, message: 'SaaS email verified.' })
+    }
+
+    if (req.method === 'POST' && pathName === '/api/saas/email-verification/request') {
+      if (!user) return json(res, 401, { error: 'Sign in required.' })
+      if (user.saasVerified === true) return json(res, 200, { ok: true, message: 'This SaaS email is already verified.' })
+      const smtpOk = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS && process.env.SMTP_FROM)
+      const resendOk = Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM)
+      if (!smtpOk && !resendOk) return json(res, 503, { error: 'No email provider configured. Set SMTP_HOST/SMTP_USER/SMTP_PASS/SMTP_FROM or RESEND_API_KEY/EMAIL_FROM.' })
+      await issueSaasEmailToken(user)
+      return json(res, 200, { ok: true, message: 'SaaS verification email sent.' })
+    }
+    if (req.method === 'POST' && pathName === '/api/saas/checkout') {
+      if (!user) return json(res, 401, { error: 'Sign in required.' })
+      if (user.saasVerified !== true) return json(res, 403, { error: 'Verify your SaaS email before using checkout.' })
+      const input = await body(req)
+      const organizationId = String(input.organizationId || '').trim()
+      const planId = String(input.planId || '').trim()
+      if (!organizationId || !planId) return json(res, 400, { error: 'organizationId and planId are required.' })
+      const organization = (db.organizations || []).find((item) => item.id === organizationId && item.ownerId === user.id)
+      if (!organization) return json(res, 404, { error: 'Organization not found or you do not have permission.' })
+      if (organization.status !== 'pending' && organization.status !== 'active') return json(res, 400, { error: 'Organization is not in a valid state for checkout.' })
+      const plan = (db.catalog || []).find((item) => String(item.id) === planId)
+      if (!plan) return json(res, 404, { error: 'Plan not found in catalog.' })
+      if (plan.currency !== 'INR') return json(res, 400, { error: 'Only INR currency is supported.' })
+      if (plan.enterprise) return json(res, 400, { error: 'Enterprise plans are not supported for PayU checkout.' })
+      if (!['month', 'year'].includes(plan.interval)) return json(res, 400, { error: 'Only monthly or annual intervals are supported.' })
+      if (plan.trialDays && plan.trialDays > 0) return json(res, 400, { error: 'Plans with trials are not supported.' })
+      if (db.settings.commerceVerified !== true && !testCheckoutEnabled) return json(res, 409, { error: 'Checkout is paused until an admin verifies the tax and shipping settings.' })
+      const taxRateBps = db.settings.taxRateBps || 0
+      const shippingFlat = db.settings.shippingFlat || 0
+      const subtotal = plan.price
+      const tax = Math.round(subtotal * taxRateBps / 10000)
+      const total = subtotal + tax + shippingFlat
+      const orderId = 's-' + randomBytes(12).toString('hex')
+      const order = {
+        id: orderId,
+        userId: user.id,
+        organizationId: organization.id,
+        planId: plan.id,
+        items: [{ id: plan.id, name: plan.name, price: subtotal, qty: 1, category: plan.category || 'General' }],
+        subtotal,
+        tax,
+        shipping: shippingFlat,
+        total,
+        currency: 'INR',
+        paymentStatus: 'pending',
+        status: 'Pending payment',
+        payuTxnId: '',
+        payuPaymentId: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      db.orders = db.orders || []
+      db.orders.unshift(order)
+      await persist()
+      const action = `${configuredOrigin(process.env.APP_ORIGIN)}/api/payments/payu/return`
+      const params = new URLSearchParams({
+        orgId: organization.id,
+        planId: plan.id,
+        orderId: orderId,
+        userId: user.id,
+        amount: String(total * 100),
+        tax: String(tax),
+        currency: 'INR',
+        udf1: orderId,
+        udf2: String(user.id),
+        returnUrl: `${action}?success=true`,
+        cancelUrl: `${action}?success=false`,
+      }).toString()
+      return json(res, 200, { order: { id: orderId, currency: 'INR', subtotalMinor: subtotal * 100, taxMinor: tax * 100, totalMinor: total * 100 }, payment: { action, params } })
     }
     if (req.method === 'POST' && pathName === '/api/auth/request-password-reset') {
       if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) return json(res, 503, { error: 'Password reset email is not configured. Contact support for account recovery.' })
