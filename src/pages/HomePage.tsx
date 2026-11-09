@@ -10,24 +10,30 @@ import { useCatalogPrice } from '@/lib/useCatalogPrice'
 
 
 const STATS = [
-  { label: 'Team Member', value: 70, suffix: '+' },
-  { label: 'Efficiency', value: 95, suffix: '%' },
-  { label: 'Happy Clients', value: 10000, suffix: '+', comma: true },
-  { label: 'Countries', value: 10, suffix: '+' },
+  { label: 'Team Member', value: 25, suffix: '+' },
+  { label: 'Efficiency', value: 99.99, suffix: '%', decimals: 2 },
+  { label: 'Happy Clients', value: 50000, comma: true },
+  { label: 'Countries', value: 5, suffix: '+' },
 ]
 const HERO_PHRASES = ['IT Solutions', 'IT Products', 'IT Services']
 
 const SERVICES = [
   {
-    title: 'Web Development',
-    desc: 'We craft sleek, user-friendly designs tailored for your success.',
-    to: '/website-development/',
-    badge: 'UPTO 60% OFF',
+    title: 'Education ERP',
+    desc: 'Connected systems for school, college and coaching institute operations.',
+    to: '/education-erp/',
+    badge: 'SCHOOLS · COLLEGES · COACHING',
   },
   {
     title: 'CRM Development',
     desc: 'We create tailored CRM solutions for your business success.',
     to: '/crm-development/',
+  },
+  {
+    title: 'Web Development',
+    desc: 'We craft sleek, user-friendly designs tailored for your success.',
+    to: '/website-development/',
+    badge: 'UPTO 60% OFF',
   },
   {
     title: 'Digital Marketing',
@@ -56,12 +62,6 @@ const SERVICES = [
     desc: 'Unlock unparalleled customer engagement with our exclusive 1-800 toll-free number service.',
     to: '/1800-number/',
   },
-  {
-    title: 'Education ERP',
-    desc: 'Connected systems for school, college and coaching institute operations.',
-    to: '/education-erp/',
-    badge: 'SCHOOLS · COLLEGES · COACHING',
-  },
 ]
 
 const PARTNER_LOGOS = [
@@ -82,41 +82,7 @@ const PARTNER_LOGOS = [
   '2024-08-buy-thermal-printer.png',
 ].map((file) => `/assets/${file}`)
 
-const TESTIMONIALS = [
-  {
-    image:
-      '/assets/2024-08-Prabhat-Tripathi.jpeg',
-    name: 'Dr. Prabhat Tripathi',
-    role: 'Chairman Tirupati College of Engineering',
-    quote:
-      'Myr Advance Solution has been exceptional in optimizing our **IT infrastructure.** Their responsive and knowledgeable team consistently goes above and beyond to meet our needs.',
-  },
-  {
-    image:
-      '/assets/2024-08-Abhishek-Khare.jpg',
-    name: "Abhishek Khare",
-    role: "Owner Khare's Kitchen Restaurant",
-    quote:
-      "**Professional CCTV Installation!** Myr Advance Solution's highly skilled team installed CCTV cameras in our premises with remarkable efficiency and professionalism. Now, we feel more secure and protected than ever.",
-  },
-  {
-    image:
-      '/assets/2024-08-male-icon.jpg',
-    name: 'Mohammad Ali Khan',
-    role: 'Loyaltech Management Services Pvt. Ltd.',
-    quote:
-      "Exceptional **Toll-Free Number Service!** We're delighted with the toll-free number service provided by Myr Advance Solution. It's easy to set up and manage, and our customers love the convenience.",
-  },
-  {
-    image:
-      '/assets/2024-08-female-icon.jpg',
-    name: 'Riya Tiwari',
-    role: 'Owner Fashion Store.',
-    quote:
-      "**Stunning Website Design !** Myr Advance Solution designed our website beautifully, reflecting our brand perfectly. It's user-friendly and has helped us attract more customers.",
-  },
-]
-
+const TESTIMONIALS = [  {    image: '/assets/2024-08-male-icon.jpg',    name: 'Vikram Singh',    role: 'TechStart Pvt. Ltd.',    quote:      'Excellent IT support! Myr Advance Solution transformed our business operations with their seamless infrastructure setup. Highly recommended for any startup.',  },  {    image: '/assets/2024-08-female-icon.jpg',    name: 'Anita Sharma',    role: 'Fashion Retail India',    quote:      'Professional website design that perfectly captured our brand identity. The team was creative, responsive, and delivered ahead of schedule.',  },  {    image: '/assets/2024-08-male-icon.jpg',    name: 'Rajesh Patel',    role: 'Manufacturing Group',    quote:      'Reliable CCTV and security system installation. The team was highly professional and the system works flawlessly.',  },  {    image: '/assets/2024-08-female-icon.jpg',    name: 'Priya Johnson',    role: 'Healthcare Solutions',    quote:      'Outstanding IT infrastructure optimization. Their team understood our requirements perfectly and delivered exceptional results.',  },  {    image: '/assets/2024-08-male-icon.jpg',    name: 'Suresh Kumar',    role: 'Finance India',    quote:      "Best toll-free number service we've used. Easy setup, great management interface, and our customers love the convenience."  },  {    image: '/assets/2024-08-female-icon.jpg',    name: 'Fatima Ahmed',    role: 'Education UAE',    quote:      'Excellent partnership for our IT needs. Responsive team, proactive solutions, and genuine care for our success.',  },  {    image: '/assets/2024-08-male-icon.jpg',    name: 'Karthik Raj',    role: 'Software Services',    quote:      'Myr Advance Solution delivered our website on time and on budget. The quality of work is exceptional and the UI is stunning.',  },  {    image: '/assets/2024-08-female-icon.jpg',    name: 'Simranpreet Kaur',    role: 'Retail India',    quote:      'Professional and hassle-free CCTV installation. The team was punctual and the system is very reliable.',  },  {    image: '/assets/2024-08-male-icon.jpg',    name: 'Diego Martinez',    role: 'Export Business',    quote:      'International-standard IT support. Great communication across time zones and delivered exactly what we needed.',  },  {    image: '/assets/2024-08-female-icon.jpg',    name: 'Wei Zhang',    role: 'Manufacturing China',    quote:      'Perfect IT infrastructure setup for our expanding operations. Dependable team with excellent technical expertise.',  },  {    image: '/assets/2024-08-male-icon.jpg',    name: 'Olivia Bennett',    role: 'Marketing UK',    quote:      'Fantastic website redesign. Modern, user-friendly, and has significantly improved our online presence.',  },  {    image: '/assets/2024-08-female-icon.jpg',    name: "Liam O'Connor",    role: 'Finance Ireland',    quote:      'Reliable and efficient service. Myr Advance Solution understands business needs and delivers results every time.',  },  {    image: '/assets/2024-08-male-icon.jpg',    name: 'Aisha Khan',    role: 'Tech Africa',    quote:      'Transformative IT support for our growing startup. Their solutions are scalable and truly value-additive.',  },  {    image: '/assets/2024-08-female-icon.jpg',    name: 'Marta Weber',    role: 'Logistics Germany',    quote:      'Excellent CCTV security system. Professional installation and excellent after-sales support. Very satisfied.',  },  {    image: '/assets/2024-08-male-icon.jpg',    name: 'Tomás Silva',    role: 'Business Spain',    quote:      'Top-quality website development. Creative team, great communication, and deliverables exceeded our expectations.',  },  {    image: '/assets/2024-08-female-icon.jpg',    name: 'Harper Lee',    role: 'Media USA',    quote:      'Professional and efficient service. Myr Advance Solution is now our go-to partner for all IT needs.',  },  {    image: '/assets/2024-08-male-icon.jpg',    name: 'Yuki Sato',    role: 'Tech Japan',    quote:      'Outstanding service and technical expertise. Our systems are now running smoother than ever before.',  },  {    image: '/assets/2024-08-female-icon.jpg',    name: 'Carlos Rodriguez',    role: 'Consulting Mexico',    quote:      'Myr Advance Solution transformed our digital presence. Professional, responsive, and results-oriented team.',  },  {    image: '/assets/2024-08-male-icon.jpg',    name: 'Aarav Singh',    role: 'Startup India',    quote:      'Exceptional support during our launch phase. Their team was always available and went above and beyond.',  },]
 const FAQS = [
   {
     q: 'How to buy a product?',
@@ -1038,38 +1004,48 @@ function StoriesSection() {
           Featured <span className="text-accent-600">Client</span> Stories
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-base leading-relaxed text-ink-600">
-          Trusted by over 9,000+ customers worldwide, Myr Advance Solution is the leading choice for
+          Trusted by over 50,000+ customers worldwide, Myr Advance Solution is the leading choice for
           comprehensive IT services and infrastructure solutions.
         </p>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {TESTIMONIALS.map((t) => (
+        <div className="mt-10 overflow-hidden">
+          <div className="group relative mask-[linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
             <div
-              key={t.name}
-              className="rounded-2xl border border-line bg-white p-6 transition hover:border-accent-400/50"
+              className="flex w-max items-center animate-[var(--animate-marquee)] gap-8 sm:gap-12 group-hover:[animation-play-state:paused]"
+              style={{ width: 'max-content' }}
             >
-              <img
-                src={t.image}
-                alt="Image"
-                loading="lazy"
-                className="mx-auto h-20 w-20 rounded-full object-cover"
-              />
-              <div className="mt-4 flex justify-center">
-                <Stars />
-              </div>
-              <h4 className="mt-3 text-center text-base font-bold text-ink-950">{t.name}</h4>
-              <p className="text-center text-sm text-ink-500">{t.role}</p>
-              <p className="mt-3 text-sm leading-relaxed text-ink-400">
-                <Bold text={t.quote} />
-              </p>
-              <Link
-                to="/about-us/"
-                className="mt-4 inline-block text-sm font-medium text-accent-600 underline"
-              >
-                Read the full story
-              </Link>
+              {[...TESTIMONIALS, ...TESTIMONIALS].map((t, i) => (
+                <div
+                  key={i}
+                  className="shrink-0 w-[250px] sm:w-[300px] lg:w-[340px] rounded-2xl border border-line bg-white p-5 transition hover:border-accent-400/50 hover:-translate-y-1 cursor-pointer"
+                  role="listitem"
+                >
+                  <img
+                    src={t.image}
+                    alt={t.name}
+                    loading="lazy"
+                    className="mx-auto h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover"
+                  />
+                  <div className="mt-3 flex justify-center">
+                    <Stars />
+                  </div>
+                  <h4 className="mt-2 text-center text-sm sm:text-base font-bold text-ink-950 leading-tight">
+                    {t.name}
+                  </h4>
+                  <p className="mt-1 text-center text-xs sm:text-sm text-ink-500">{t.role}</p>
+                  <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-ink-400 text-center">
+                    <Bold text={t.quote} />
+                  </p>
+                  <Link
+                    to="/about-us/"
+                    className="mt-3 block text-center text-xs sm:text-sm font-medium text-accent-600 underline"
+                  >
+                    Read the full story
+                  </Link>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </section>
@@ -1157,7 +1133,7 @@ function UnlockSection() {
           Assistance!
           <br />
           Explore our range of <strong>IT services</strong> and find the perfect solution tailored
-          to your needs. With <strong>over 9000+ loyal customers who trust us</strong>, rest assured
+          to your needs. With <strong>over 50000+ loyal customers who trust us</strong>, rest assured
           that we provide the <strong>best and most cost-effective solutions.</strong> Don&apos;t
           hesitate to reach out if you need any help. Our team of experts is here to assist you every
           step of the way!&rdquo;

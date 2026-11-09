@@ -16,7 +16,7 @@ import { usePopup } from '@/lib/stores'
 const STATS = [
   { label: 'Team Member', value: 50 },
   { label: 'Total Project', value: 300, suffix: '+' },
-  { label: 'Happy Clients', value: 10000, suffix: '+' },
+  { label: 'Happy Clients', value: 50000, comma: true },
   { label: 'Countries', value: 5, suffix: '+' },
 ]
 

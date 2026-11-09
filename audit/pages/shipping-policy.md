@@ -3,8 +3,6 @@
 **Meta:** Go Back Shipping Policy for MYR ADVANCE SOLUTION PVT. LTD.Last Updated: 10-04-2-24At MYR ADVANCE SOLUTION PVT. LTD., we strive to ensure that your orders are processed, shipped, and delivered in a timely manner. This Shipping Policy outlines the terms and conditions related to the shipment of products, including but not limited to CCTV systems, routers,
 
 ## Heading outline
-- h2: Login
-- h2: Register
 - h3: 1. Shipping Destinations
 - h3: 2. Processing Time
 - h3: 3. Shipping Methods and Delivery Time
@@ -14,7 +12,6 @@
 - h3: 7. Damaged or Lost Shipments
 - h3: 8. Customs and Import Duties (For International Orders)
 - h3: 9. Contact Us
-- h3: Partner with Us & Earn 40% Profit Today!
 
 ## Content (markdown)
 [Go Back](#)
@@ -76,63 +73,3 @@ For international orders, customers are responsible for any customs duties, taxe
 If you have any questions regarding shipping, tracking, or delivery of your order, please reach out to us:
 
   * **Email** : contact@myradvancesolution.com
-
-✕
-
-## Login
-
-Username or email address *Required
-
-Password *Required
-
-Remember me Log in
-
-[Lost your password?](https://www.myradvancesolution.com/my-account/lost-password/)
-
-## Register
-
-Email address *Required
-
-A link to set a new password will be sent to your email address.
-
-Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our [privacy policy](https://www.myradvancesolution.com/privacy-policy/).
-
-Register
-
-### Partner with Us & Earn 40% Profit Today!
-
-“Partner with **MYR ADVANCE SOLUTION PVT. LTD.** and unlock the opportunity to **earn up to 40% in revenue** by promoting our wide range of IT services. These include Website Development, CRM Solutions, Toll-Free Numbers, Cloud Telephony Systems, CCTV Installation, IT Infrastructure, and Digital Marketing & More. Join us today and start earning!”
-
-  * Earn 40% revenue on every successful sale.
-  * Access to premium marketing resources and training.
-  * Dedicated partner support for smooth collaboration.
-  * Expand your business network and customer base.
-
-Your Name *
-
-You Services Contact
-
-Email *
-
-Contact Number *
-
-Business Name
-
-Complete Address
-
-Services You Are Interested In
-
-  * Website Development
-  * CRM Solutions
-  * IT Infrastructure
-  * Digital Marketing
-  * Toll-Free Numbers
-  * Cloud Telephony Systems
-  * CCTV & Security
-  * Other
-
-Your Location (City/State) *
-
-Message/Additional Details (Optional)
-
-Submit![Loading](data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2026%2026'%3E%3C/svg%3E)

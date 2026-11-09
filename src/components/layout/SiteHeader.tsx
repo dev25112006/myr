@@ -6,7 +6,7 @@ import {
   OFFCANVAS_SERVICES,
 } from './nav'
 import { useCart, useAuth, usePopup } from '@/lib/stores'
-import { cn, inr } from '@/lib/format'
+import { cn } from '@/lib/format'
 
 const LOGO = '/assets/2024-08-MYR-LOGO.png'
 
@@ -57,7 +57,7 @@ export function SiteHeader() {
   // Keep the same navigation and header controls on every route so the
   // navbar does not reflow when navigating between pages.
   const nav = INNER_NAV
-  const { count, total } = useCart()
+  const { count } = useCart()
   const { user, logout } = useAuth()
   const { setOpen } = usePopup()
 
@@ -307,7 +307,6 @@ export function SiteHeader() {
             className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-ink-950/[0.04] px-2.5 py-2 text-xs font-semibold text-ink-100 transition hover:border-accent-400/50 sm:gap-2 sm:px-3 sm:text-sm"
           >
             <CartGlyph />
-            {count > 0 && <span className="hidden font-mono text-xs sm:inline">{inr(total)}</span>}
             {count > 0 && (
               <span className="rounded-full bg-accent-400 px-1.5 text-[11px] font-bold text-ink-950">
                 {count}
@@ -315,7 +314,7 @@ export function SiteHeader() {
             )}
             <span className="hidden text-xs text-ink-300 sm:inline">Cart</span>
             <span className="sr-only">
-              Cart, {count} {count === 1 ? 'item' : 'items'}, total {inr(total)}
+              Cart, {count} {count === 1 ? 'item' : 'items'}
             </span>
           </Link>
 

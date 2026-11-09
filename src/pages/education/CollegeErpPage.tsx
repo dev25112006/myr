@@ -6,7 +6,7 @@ import { TourProvider } from '@/components/education/TourProvider'
 import { useTour } from '@/components/education/useTour'
 import { TourShell } from '@/components/education/TourShell'
 import { ErpHero } from '@/components/education/ErpHero'
-import { BuyShowcase } from '@/components/commerce/BuyShowcase'
+import { SubscriptionPlans } from '@/components/commerce/SubscriptionPlans'
 import {
   CampusTourSection,
   ClosingSection,
@@ -46,16 +46,11 @@ function CollegeErpContent() {
       />
 
       {/* Buy */}
-      <BuyShowcase
-        id={6002}
+      <SubscriptionPlans
+        productId={6002}
         name="College ERP"
-        desc="Departments, semesters, placements and institutional oversight in one view."
-        fallbackPrice={7000}
-        monthly
-        image="/assets/2025-02-it-expert-2.png"
         heading="Build a Connected Campus"
-        sub="Admin-controlled pricing. Buy now and go live fast."
-        features={['Departments & semesters', 'Exams & results', 'Placements', 'Fee & finance']}
+        sub="Choose a plan that fits your institution. Every plan includes departments, semesters, placements and institutional oversight."
       />
 
       {/* 2 · Virtual tour */}

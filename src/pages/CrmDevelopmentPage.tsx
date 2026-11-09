@@ -1,6 +1,6 @@
 import { CHAT_SUPPORT, CHAT_SALES } from '@/components/layout/nav'
 import { Reveal, SectionHeading, Stagger, StaggerItem, TiltCard } from '@/components/ui'
-import { BuyShowcase } from '@/components/commerce/BuyShowcase'
+import { SubscriptionPlans } from '@/components/commerce/SubscriptionPlans'
 import { SmartForm, type FormConfig } from '@/components/forms/SmartForm'
 
 /* ------------------------------- source data ------------------------------ */
@@ -369,16 +369,11 @@ export function CrmDevelopmentPage() {
   return (
     <>
       <HeroSection />
-      <BuyShowcase
-        id={6004}
+      <SubscriptionPlans
+        productId={6004}
         name="CRM Software"
-        desc="Tailored CRM — pipeline management, customer tracking and sales automation."
-        fallbackPrice={8000}
-        monthly
-        image="/assets/2024-09-customized-crm-development.png"
         heading="Your Business, Your CRM – Tailored for Success"
-        sub="Admin-controlled pricing. Buy now and go live fast."
-        features={['Pipeline management', 'Customer tracking', 'Sales automation', 'Custom workflows']}
+        sub="Choose a plan that fits your team. Every plan includes pipeline management, customer tracking and sales automation."
       />
       <ApproachSection />
       <ProcessSection />

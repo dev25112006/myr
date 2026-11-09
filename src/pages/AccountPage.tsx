@@ -311,7 +311,7 @@ export function AccountPage() {
           <section className={box}>
             <p className="eyebrow">My orders</p>
             <h2 className="mt-2 text-2xl font-bold text-ink-950">Order history</h2>
-            <p className="mt-1 text-sm text-ink-400">Every order you have placed, with a printable and downloadable receipt for paid orders.</p>
+            <p className="mt-1 text-sm text-ink-400">Every order you have placed, with a receipt for paid orders.</p>
 
             {orders.length ? (
               <div className="mt-5 space-y-4">
@@ -326,7 +326,7 @@ export function AccountPage() {
                         <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${o.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-paper text-ink-300'}`}>{o.status}</span>
                         {o.paymentStatus === 'paid' && (
                           <>
-                            <button type="button" className="btn btn-primary btn-sm" onClick={() => setReceiptOrder(o)}>Receipt · print / download</button>
+                            <button type="button" className="btn btn-primary btn-sm" onClick={() => setReceiptOrder(o)}>Receipt</button>
                           </>
                         )}
                       </div>

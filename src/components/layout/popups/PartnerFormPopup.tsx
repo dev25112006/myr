@@ -5,7 +5,13 @@ import { PARTNER_FORM } from '@/content/leadForms'
 /** Partner popup reuses the white-label / reseller / distribution inquiry form. */
 export function PartnerFormPopup() {
   return (
-    <ModalShell id="partner" title="Partner with Us & Earn Profit Today!" wide>
+    <ModalShell
+      id="partner"
+      title="Partner with Us & Earn Profit Today!"
+      wide
+      fullScreen
+      background="blue"
+    >
       <div className="mb-5">
         <p className="text-sm leading-relaxed text-ink-300">
           “Partner with <strong className="text-ink-950">MYR ADVANCE SOLUTION PVT. LTD.</strong> and

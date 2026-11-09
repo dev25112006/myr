@@ -1,8 +1,7 @@
 import { useEffect, useState, type PointerEvent } from 'react'
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
 import { CHAT_SALES } from '@/components/layout/nav'
-import { BuyShowcase } from '@/components/commerce/BuyShowcase'
-
+import { SubscriptionPlans } from '@/components/commerce/SubscriptionPlans'
 const MODULES = [
   { name: 'People directory', short: 'People', icon: '◎', eyebrow: 'ONE PEOPLE VIEW', headline: 'Every person, connected.', text: 'Bring employee details, roles, documents, and important moments together in one clear home.' },
   { name: 'Time & attendance', short: 'Attendance', icon: '◷', eyebrow: 'TIME, MADE SIMPLE', headline: 'Know who’s in, at a glance.', text: 'Keep schedules, leave requests, and attendance updates visible to the whole team.' },
@@ -109,16 +108,11 @@ export function HRMSolutionsPage() {
         </div>
       </section>
 
-      <BuyShowcase
-        id={6005}
+      <SubscriptionPlans
+        productId={6005}
         name="HRM Software"
-        desc="Employee onboarding, attendance, payroll and performance management."
-        fallbackPrice={3000}
-        monthly
-        image="/assets/2024-08-buy-time-attendance.png"
         heading="Ready to make people operations simpler?"
-        sub="Admin-controlled pricing. Buy now and go live fast."
-        features={['People directory & records', 'Time & attendance', 'Payroll & benefits', 'Hiring & onboarding']}
+        sub="Choose a plan that fits your team. Every plan includes people directory, time & attendance, payroll and hiring."
       />
 
       <section id="hrm-workspace" className="scroll-mt-20 py-16 sm:py-20">

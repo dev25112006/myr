@@ -5,7 +5,7 @@ import { TourProvider } from '@/components/education/TourProvider'
 import { useTour } from '@/components/education/useTour'
 import { TourShell } from '@/components/education/TourShell'
 import { ErpHero } from '@/components/education/ErpHero'
-import { BuyShowcase } from '@/components/commerce/BuyShowcase'
+import { SubscriptionPlans } from '@/components/commerce/SubscriptionPlans'
 import { DemoBadge } from '@/components/education/DemoBadge'
 import {
   CampusTourSection,
@@ -45,16 +45,11 @@ function CoachingErpContent() {
       />
 
       {/* Buy */}
-      <BuyShowcase
-        id={6003}
+      <SubscriptionPlans
+        productId={6003}
         name="Coaching ERP"
-        desc="Enquiries, batches, test series and fee follow-ups for coaching institutes."
-        fallbackPrice={4000}
-        monthly
-        image="/assets/2024-08-start-mission-success-strategy-beginning-concept.png"
         heading="Spend Less Time Managing. More Time Teaching."
-        sub="Admin-controlled pricing. Buy now and go live fast."
-        features={['Batches & attendance', 'Test series & results', 'Fees & follow-ups', 'Student portal']}
+        sub="Choose a plan that fits your institute. Every plan includes batches, attendance, test series, fees and student portal."
       />
 
       {/* 2 · Virtual Coaching Institute */}

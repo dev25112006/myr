@@ -3,8 +3,6 @@
 **Meta:** Go Back Privacy Policy for MYR ADVANCE SOLUTION PVT. LTD.Last Updated: 10-04-2024MYR ADVANCE SOLUTION PVT. LTD. ("we", "our", or "us") values your privacy and is committed to protecting your personal data. This Privacy Policy outlines how we collect, use, and safeguard your information when you interact with our website myradvancesolution.com, services, and products, including IT
 
 ## Heading outline
-- h2: Login
-- h2: Register
 - h3: 1. Information We Collect
 - h3: 2. How We Use Your Information
 - h3: 3. Cookies and Tracking Technologies
@@ -15,7 +13,6 @@
 - h3: 8. Children’s Privacy
 - h3: 9. Changes to This Privacy Policy
 - h3: 10. Contact Us
-- h3: Partner with Us & Earn 40% Profit Today!
 
 ## Content (markdown)
 [Go Back](#)
@@ -95,63 +92,3 @@ We reserve the right to update this Privacy Policy from time to time. When we ma
 If you have any questions or concerns about this Privacy Policy, or wish to exercise your rights regarding your personal information, please contact us:
 
   * **Email** : [contact@myradvancesolution.com](mailto:contact@myradvancesolution.com)
-
-✕
-
-## Login
-
-Username or email address *Required
-
-Password *Required
-
-Remember me Log in
-
-[Lost your password?](https://www.myradvancesolution.com/my-account/lost-password/)
-
-## Register
-
-Email address *Required
-
-A link to set a new password will be sent to your email address.
-
-Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our [privacy policy](https://www.myradvancesolution.com/privacy-policy/).
-
-Register
-
-### Partner with Us & Earn 40% Profit Today!
-
-“Partner with **MYR ADVANCE SOLUTION PVT. LTD.** and unlock the opportunity to **earn up to 40% in revenue** by promoting our wide range of IT services. These include Website Development, CRM Solutions, Toll-Free Numbers, Cloud Telephony Systems, CCTV Installation, IT Infrastructure, and Digital Marketing & More. Join us today and start earning!”
-
-  * Earn 40% revenue on every successful sale.
-  * Access to premium marketing resources and training.
-  * Dedicated partner support for smooth collaboration.
-  * Expand your business network and customer base.
-
-Your Name *
-
-Email *
-
-Contact Number *
-
-Business Name
-
-Complete Address
-
-Services You Are Interested In
-
-  * Website Development
-  * CRM Solutions
-  * IT Infrastructure
-  * Digital Marketing
-  * Toll-Free Numbers
-  * Cloud Telephony Systems
-  * CCTV & Security
-  * Other
-
-Your Location (City/State) *
-
-Interested (City/State) Services
-
-Message/Additional Details (Optional)
-
-Submit![Loading](data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2026%2026'%3E%3C/svg%3E)

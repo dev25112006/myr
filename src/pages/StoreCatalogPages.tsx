@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { CATALOG, type CatalogProduct } from '@/lib/catalog'
+import { SubscriptionPlans } from '@/components/commerce/SubscriptionPlans'
 import { useAuth, useCart } from '@/lib/stores'
 import { inr } from '@/lib/format'
 import { CHAT_SALES } from '@/components/layout/nav'
@@ -114,6 +115,39 @@ export function ProductCategoryPage({ kind }: { kind: CategoryKind }) {
     <section className="bg-white py-12 sm:py-16">
       <div className="container-page"><div className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm text-slate-500">{kind === 'digital' ? 'Explore available plans' : `Showing all ${products.length} results`}</p><h2 className="mt-1 text-2xl font-bold text-slate-900">{kind === 'website' ? 'Website plans' : kind === 'digital' ? 'AI marketing plans' : kind === 'pbx' ? 'PBX systems' : 'Featured IT solution'}</h2></div><Link to="/tech-store/" className="text-sm font-semibold text-rose-600 hover:text-rose-700">Back to Tech Store →</Link></div>{kind === 'digital' ? <DigitalMarketingProductPage /> : <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{products.map((product) => <ProductCard key={product.id} product={product} />)}</div>}</div>
     </section>
+
+    {/* Subscription plans — every product row shows all three plans */}
+    <section className="border-b border-slate-200 bg-paper py-14 sm:py-20">
+      <div className="container-page">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-rose-600">Subscription plans</p>
+            <h2 className="mt-1 text-2xl font-bold text-slate-900">Choose your subscription</h2>
+            <p className="mt-2 text-sm text-slate-500">Every product row below shows all three plans — Starter, Pro and Enterprise (per-user) — with monthly and yearly billing.</p>
+          </div>
+          <Link to="/tech-store/" className="text-sm font-semibold text-rose-600 hover:text-rose-700">Back to Tech Store →</Link>
+        </div>
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {[6004, 6005, 6001, 6002, 6003, 6006].map((productId) => {
+            const product = CATALOG[productId]
+            if (!product) return null
+            return (
+              <div key={productId} className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <img src={product.image ?? '/assets/2024-09-website-development.jpg'} alt={product.name} className="h-10 w-10 shrink-0 rounded-xl object-cover" loading="lazy" />
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">{product.name}</h3>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">{product.category}</p>
+                  </div>
+                </div>
+                <SubscriptionPlans productId={productId} name={product.name} />
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+
     <section className="border-t border-slate-200 bg-[#f7f7f7] py-10"><div className="container-page flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-wide text-rose-600">Need help choosing?</p><h2 className="mt-2 text-xl font-bold text-slate-900">Talk with our product team.</h2></div><a href={CHAT_SALES} target="_blank" rel="noreferrer" className="btn btn-md bg-rose-600 text-white hover:bg-rose-700">Ask our team</a></div></section>
   </>
 }

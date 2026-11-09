@@ -63,6 +63,10 @@
     from { transform: translateX(-50%); }
     to { transform: translateX(0); }
   }
+  @keyframes testimonialsScroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-14px); }
@@ -721,5 +725,12 @@
     display: block !important;
     color: #000;
     background: #fff;
+  }
+}
+
+/* --------------------- reduced motion --------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .partners-marquee-track {
+    animation: none !important;
   }
 }

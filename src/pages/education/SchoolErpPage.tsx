@@ -6,7 +6,7 @@ import { TourProvider } from '@/components/education/TourProvider'
 import { useTour } from '@/components/education/useTour'
 import { TourShell } from '@/components/education/TourShell'
 import { ErpHero } from '@/components/education/ErpHero'
-import { BuyShowcase } from '@/components/commerce/BuyShowcase'
+import { SubscriptionPlans } from '@/components/commerce/SubscriptionPlans'
 import {
   CampusTourSection,
   ClosingSection,
@@ -47,16 +47,11 @@ function SchoolErpContent() {
       />
 
       {/* Buy */}
-      <BuyShowcase
-        id={6001}
+      <SubscriptionPlans
+        productId={6001}
         name="School ERP"
-        desc="Admissions, attendance, exams, fees and campus operations for schools."
-        fallbackPrice={5000}
-        monthly
-        image="/assets/2024-09-website-designing-service-7.png"
         heading="Start Your School ERP Journey"
-        sub="Admin-controlled pricing. Buy now and get set up in days."
-        features={['Admissions & student records', 'Attendance & exams', 'Fees & finance', 'Parent & staff portals']}
+        sub="Choose a plan that fits your institution. Every plan includes admissions, attendance, exams, fees and campus operations."
       />
 
       {/* 2 · Virtual tour */}

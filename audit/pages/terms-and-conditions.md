@@ -3,8 +3,6 @@
 **Meta:** Go Back Terms and Conditions for MYR ADVANCE SOLUTION PVT. LTD.Last Updated: 10-04-2024Welcome to MYR ADVANCE SOLUTION PVT. LTD.! These Terms and Conditions outline the rules and regulations for the use of our website and services. By accessing or using our website or purchasing products and services from us, you agree to comply with and
 
 ## Heading outline
-- h2: Login
-- h2: Register
 - h3: 1. Introduction
 - h3: 2. Changes to the Terms
 - h3: 3. Eligibility
@@ -22,7 +20,6 @@
 - h3: 15. Termination
 - h3: 16. Governing Law
 - h3: 17. Contact Information
-- h3: Partner with Us & Earn 40% Profit Today!
 
 ## Content (markdown)
 [Go Back](#)
@@ -130,63 +127,3 @@ These Terms and Conditions are governed by and construed in accordance with the 
 If you have any questions or concerns regarding these Terms and Conditions, please contact us:
 
   * **Email** : [contact@myradvancesolution.com](mailto:contact@myradvancesolution.com)
-
-✕
-
-## Login
-
-Username or email address *Required
-
-Password *Required
-
-Remember me Log in
-
-[Lost your password?](https://www.myradvancesolution.com/my-account/lost-password/)
-
-## Register
-
-Email address *Required
-
-A link to set a new password will be sent to your email address.
-
-Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our [privacy policy](https://www.myradvancesolution.com/privacy-policy/).
-
-Register
-
-### Partner with Us & Earn 40% Profit Today!
-
-“Partner with **MYR ADVANCE SOLUTION PVT. LTD.** and unlock the opportunity to **earn up to 40% in revenue** by promoting our wide range of IT services. These include Website Development, CRM Solutions, Toll-Free Numbers, Cloud Telephony Systems, CCTV Installation, IT Infrastructure, and Digital Marketing & More. Join us today and start earning!”
-
-  * Earn 40% revenue on every successful sale.
-  * Access to premium marketing resources and training.
-  * Dedicated partner support for smooth collaboration.
-  * Expand your business network and customer base.
-
-Your Name *
-
-Email *
-
-Contact Number *
-
-Business Name
-
-Interested (Optional) Name
-
-Complete Address
-
-Services You Are Interested In
-
-  * Website Development
-  * CRM Solutions
-  * IT Infrastructure
-  * Digital Marketing
-  * Toll-Free Numbers
-  * Cloud Telephony Systems
-  * CCTV & Security
-  * Other
-
-Your Location (City/State) *
-
-Message/Additional Details (Optional)
-
-Submit![Loading](data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2026%2026'%3E%3C/svg%3E)

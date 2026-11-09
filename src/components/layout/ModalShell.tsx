@@ -7,6 +7,8 @@ type Props = {
   title?: string
   children: ReactNode
   wide?: boolean
+  fullScreen?: boolean
+  background?: "white" | "blue" | "transparent"
 }
 
 /** Shared modal shell controlled by PopupProvider (Esc + backdrop close). */
@@ -28,7 +30,7 @@ export function ModalShell({ id, title, children, wide }: Props) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-80 flex items-start justify-center overflow-y-auto bg-ink-950/80 p-4 backdrop-blur-sm sm:items-center sm:p-6"
+          className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-90 w-full h-full max-w-2xl overflow-y-auto p-6 backdrop-blur-sm {background === 'white' && 'bg-white'} {background === 'blue' && 'bg-indigo-500'} {background === 'transparent' && 'bg-transparent'}"
           onClick={() => setOpen(null)}
           role="dialog"
           aria-modal="true"
