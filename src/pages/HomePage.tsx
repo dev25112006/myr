@@ -273,7 +273,7 @@ function Bold({ text }: { text: string }) {
   )
 }
 
-function StatCounter({ target, suffix, comma }: { target: number; suffix: string; comma?: boolean }) {
+function StatCounter({ target, suffix, comma }: { target: number; suffix?: string; comma?: boolean }) {
   const [val, setVal] = useState(0)
   useEffect(() => {
     const duration = 2000
