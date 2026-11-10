@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ModalShell } from '../ModalShell'
 import { useAuth, usePopup } from '@/lib/stores'
 import { HumanVerification, turnstileSiteKey } from '@/components/forms/HumanVerification'
@@ -16,6 +16,7 @@ type RegisterStep = 'enter' | 'otp' | 'verified'
 export function LoginRegisterPopup() {
   const { setOpen } = usePopup()
   const { login, register, otpSend, otpVerify, otpResend } = useAuth()
+  const navigate = useNavigate()
   const [tab, setTab] = useState<'login' | 'register'>('login')
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
@@ -38,7 +39,7 @@ export function LoginRegisterPopup() {
     }
     if (authTurnstileRequired && (!turnstileSiteKey || !humanToken)) { setError('Complete human verification before signing in.'); return }
     setError('')
-    try { await login(identifier.trim(), password, humanToken); setDone(`Signed in as ${identifier.trim()}.`) }
+    try { await login(identifier.trim(), password, humanToken); setOpen(null); navigate('/my-account/') }
     catch (reason) { setError(reason instanceof Error ? reason.message : 'Unable to sign in.') }
   }
 
