@@ -94,7 +94,7 @@ export function AppRoutes() {
           <Route path="/partnership/" element={<PartnershipPage />} />
           <Route path="/1800-number/" element={<Number1800Page />} />
           <Route path="/crm/" element={<CrmDevelopmentPage />} />
-          <Route path="/privyr/" element={<PrivyrPage />} />
+          <Route path="/privyr/" element={<CrmDevelopmentPage />} />
 
           {/* Phase 4 */}
           <Route path="/about-us/" element={<AboutPage />} />
