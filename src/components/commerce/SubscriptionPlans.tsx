@@ -37,7 +37,7 @@ export function SubscriptionPlans({
   return (
     <div className="bg-white p-6 rounded-lg shadow-card max-w-6xl mx-auto">
       {/* Toggle section */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-6 justify-end">
         <span className="text-sm text-ink-500">View as:</span>
         <div className="flex gap-2">
           {/* Monthly button */}

@@ -119,7 +119,7 @@ export function SiteFooter() {
             <button
               type="button"
               onClick={() => setOpen('partner')}
-              className="btn btn-primary btn-sm mt-3"
+              className="btn btn-primary btn-sm mt-3 whitespace-normal text-center"
             >
               Become a partner
             </button>

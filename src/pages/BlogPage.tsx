@@ -193,15 +193,6 @@ export function BlogPage() {
   const featured = filtered.find((blog) => blog.featured) ?? filtered[0]
   const rest = filtered.filter((blog) => blog !== featured)
 
-  const topics = useMemo(() => {
-    const all = [...blogs.map((blog) => blog.category), ...blogs.flatMap((blog) => blog.tags)]
-    return Array.from(new Set(all)).slice(0, 18)
-  }, [blogs])
-
-  const avgRead = blogs.length
-    ? Math.round(blogs.reduce((sum, blog) => sum + blog.readingMinutes, 0) / blogs.length)
-    : 0
-
   return (
     <>
       {/* ---------------- Hero ---------------- */}
@@ -211,9 +202,9 @@ export function BlogPage() {
         <div aria-hidden="true" className="absolute -right-16 bottom-0 h-80 w-80 animate-[var(--animate-float)] rounded-full bg-flame-500/15 blur-3xl [animation-delay:1.6s]" />
 
         <div className="container-page relative py-16 sm:py-20 lg:py-24">
-          <div className="flex flex-col lg:flex-row lg:items-start lg:gap-12 relative z-10">
+          <div className="relative z-10 grid items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-14">
             {/* Left: text content */}
-            <div className="relative lg:w-1/2">
+            <div className="relative">
               <Reveal variant="blur">
                 <p className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-flame-600/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-flame-400 backdrop-blur-sm border border-flame-600/40 shadow-[0_0_15px_rgba(225,29,72,0.35)]">
                   <span className="h-1.5 w-1.5 rounded-full bg-flame-500" />
@@ -238,8 +229,6 @@ export function BlogPage() {
                 <dl className="mt-9 flex flex-wrap gap-x-8 gap-y-4">
                   {[
                     { label: 'Articles published', value: <CountUp to={blogs.length} suffix="+" /> },
-                    { label: 'Topic categories', value: <CountUp to={Math.max(1, categories.length - 1)} /> },
-                    { label: 'Avg. read time', value: <CountUp to={avgRead || 6} suffix=" min" /> },
                   ].map((stat) => (
                     <div key={stat.label} className="rounded-2xl border border-flame-500/30 bg-flame-900/20 px-5 py-4 backdrop-blur-sm shadow-[0_0_15px_rgba(225,29,72,0.2)]">
                       <dd className="text-2xl font-bold text-accent-200 sm:text-3xl">{stat.value}</dd>
@@ -250,46 +239,36 @@ export function BlogPage() {
               </Reveal>
             </div>
 
-            {/* Right: sliding picture loop */}
-            <div className="relative lg:w-1/2 mt-10 lg:mt-0 h-64 lg:h-80">
-              <div
-                className="flex w-max animate-[var(--animate-marquee)] gap-6 group-hover:[animation-play-state:paused]"
-                style={{ width: 'max-content' }}
-              >
-                {[...BLOG_HERO_IMAGES, ...BLOG_HERO_IMAGES].map((src, i) => (
-                  <SmartCover
-                    key={i}
-                    src={src}
-                    alt="Blog preview"
-                    frameRatio={1.2}
-                    lazy
-                    className="h-40 w-48 shrink-0 rounded-2xl border border-flame-500/40 shadow-[0_0_25px_rgba(225,29,72,0.3)] transition-transform duration-300 hover:scale-105 lg:h-56 lg:w-60"
-                  />
-                ))}
+            {/* Right: running slide in a framed container (stacks below text on small screens) */}
+            <div className="relative overflow-hidden rounded-3xl border border-flame-500/30 bg-black/20 shadow-[0_0_30px_rgba(225,29,72,0.15)] backdrop-blur-sm">
+              {/* Decorative header strip */}
+              <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-white/5 px-4 py-2.5 sm:px-5">
+                <span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-flame-300 sm:text-[11px]">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-flame-500" aria-hidden="true" />
+                  Fresh from the blog
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-accent-300/70 sm:text-[11px]">
+                  Live feed
+                </span>
+              </div>
+
+              {/* Running slide — edge-faded track */}
+              <div className="overflow-hidden py-4 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)] sm:py-5">
+                <div className="flex w-max animate-[var(--animate-marquee)] gap-4 sm:gap-5">
+                  {[...BLOG_HERO_IMAGES, ...BLOG_HERO_IMAGES].map((src, i) => (
+                    <SmartCover
+                      key={i}
+                      src={src}
+                      alt="Blog preview"
+                      frameRatio={1.2}
+                      lazy
+                      className="h-28 w-36 shrink-0 rounded-2xl border border-flame-500/40 shadow-[0_0_25px_rgba(225,29,72,0.3)] transition-transform duration-300 hover:scale-105 sm:h-36 sm:w-44 lg:h-44 lg:w-52"
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Mobile sliding picture loop (stacked below text on small screens) */}
-          <section className="section-dark relative overflow-hidden lg:hidden py-8">
-            <div className="container-page px-4">
-              <div
-                className="flex w-max animate-[var(--animate-marquee)] gap-6 group-hover:[animation-play-state:paused]"
-                style={{ width: 'max-content' }}
-              >
-                {[...BLOG_HERO_IMAGES, ...BLOG_HERO_IMAGES].map((src, i) => (
-                  <SmartCover
-                    key={i}
-                    src={src}
-                    alt="Blog preview"
-                    frameRatio={1.25}
-                    lazy
-                    className="h-32 w-40 shrink-0 rounded-2xl border border-flame-500/40 shadow-[0_0_25px_rgba(225,29,72,0.3)] transition-transform duration-300 hover:scale-105"
-                  />
-                ))}
-              </div>
-            </div>
-          </section>
         </div>
       </section>
 

@@ -164,6 +164,8 @@ export const FOOTER_MARKETS: NavLink[] = [
 export const FOOTER_SERVICES: NavLink[] = [
   { label: 'Web Development', to: '/website-development/' },
   { label: 'CRM Development', to: '/crm-development/' },
+  { label: 'Ecommerce Solutions', to: '/ecommerce-solutions/' },
+  { label: 'Education ERP', to: '/education-erp/' },
   { label: 'AI Digital Marketing', to: '/digital-marketing/' },
   { label: 'IPBX Solution', to: '/ipbx-solution/' },
   { label: 'CCTV', to: '/cctv-solution/' },
