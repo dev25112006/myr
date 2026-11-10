@@ -17,6 +17,15 @@ const CATEGORY_PALETTE = [
   'bg-sky-500/10 text-sky-700',
 ]
 
+/** Sliding hero images beside the blog statement. */
+const BLOG_HERO_IMAGES = [
+  '/assets/2025-01-website-front-hero-image.png',
+  '/assets/2024-09-website-development.jpg',
+  '/assets/2024-09-crm-development.png',
+  '/assets/2024-09-digital-marketing.jpg',
+  '/assets/2024-09-ip-pbx-1.png',
+]
+
 function categoryClass(category: string): string {
   let hash = 0
   for (const char of category) hash = (hash * 31 + char.charCodeAt(0)) >>> 0
@@ -146,56 +155,83 @@ export function BlogPage() {
       {/* ---------------- Hero ---------------- */}
       <section className="section-dark relative overflow-hidden">
         <div className="grid-noise absolute inset-0 opacity-60" aria-hidden="true" />
-        <div aria-hidden="true" className="absolute -left-24 top-10 h-72 w-72 animate-[var(--animate-float)] rounded-full bg-accent-500/25 blur-3xl" />
-        <div aria-hidden="true" className="absolute -right-16 bottom-0 h-80 w-80 animate-[var(--animate-float)] rounded-full bg-flame-500/20 blur-3xl [animation-delay:1.6s]" />
+        <div aria-hidden="true" className="absolute -left-24 top-10 h-72 w-72 animate-[var(--animate-float)] rounded-full bg-accent-500/20 blur-3xl" />
+        <div aria-hidden="true" className="absolute -right-16 bottom-0 h-80 w-80 animate-[var(--animate-float)] rounded-full bg-flame-500/15 blur-3xl [animation-delay:1.6s]" />
+
         <div className="container-page relative py-16 sm:py-20 lg:py-24">
-          <Reveal variant="blur">
-            <p className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-accent-500/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent-400 backdrop-blur-sm border border-accent-500/30">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent-400" />
-              Insights from the MYR team
-            </p>
-          </Reveal>
-          <Reveal delay={0.08}>
-            <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-[1.05] text-white drop-shadow-lg sm:text-5xl lg:text-6xl">
-              Ideas, guides &amp; playbooks for{' '}
-              <span className="text-shimmer text-gradient">growing businesses</span>
-            </h1>
-          </Reveal>
-          <Reveal delay={0.16}>
-            <p className="mt-5 max-w-2xl text-xl leading-relaxed text-ink-100 sm:text-lg">
-              Deep dives on ERP software, CRM, HRM, website development, AI digital marketing, IP PBX and
-              CCTV — written to answer the questions our clients actually ask.
-            </p>
-          </Reveal>
+          {/* Left: text content */}
+          <div className="relative z-10 lg:w-1/2">
+            <Reveal variant="blur">
+              <p className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-flame-600/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-flame-400 backdrop-blur-sm border border-flame-600/40 shadow-[0_0_15px_rgba(225,29,72,0.35)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-flame-500" />
+                Insights from the MYR team
+              </p>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <h1 className="mt-4 max-w-lg text-4xl font-bold leading-[1.05] text-accent-300 drop-shadow-[0_0_20px_rgba(24,144,255,0.45)] sm:text-5xl lg:text-6xl">
+                Ideas, guides &amp; playbooks for{' '}
+                <span className="text-shimmer text-gradient">growing businesses</span>
+              </h1>
+            </Reveal>
+            <Reveal delay={0.16}>
+              <p className="mt-5 max-w-lg text-xl leading-relaxed text-accent-100 sm:text-lg">
+                Deep dives on ERP software, CRM, HRM, website development, AI digital marketing, IP PBX and
+                CCTV — written to answer the questions our clients actually ask.
+              </p>
+            </Reveal>
 
-          {/* Running stat counters */}
-          <Reveal delay={0.24}>
-            <dl className="mt-9 flex flex-wrap gap-x-10 gap-y-5">
-              {[
-                { label: 'Articles published', value: <CountUp to={blogs.length} suffix="+" /> },
-                { label: 'Topic categories', value: <CountUp to={Math.max(1, categories.length - 1)} /> },
-                { label: 'Avg. read time', value: <CountUp to={avgRead || 6} suffix=" min" /> },
-              ].map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-white/20 bg-white/5 px-5 py-4 backdrop-blur-sm">
-                  <dd className="text-2xl font-bold text-white sm:text-3xl">{stat.value}</dd>
-                  <dt className="mt-1 text-xs uppercase tracking-wider text-ink-200">{stat.label}</dt>
-                </div>
-              ))}
-            </dl>
-          </Reveal>
-        </div>
-
-        {/* Running topics marquee */}
-        <div className="group relative overflow-hidden border-t border-white/10 py-4 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
-          <div className="flex w-max animate-[var(--animate-marquee)] gap-3 group-hover:[animation-play-state:paused]">
-            {[0, 1].map((row) => (
-              <div key={row} className="flex gap-3" aria-hidden={row === 1}>
-                {topics.map((topic) => (
-                  <span key={`${row}-${topic}`} className="whitespace-nowrap rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-ink-100">
-                    {topic}
-                  </span>
+            {/* Running stat counters */}
+            <Reveal delay={0.24}>
+              <dl className="mt-9 flex flex-wrap gap-x-8 gap-y-4">
+                {[
+                  { label: 'Articles published', value: <CountUp to={blogs.length} suffix="+" /> },
+                  { label: 'Topic categories', value: <CountUp to={Math.max(1, categories.length - 1)} /> },
+                  { label: 'Avg. read time', value: <CountUp to={avgRead || 6} suffix=" min" /> },
+                ].map((stat) => (
+                  <div key={stat.label} className="rounded-2xl border border-flame-500/30 bg-flame-900/20 px-5 py-4 backdrop-blur-sm shadow-[0_0_15px_rgba(225,29,72,0.2)]">
+                    <dd className="text-2xl font-bold text-accent-200 sm:text-3xl">{stat.value}</dd>
+                    <dt className="mt-1 text-xs uppercase tracking-wider text-flame-300">{stat.label}</dt>
+                  </div>
                 ))}
-              </div>
+              </dl>
+            </Reveal>
+          </div>
+
+          {/* Right: sliding picture loop */}
+          <div className="hidden lg:block mt-10 lg:mt-0 relative h-64 lg:h-80">
+            <div
+              className="flex w-max animate-[var(--animate-marquee)] gap-6 group-hover:[animation-play-state:paused]"
+              style={{ width: 'max-content' }}
+            >
+              {[...BLOG_HERO_IMAGES, ...BLOG_HERO_IMAGES].map((src, i) => (
+                <img
+                  key={i}
+                  src={src}
+                  alt="Blog preview"
+                  loading="lazy"
+                  className="h-40 lg:h-56 w-48 lg:w-60 rounded-2xl object-cover border border-flame-500/40 shadow-[0_0_25px_rgba(225,29,72,0.3)] hover:scale-105 transition-transform duration-300"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile sliding picture loop (full width below hero) */}
+      <section className="section-dark relative overflow-hidden lg:hidden py-8">
+        <div className="container-page px-4">
+          <div
+            className="flex w-max animate-[var(--animate-marquee)] gap-6 group-hover:[animation-play-state:paused]"
+            style={{ width: 'max-content' }}
+          >
+            {[...BLOG_HERO_IMAGES, ...BLOG_HERO_IMAGES].map((src, i) => (
+              <img
+                key={i}
+                src={src}
+                alt="Blog preview"
+                loading="lazy"
+                className="h-32 w-40 rounded-2xl object-cover border border-flame-500/40 shadow-[0_0_25px_rgba(225,29,72,0.3)] hover:scale-105 transition-transform duration-300"
+              />
             ))}
           </div>
         </div>
