@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { motion, useReducedMotion, useScroll, useSpring } from 'framer-motion'
 import { cn } from '@/lib/format'
@@ -42,6 +42,57 @@ function coverOf(blog: Blog): string {
   return blog.coverImage || '/assets/2025-01-website-front-hero-image.png'
 }
 
+/**
+ * Cover image that never cuts its subject: wide artwork fills the frame with
+ * `object-cover`, while squarish/portrait artwork (e.g. 300×300 product shots
+ * like the IP PBX unit) is shown complete via `object-contain` on the frame's
+ * background instead of being cropped to the frame ratio.
+ */
+function SmartCover({
+  src,
+  alt,
+  className,
+  frameRatio = 16 / 9,
+  lazy = false,
+}: {
+  src: string
+  alt: string
+  /** Box classes for the frame (aspect-… / h-full w-full + hover transitions). */
+  className?: string
+  /** Width ÷ height of the frame the image sits in. */
+  frameRatio?: number
+  lazy?: boolean
+}) {
+  const [contain, setContain] = useState(false)
+  const imgRef = useRef<HTMLImageElement>(null)
+
+  const decide = (img: HTMLImageElement | null) => {
+    if (!img || !img.naturalWidth) return
+    const ratio = img.naturalWidth / img.naturalHeight
+    // Contain only when the art is substantially squarer than its frame,
+    // so normal wide photos keep the full-bleed cover look.
+    setContain(ratio < frameRatio * 0.85)
+  }
+
+  /* Handles already-cached images that never fire `load` after mount. */
+  useEffect(() => {
+    const img = imgRef.current
+    if (img?.complete) decide(img)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [src, frameRatio])
+
+  return (
+    <img
+      ref={imgRef}
+      src={src}
+      alt={alt}
+      loading={lazy ? 'lazy' : undefined}
+      onLoad={(event) => decide(event.currentTarget)}
+      className={cn(className, contain ? 'object-contain p-3 sm:p-5' : 'object-cover')}
+    />
+  )
+}
+
 /** Inline **bold** support for admin-authored copy. */
 function renderInline(text: string): ReactNode[] {
   return text
@@ -69,11 +120,12 @@ function BlogCard({ blog }: { blog: Blog }) {
           className="group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-white shadow-card transition-shadow duration-300 hover:shadow-glow"
         >
           <div className="relative aspect-[16/9] overflow-hidden bg-paper">
-            <img
+            <SmartCover
               src={coverOf(blog)}
               alt={blog.title}
-              loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              frameRatio={16 / 9}
+              lazy
+              className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-105"
             />
             <span className={cn('absolute left-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider backdrop-blur-sm', categoryClass(blog.category))}>
               {blog.category}
@@ -159,81 +211,85 @@ export function BlogPage() {
         <div aria-hidden="true" className="absolute -right-16 bottom-0 h-80 w-80 animate-[var(--animate-float)] rounded-full bg-flame-500/15 blur-3xl [animation-delay:1.6s]" />
 
         <div className="container-page relative py-16 sm:py-20 lg:py-24">
-          {/* Left: text content */}
-          <div className="relative z-10 lg:w-1/2">
-            <Reveal variant="blur">
-              <p className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-flame-600/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-flame-400 backdrop-blur-sm border border-flame-600/40 shadow-[0_0_15px_rgba(225,29,72,0.35)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-flame-500" />
-                Insights from the MYR team
-              </p>
-            </Reveal>
-            <Reveal delay={0.08}>
-              <h1 className="mt-4 max-w-lg text-4xl font-bold leading-[1.05] text-accent-300 drop-shadow-[0_0_20px_rgba(24,144,255,0.45)] sm:text-5xl lg:text-6xl">
-                Ideas, guides &amp; playbooks for{' '}
-                <span className="text-shimmer text-gradient">growing businesses</span>
-              </h1>
-            </Reveal>
-            <Reveal delay={0.16}>
-              <p className="mt-5 max-w-lg text-xl leading-relaxed text-accent-100 sm:text-lg">
-                Deep dives on ERP software, CRM, HRM, website development, AI digital marketing, IP PBX and
-                CCTV — written to answer the questions our clients actually ask.
-              </p>
-            </Reveal>
+          <div className="flex flex-col lg:flex-row lg:items-start lg:gap-12 relative z-10">
+            {/* Left: text content */}
+            <div className="relative lg:w-1/2">
+              <Reveal variant="blur">
+                <p className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-flame-600/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-flame-400 backdrop-blur-sm border border-flame-600/40 shadow-[0_0_15px_rgba(225,29,72,0.35)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-flame-500" />
+                  Insights from the MYR team
+                </p>
+              </Reveal>
+              <Reveal delay={0.08}>
+                <h1 className="mt-4 max-w-lg text-4xl font-bold leading-[1.05] text-accent-300 drop-shadow-[0_0_20px_rgba(24,144,255,0.45)] sm:text-5xl lg:text-6xl">
+                  Ideas, guides &amp; playbooks for{' '}
+                  <span className="text-shimmer text-gradient">growing businesses</span>
+                </h1>
+              </Reveal>
+              <Reveal delay={0.16}>
+                <p className="mt-5 max-w-lg text-xl leading-relaxed text-accent-100 sm:text-lg">
+                  Deep dives on ERP software, CRM, HRM, website development, AI digital marketing, IP PBX and
+                  CCTV — written to answer the questions our clients actually ask.
+                </p>
+              </Reveal>
 
-            {/* Running stat counters */}
-            <Reveal delay={0.24}>
-              <dl className="mt-9 flex flex-wrap gap-x-8 gap-y-4">
-                {[
-                  { label: 'Articles published', value: <CountUp to={blogs.length} suffix="+" /> },
-                  { label: 'Topic categories', value: <CountUp to={Math.max(1, categories.length - 1)} /> },
-                  { label: 'Avg. read time', value: <CountUp to={avgRead || 6} suffix=" min" /> },
-                ].map((stat) => (
-                  <div key={stat.label} className="rounded-2xl border border-flame-500/30 bg-flame-900/20 px-5 py-4 backdrop-blur-sm shadow-[0_0_15px_rgba(225,29,72,0.2)]">
-                    <dd className="text-2xl font-bold text-accent-200 sm:text-3xl">{stat.value}</dd>
-                    <dt className="mt-1 text-xs uppercase tracking-wider text-flame-300">{stat.label}</dt>
-                  </div>
+              {/* Running stat counters */}
+              <Reveal delay={0.24}>
+                <dl className="mt-9 flex flex-wrap gap-x-8 gap-y-4">
+                  {[
+                    { label: 'Articles published', value: <CountUp to={blogs.length} suffix="+" /> },
+                    { label: 'Topic categories', value: <CountUp to={Math.max(1, categories.length - 1)} /> },
+                    { label: 'Avg. read time', value: <CountUp to={avgRead || 6} suffix=" min" /> },
+                  ].map((stat) => (
+                    <div key={stat.label} className="rounded-2xl border border-flame-500/30 bg-flame-900/20 px-5 py-4 backdrop-blur-sm shadow-[0_0_15px_rgba(225,29,72,0.2)]">
+                      <dd className="text-2xl font-bold text-accent-200 sm:text-3xl">{stat.value}</dd>
+                      <dt className="mt-1 text-xs uppercase tracking-wider text-flame-300">{stat.label}</dt>
+                    </div>
+                  ))}
+                </dl>
+              </Reveal>
+            </div>
+
+            {/* Right: sliding picture loop */}
+            <div className="relative lg:w-1/2 mt-10 lg:mt-0 h-64 lg:h-80">
+              <div
+                className="flex w-max animate-[var(--animate-marquee)] gap-6 group-hover:[animation-play-state:paused]"
+                style={{ width: 'max-content' }}
+              >
+                {[...BLOG_HERO_IMAGES, ...BLOG_HERO_IMAGES].map((src, i) => (
+                  <SmartCover
+                    key={i}
+                    src={src}
+                    alt="Blog preview"
+                    frameRatio={1.2}
+                    lazy
+                    className="h-40 w-48 shrink-0 rounded-2xl border border-flame-500/40 shadow-[0_0_25px_rgba(225,29,72,0.3)] transition-transform duration-300 hover:scale-105 lg:h-56 lg:w-60"
+                  />
                 ))}
-              </dl>
-            </Reveal>
-          </div>
-
-          {/* Right: sliding picture loop */}
-          <div className="hidden lg:block mt-10 lg:mt-0 relative h-64 lg:h-80">
-            <div
-              className="flex w-max animate-[var(--animate-marquee)] gap-6 group-hover:[animation-play-state:paused]"
-              style={{ width: 'max-content' }}
-            >
-              {[...BLOG_HERO_IMAGES, ...BLOG_HERO_IMAGES].map((src, i) => (
-                <img
-                  key={i}
-                  src={src}
-                  alt="Blog preview"
-                  loading="lazy"
-                  className="h-40 lg:h-56 w-48 lg:w-60 rounded-2xl object-cover border border-flame-500/40 shadow-[0_0_25px_rgba(225,29,72,0.3)] hover:scale-105 transition-transform duration-300"
-                />
-              ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Mobile sliding picture loop (full width below hero) */}
-      <section className="section-dark relative overflow-hidden lg:hidden py-8">
-        <div className="container-page px-4">
-          <div
-            className="flex w-max animate-[var(--animate-marquee)] gap-6 group-hover:[animation-play-state:paused]"
-            style={{ width: 'max-content' }}
-          >
-            {[...BLOG_HERO_IMAGES, ...BLOG_HERO_IMAGES].map((src, i) => (
-              <img
-                key={i}
-                src={src}
-                alt="Blog preview"
-                loading="lazy"
-                className="h-32 w-40 rounded-2xl object-cover border border-flame-500/40 shadow-[0_0_25px_rgba(225,29,72,0.3)] hover:scale-105 transition-transform duration-300"
-              />
-            ))}
-          </div>
+          {/* Mobile sliding picture loop (stacked below text on small screens) */}
+          <section className="section-dark relative overflow-hidden lg:hidden py-8">
+            <div className="container-page px-4">
+              <div
+                className="flex w-max animate-[var(--animate-marquee)] gap-6 group-hover:[animation-play-state:paused]"
+                style={{ width: 'max-content' }}
+              >
+                {[...BLOG_HERO_IMAGES, ...BLOG_HERO_IMAGES].map((src, i) => (
+                  <SmartCover
+                    key={i}
+                    src={src}
+                    alt="Blog preview"
+                    frameRatio={1.25}
+                    lazy
+                    className="h-32 w-40 shrink-0 rounded-2xl border border-flame-500/40 shadow-[0_0_25px_rgba(225,29,72,0.3)] transition-transform duration-300 hover:scale-105"
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
         </div>
       </section>
 
@@ -301,10 +357,11 @@ export function BlogPage() {
                       className="group grid overflow-hidden rounded-3xl border border-line bg-white shadow-card transition-shadow duration-300 hover:shadow-glow lg:grid-cols-2"
                     >
                       <div className="relative aspect-[16/10] overflow-hidden bg-paper lg:aspect-auto lg:min-h-[22rem]">
-                        <img
+                        <SmartCover
                           src={coverOf(featured)}
                           alt={featured.title}
-                          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                          frameRatio={16 / 10}
+                          className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-105"
                         />
                         <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-accent-500 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white">
                           <span className="h-1.5 w-1.5 rounded-full bg-white animate-[var(--animate-pulse-ring)]" aria-hidden="true" />
@@ -556,10 +613,11 @@ export function BlogPostPage() {
           {/* Cover */}
           <Reveal delay={0.1} className="mt-8">
             <div className="group relative overflow-hidden rounded-3xl border border-line bg-paper">
-              <img
+              <SmartCover
                 src={coverOf(blog)}
                 alt={blog.title}
-                className="aspect-[16/8] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                frameRatio={2}
+                className="aspect-[16/8] w-full transition-transform duration-700 ease-out group-hover:scale-[1.03]"
               />
             </div>
           </Reveal>

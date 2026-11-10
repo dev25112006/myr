@@ -43,7 +43,7 @@ export function SubscriptionPlans({
           {/* Monthly button */}
           <button
             onClick={() => setIsMonthly(true)}
-            className={`rounded-btn p-2 ${isMonthly ? 'bg-flame-600 text-ink-950' : 'bg-white border border-flame-600 text-flame-600'}`}
+            className={`rounded-btn p-2 ${isMonthly ? 'bg-black text-white border border-gold-500' : 'bg-white border border-gold-500 text-black'}`}
             aria-pressed={isMonthly}
             title="Monthly">
             <span className="text-[10px] font-semibold uppercase tracking-[.1em]">Monthly</span>
@@ -51,7 +51,7 @@ export function SubscriptionPlans({
           {/* Yearly button */}
           <button
             onClick={() => setIsMonthly(false)}
-            className={`rounded-btn p-2 ${!isMonthly ? 'bg-flame-600 text-ink-950' : 'bg-white border border-flame-600 text-flame-600'}`}
+            className={`rounded-btn p-2 ${!isMonthly ? 'bg-black text-white border border-gold-500' : 'bg-white border border-gold-500 text-black'}`}
             aria-pressed={!isMonthly}
             title="Yearly">
             <span className="text-[10px] font-semibold uppercase tracking-[.1em]">Yearly</span>
