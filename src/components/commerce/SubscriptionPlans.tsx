@@ -36,47 +36,80 @@ export function SubscriptionPlans({
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-card max-w-6xl mx-auto">
-      <div className="flex flex-col sm:flex-row items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-ink-950 sm:text-2xl">
-          {heading || name}
-        </h3>
-        <div className="flex items-center gap-2">
+      {/* Toggle section */}
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-sm text-ink-500">View as:</span>
+        <div className="flex gap-2">
+          {/* Monthly button */}
           <button
-            className={`btn btn-sm ${isMonthly ? 'bg-flame-600 text-ink-950' : 'bg-ink-950 text-flame-600'}`}
-            onClick={() => setIsMonthly(!isMonthly)}
-          >
-            {isMonthly ? 'Yearly' : 'Monthly'}
+            onClick={() => setIsMonthly(true)}
+            className={`rounded-btn p-2 ${isMonthly ? 'bg-flame-600 text-ink-950' : 'bg-white border border-flame-600 text-flame-600'}`}
+            aria-pressed={isMonthly}
+            title="Monthly">
+            <span className="text-[10px] font-semibold uppercase tracking-[.1em]">Monthly</span>
+          </button>
+          {/* Yearly button */}
+          <button
+            onClick={() => setIsMonthly(false)}
+            className={`rounded-btn p-2 ${!isMonthly ? 'bg-flame-600 text-ink-950' : 'bg-white border border-flame-600 text-flame-600'}`}
+            aria-pressed={!isMonthly}
+            title="Yearly">
+            <span className="text-[10px] font-semibold uppercase tracking-[.1em]">Yearly</span>
           </button>
         </div>
       </div>
+
+      <h2 className="text-xl font-bold text-ink-950 mb-4">
+        {heading || name || 'Pricing Plans'}
+      </h2>
+
       {sub && <p className="text-sm text-ink-500 mb-6">{sub}</p>}
+
+      {/* Three plan blocks */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {plans.map((plan) => {
+          // Get the appropriate pricing data based on billing cycle
           const planData = isMonthly ? plan.monthly : plan.yearly
-          const monthlyLabel = isMonthly ? 'month' : 'year'
-          
+          const price = planData.price
+          const compareAt = planData.compareAt
+          const label = isMonthly ? 'month' : 'year'
+
           return (
             <div
               key={plan.tier}
-              className={`p-4 rounded-border border-line ${
-                plan.isMostPopular ? 'bg-flame-100 border-flame-500' : ''
-              }`}
+              className={`p-5 rounded-xl border ${isMonthly ? 'border-flame-200' : 'border-line'} ${
+                plan.isMostPopular ? 'bg-flame-50 border-flame-200' : 'bg-white'
+              } transition-colors duration-300`}
             >
-              <h4 className="text-semibold text-ink-950 mb-2">
-                {plan.name}{plan.isMostPopular && (
-                  <span className="text-[10px] font-semibold uppercase tracking-[.1em] bg-flame-600 text-white px-2 rounded-badge ml-2">
-                    Most Popular
-                  </span>
-                )}
-              </h4>
-              <p className="text-2xl font-bold text-flame-600 mb-3">
-                {inr(planData.price)} / {monthlyLabel}
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-lg font-bold text-ink-950">
+                  {plan.name}{plan.isMostPopular && (
+                    <span className="text-[8px] font-semibold uppercase tracking-[.1em] bg-flame-600 text-white px-2 rounded-badge ml-2">
+                      Most Popular
+                    </span>
+                  )}
+                </h4>
+                <span className="text-sm text-ink-500">
+                  {isMonthly ? 'from' : 'from'}
+                </span>
+              </div>
+
+              <p className="text-3xl font-bold text-flame-600 mb-2">
+                {inr(price)} / {label}
               </p>
+
+              {compareAt && (
+                <p className="text-sm text-ink-400 line-through mb-4">
+                  {inr(compareAt)} / {label}
+                </p>
+              )}
+
               {plan.description && (
-                <p className="text-sm text-ink-500 mb-4 line-clamp-3">
+                <p className="text-sm text-ink-500 mb-4 line-clamp-2">
                   {plan.description}
                 </p>
               )}
+
               <ul className="space-y-1 text-sm text-ink-500">
                 {plan.features.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -87,8 +120,9 @@ export function SubscriptionPlans({
                   </li>
                 ))}
               </ul>
+
               <button
-                className="mt-3 w-full btn btn-primary btn-sm"
+                className="mt-4 w-full btn btn-primary btn-sm"
                 onClick={handleBuyClick}
               >
                 {isMonthly ? 'Subscribe Monthly' : 'Subscribe Yearly'}
