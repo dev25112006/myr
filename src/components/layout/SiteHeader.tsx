@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   INNER_NAV,
+  MOBILE_SUB_ITEMS,
   OFFCANVAS_SERVICES,
 } from './nav'
 import { useCart, useAuth, usePopup } from '@/lib/stores'
@@ -62,6 +63,7 @@ export function SiteHeader() {
   const { setOpen } = usePopup()
 
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileSubOpen, setMobileSubOpen] = useState<string | null>(null)
   const [accountOpen, setAccountOpen] = useState(false)
   const [servicesOpen, setServicesOpen] = useState(false)
   const [megaOpen, setMegaOpen] = useState<string | null>(null)
@@ -78,6 +80,7 @@ export function SiteHeader() {
     setServicesOpen(false)
     setMegaOpen(null)
     setPinnedMenu(null)
+    setMobileSubOpen(null)
   }
 
   useEffect(() => {
@@ -204,7 +207,7 @@ export function SiteHeader() {
                       <h2 className="text-sm font-bold text-ink-950">All Services &amp; Solutions</h2>
                       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
                         {[
-                          ['Website Development', '/website-development/'], ['CRM Solutions', '/crm-development/'], ['HRM Solutions', '/hrm-solutions/'], ['E-Commerce Solutions', '/ecommerce-solutions/'], ['WhatsApp Automation', '/crm/#quick-setup'], ['AI Digital Marketing', '/digital-marketing/'], ['Networking Solutions', '/network-solution/'], ['IPBX Solutions', '/ipbx-solution/'], ['CCTV Solutions', '/cctv-solution/'], ['Toll-Free 1800 Numbers', '/1800-number/'], ['Other Software Solutions', '/contact-us/?interest=software#contact-form'], ['Browse All Services', '/services/'],
+                          ['Website Development', '/website-development/'], ['CRM Solutions', '/crm-development/'], ['HRM Solutions', '/hrm-solutions/'], ['E-Commerce Solutions', '/ecommerce-solutions/'], ['WhatsApp Automation', '/crm/#quick-setup'], ['AI Digital Marketing', '/digital-marketing/'], ['Networking Solutions', '/network-solution/'], ['IPBX Solutions', '/ipbx-solution/'], ['CCTV Solutions', '/cctv-solution/'], ['Toll-Free 1800 Numbers', '/1800-number/'], ['Other Software Solutions', '/contact-us/?interest=software#contact-form'], ['Careers', '/careers/'], ['Resources', '/resources/'], ['Browse All Services', '/services/'],
                         ].map(([label, href]) => <Link key={label} to={href} onClick={() => { setServicesOpen(false); setPinnedMenu(null) }} className="flex min-h-12 items-center rounded-xl border border-line bg-paper/50 px-3 py-2 text-sm text-ink-300 hover:border-accent-400/40 hover:bg-accent-400/10 hover:text-accent-600">{label}</Link>)}
                       </div>
                     </div>
@@ -344,15 +347,72 @@ export function SiteHeader() {
             className="overflow-hidden border-t border-line bg-white/95 backdrop-blur-xl xl:hidden"
           >
             <nav className="container-page flex max-h-[calc(100dvh-4rem)] flex-col gap-1 overflow-y-auto py-4" aria-label="Mobile">
-              {nav.filter((item) => item.label !== 'Contact Us').map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className="rounded-xl px-3 py-3 text-base font-medium text-ink-200"
-                >
-                  {item.label}
-                </NavLink>
-              ))}
+              {nav.map((item) => {
+                const subs = MOBILE_SUB_ITEMS[item.to]
+                const isSubOpen = mobileSubOpen === item.to
+                if (!subs || subs.length === 0) {
+                  return (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setMobileOpen(false)}
+                      className="rounded-xl px-3 py-3 text-base font-medium text-ink-200"
+                    >
+                      {item.label}
+                    </NavLink>
+                  )
+                }
+                return (
+                  <div key={item.to} className="rounded-xl border border-line overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setMobileSubOpen(isSubOpen ? null : item.to)}
+                      className="flex w-full items-center justify-between px-3 py-3 text-base font-medium text-ink-200 transition hover:bg-ink-950/[0.04]"
+                      aria-expanded={isSubOpen}
+                    >
+                      {item.label}
+                      <svg
+                        className={cn(
+                          'h-4 w-4 shrink-0 transition-transform duration-200',
+                          isSubOpen && 'rotate-180',
+                        )}
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        aria-hidden
+                      >
+                        <path d="m3 6 5 5 5-5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+                    <AnimatePresence>
+                      {isSubOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0, y: -4 }}
+                          animate={{ height: 'auto', opacity: 1, y: 0 }}
+                          exit={{ height: 0, opacity: 0, y: -4 }}
+                          transition={{ duration: 0.22, ease: 'easeInOut' }}
+                          className="overflow-hidden"
+                        >
+                          <div className="ml-3 flex flex-col gap-1 border-l-2 border-accent-400/25 py-1 pl-3">
+                            {subs.map((sub) => (
+                              <Link
+                                key={sub.to}
+                                to={sub.to}
+                                onClick={() => {
+                                  setMobileSubOpen(null)
+                                  setMobileOpen(false)
+                                }}
+                                className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink-600 transition hover:bg-accent-400/8 hover:text-accent-600"
+                              >
+                                {sub.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )
+              })}
               <button
                 type="button"
                 onClick={() => setServicesOpen((open) => !open)}
@@ -397,16 +457,6 @@ export function SiteHeader() {
                   </motion.div>
                 )}
               </AnimatePresence>
-              {nav.filter((item) => item.label === 'Contact Us').map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  onClick={() => setMobileOpen(false)}
-                  className="rounded-xl px-3 py-3 text-base font-medium text-ink-200"
-                >
-                  {item.label}
-                </NavLink>
-              ))}
               {!user && (
                 <button
                   type="button"
@@ -414,7 +464,7 @@ export function SiteHeader() {
                     setMobileOpen(false)
                     setOpen('login')
                   }}
-              className="flex min-h-11 items-center rounded-xl px-3 py-3 text-left text-base font-medium text-ink-200"
+                  className="flex min-h-11 items-center rounded-xl px-3 py-3 text-left text-base font-medium text-ink-200"
                 >
                   Log in
                 </button>

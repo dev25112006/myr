@@ -2,6 +2,7 @@ import { createServer } from 'node:http'
 import { createHmac, randomBytes, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto'
 import { promisify } from 'node:util'
 import { mkdir, readFile } from 'node:fs/promises'
+import { readFileSync } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import path from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
@@ -30,8 +31,19 @@ const initialCatalog = [
   [6004, 'CRM Software', '/crm-development/', 8000, 'CRM'], [6005, 'HRM Software', '/hrm-solutions/', 3000, 'HRM'],
   [6006, 'E-commerce Website', '/ecommerce-solutions/', 24999, 'E-commerce'], [6007, 'Billing Software', '/contact-us/', 4999, 'Billing'],
 ].map(([id, name, slug, price, category]) => ({ id, name, slug, price, category, type: 'simple' }))
+/** Starter blog articles — shared with the frontend bundle (src/content/blogs.json). */
+const seedBlogs = (() => {
+  try {
+    const parsed = JSON.parse(readFileSync(new URL('../src/content/blogs.json', import.meta.url), 'utf8'))
+    return Array.isArray(parsed) ? parsed : []
+  } catch (error) {
+    console.warn('[blogs] seed content unavailable', error?.message || error)
+    return []
+  }
+})()
 let db = {
-  users: [], sessions: [], inbox: [], orders: [], reviews: [], catalog: initialCatalog, carts: {}, team: [], tasks: [], chatMessages: [], audit: [], webhookEvents: [],
+  users: [], sessions: [], inbox: [], orders: [], reviews: [], catalog: initialCatalog, carts: {}, team: [], tasks: [], chatMessages: [], audit: [], webhookEvents: [], blogs: seedBlogs,
+  jobs: [], jobApplications: [], posts: [],
   settings: { taxRateBps: 0, shippingFlat: 0, commerceVerified: false, emailNotifications: normalizeNotificationSettings({}) },
 }
 let database
@@ -163,6 +175,39 @@ function recordAudit(actor, action, target, detail = {}) {
   db.audit ||= []
   db.audit.unshift({ id: randomBytes(8).toString('hex'), actorId: actor.id, actorEmail: actor.email, action, target, detail, date: new Date().toISOString() })
   db.audit = db.audit.slice(0, 2000)
+}
+function slugifyBlog(value) {
+  return String(value).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 96)
+}
+/** Coerce + default an incoming blog payload against an existing post (or {}). */
+function sanitizeBlog(input, base) {
+  const title = String(input.title ?? base.title ?? '').trim()
+  const content = String(input.content ?? base.content ?? '')
+  const words = content.split(/\s+/).filter(Boolean).length
+  const fallbackMinutes = Math.max(1, Math.ceil(words / 220))
+  let tags = base.tags ?? []
+  if (Array.isArray(input.tags)) tags = input.tags.map((tag) => String(tag).trim()).filter(Boolean)
+  else if (typeof input.tags === 'string') tags = input.tags.split(',').map((tag) => tag.trim()).filter(Boolean)
+  return {
+    title,
+    slug: slugifyBlog(String(input.slug ?? base.slug ?? title)) || 'post',
+    excerpt: String(input.excerpt ?? base.excerpt ?? '').trim(),
+    content,
+    category: String(input.category ?? base.category ?? '').trim() || 'General',
+    tags: [...new Set(tags.map((tag) => tag.toLowerCase()))].slice(0, 12).map((tag) => tag.charAt(0).toUpperCase() + tag.slice(1)),
+    author: String(input.author ?? base.author ?? '').trim() || 'MYR Editorial Team',
+    coverImage: String(input.coverImage ?? base.coverImage ?? '').trim(),
+    status: ['draft', 'published'].includes(input.status) ? input.status : (base.status === 'draft' ? 'draft' : 'published'),
+    featured: typeof input.featured === 'boolean' ? input.featured : base.featured === true,
+    readingMinutes: Math.max(1, Math.min(180, Math.round(Number(input.readingMinutes ?? base.readingMinutes) || fallbackMinutes))),
+  }
+}
+function validBlogFields(fields) {
+  if (fields.title.length < 3 || fields.title.length > 150) return 'Title must be between 3 and 150 characters.'
+  if (fields.content.length < 10 || fields.content.length > 100_000) return 'Content must be between 10 and 100,000 characters.'
+  if (fields.excerpt.length > 400) return 'Excerpt must be 400 characters or fewer.'
+  if (!fields.slug) return 'A valid slug is required.'
+  return null
 }
 function cookie(req, name) {
   return (req.headers.cookie || '').split(';').map((part) => part.trim()).find((part) => part.startsWith(`${name}=`))?.slice(name.length + 1)
@@ -503,6 +548,7 @@ const globalLimit = endpointRateLimit({ windowMs: 60_000, max: 300 }) // 300 req
 const authLimit = endpointRateLimit({ windowMs: 60_000, max: 20 }) // 20 auth req/min per IP
 const otpLimit = endpointRateLimit({ windowMs: 60_000, max: 10 }) // 10 OTP req/min per IP
 const checkoutLimit = endpointRateLimit({ windowMs: 60_000, max: 30 }) // 30 checkout req/min per IP
+const jobApplyLimit = endpointRateLimit({ windowMs: 60_000, max: 8 }) // 8 job applications/min per IP
 
 /* --------------------------------- end production middleware --------------------------------- */
 
@@ -739,6 +785,7 @@ async function handle(req, res) {
   }
   if (pathName === '/api/orders' && req.method === 'POST') { if (!checkoutLimit(req, res)) return }
   if (pathName === '/api/inbox' && req.method === 'POST') { if (!authLimit(req, res)) return }
+  if (/^\/api\/jobs\/[a-f0-9]+\/apply$/.test(pathName) && req.method === 'POST') { if (!jobApplyLimit(req, res)) return }
 
   if (!csrfCheck(req)) return json(res, 403, { error: 'Request origin rejected' })
   const sessionId = cookie(req, 'myr_session')
@@ -785,6 +832,74 @@ async function handle(req, res) {
     }
     if (req.method === 'GET' && pathName === '/api/auth/session') return json(res, 200, { user: user ? publicUser(user) : null })
     if (req.method === 'GET' && pathName === '/api/catalog') return json(res, 200, { products: db.catalog })
+
+    /* --------------------------------- Careers --------------------------------- */
+    /** Public job listing: only published, currently open positions. */
+    if (req.method === 'GET' && pathName === '/api/jobs') {
+      db.jobs ||= []
+      const jobs = db.jobs
+        .filter((job) => job.status === 'Published' && job.isOpen !== false)
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+      return json(res, 200, { jobs, count: jobs.length })
+    }
+    const jobApplyMatch = pathName.match(/^\/api\/jobs\/([a-f0-9]+)\/apply$/)
+    if (jobApplyMatch && req.method === 'POST') {
+      db.jobs ||= []
+      const job = db.jobs.find((item) => item.id === jobApplyMatch[1] && item.status === 'Published')
+      if (!job) return json(res, 404, { error: 'This position is not accepting applications.' })
+      if (job.isOpen === false) return json(res, 409, { error: 'This position has been closed for applications.' })
+      const input = await body(req)
+      const humanCheck = await verifyHumanToken(input.humanToken)
+      if (humanCheck.configured || authTurnstileRequired) {
+        if (!humanCheck.configured) return json(res, 503, { error: 'Human verification is not configured.' })
+        if (humanCheck.unavailable) return json(res, 503, { error: 'Human verification is temporarily unavailable. Please try again.' })
+        if (!humanCheck.verified) return json(res, 403, { error: 'Human verification failed. Please try again.' })
+      }
+      const name = typeof input.name === 'string' ? input.name.trim() : ''
+      const email = typeof input.email === 'string' ? input.email.trim() : ''
+      const phone = typeof input.phone === 'string' ? input.phone.trim() : ''
+      const experience = typeof input.experience === 'string' ? input.experience.trim().slice(0, 80) : ''
+      const candidateLocation = typeof input.location === 'string' ? input.location.trim().slice(0, 180) : ''
+      const portfolio = typeof input.portfolio === 'string' ? input.portfolio.trim().slice(0, 300) : ''
+      const coverNote = typeof input.coverNote === 'string' ? input.coverNote.trim().slice(0, 4000) : ''
+      if (name.length < 2 || name.length > 180) return json(res, 400, { error: 'Provide your full name.' })
+      if (!emailOk(email)) return json(res, 400, { error: 'Provide a valid email address.' })
+      if (phone && !/^[+()\d\s-]{6,20}$/.test(phone)) return json(res, 400, { error: 'Provide a valid phone number or leave it empty.' })
+      if (portfolio && !/^https?:\/\/\S+\.\S+/.test(portfolio)) return json(res, 400, { error: 'Portfolio / LinkedIn link must be a valid URL.' })
+      if (coverNote.length > 4000) return json(res, 400, { error: 'Cover note may not exceed 4,000 characters.' })
+      db.jobApplications ||= []
+      if (db.jobApplications.some((item) => item.jobId === job.id && item.email.toLowerCase() === email.toLowerCase())) {
+        return json(res, 409, { error: 'You have already applied to this position with this email address.' })
+      }
+      const application = {
+        id: randomBytes(12).toString('hex'),
+        jobId: job.id,
+        jobTitle: job.title,
+        jobDepartment: job.department || '',
+        name, email, phone, experience, location: candidateLocation, portfolio, coverNote,
+        status: 'New',
+        createdAt: new Date().toISOString(),
+      }
+      db.jobApplications.unshift(application)
+      await persist()
+      const fieldsHtml = [['Experience', application.experience], ['Location', application.location], ['Phone', application.phone], ['Portfolio / LinkedIn', application.portfolio]]
+        .filter(([, value]) => value)
+        .map(([label, value]) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:left"><strong>${escapeHtml(String(label))}</strong></td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;text-align:left">${escapeHtml(String(value))}</td></tr>`)
+        .join('')
+      triggerNotification({
+        event: 'contact',
+        includeUser: false,
+        subject: `New job application — ${job.title}`,
+        html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">New job application</h2><p><strong>${escapeHtml(job.title)}</strong>${job.department ? ` · ${escapeHtml(job.department)}` : ''}</p><p>${escapeHtml(name)} &lt;${escapeHtml(email)}&gt;</p>${fieldsHtml ? `<table style="width:100%;border-collapse:collapse;margin:16px 0;"><thead><tr style="text-align:left;border-bottom:2px solid #e5e7eb;"><th style="padding:6px 10px">Field</th><th style="padding:6px 10px">Value</th></tr></thead><tbody>${fieldsHtml}</tbody></table>` : ''}${coverNote ? `<p style="white-space:pre-line">${escapeHtml(coverNote)}</p>` : ''}<p style="color:#6b7280;font-size:12px">Review it in the admin dashboard → Job applications (ref ${application.id}).</p></div>`,
+        text: `New job application for ${job.title}: ${name} (${email})${application.experience ? `, ${application.experience}` : ''}.`,
+      })
+      if (email) {
+        // Detached delivery — a slow/failed mail server must not stall the response.
+        void Promise.resolve(sendTransactionalEmail(email, `We received your application — ${job.title}`, `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#166534">Thank you for applying to MYR</h2><p>Hi ${escapeHtml(name)},</p><p>We've received your application for <strong>${escapeHtml(job.title)}</strong> (reference ${application.id}). Our team reviews every application and will reach out if your profile matches the role.</p><p style="color:#6b7280;font-size:12px">This is an automated confirmation from MYR Advance Solution.</p></div>`, { text: `Thank you for applying to ${job.title} at MYR. Reference ${application.id}.` })).catch((error) => console.error('[notify] delivery failed', { event: 'job.apply.confirm', message: error?.message || error }))
+      }
+      return json(res, 201, { ok: true, applicationId: application.id, message: 'Application received. Our team will get back to you.' })
+    }
+
     if (req.method === 'GET' && pathName === '/api/saas/products') {
       return json(res, 200, { products: saasProducts() })
     }
@@ -865,6 +980,176 @@ async function handle(req, res) {
       recordAudit(user, 'review.moderate', review.id, { productId: review.productId, previousStatus, status: review.status })
       await persist()
       return json(res, 200, { review })
+    }
+    /* ---------- Blog posts (public read, admin write) ---------- */
+    if (req.method === 'GET' && pathName === '/api/blogs') {
+      db.blogs ||= []
+      const blogs = db.blogs.filter((item) => item.status !== 'draft').sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+      return json(res, 200, { blogs })
+    }
+    const publicBlogMatch = pathName.match(/^\/api\/blogs\/([^/]+)$/)
+    if (publicBlogMatch && req.method === 'GET') {
+      db.blogs ||= []
+      const slug = decodeURIComponent(publicBlogMatch[1])
+      const blog = db.blogs.find((item) => item.slug === slug && item.status !== 'draft')
+      if (!blog) return json(res, 404, { error: 'Post not found.' })
+      return json(res, 200, { blog })
+    }
+    if (req.method === 'GET' && pathName === '/api/admin/blogs') {
+      if (!requireRole('admin')) return
+      db.blogs ||= []
+      const blogs = db.blogs.slice().sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+      return json(res, 200, { blogs })
+    }
+    if (req.method === 'POST' && pathName === '/api/admin/blogs') {
+      if (!requireRole('admin')) return
+      const input = await body(req)
+      const fields = sanitizeBlog(input, {})
+      const invalid = validBlogFields(fields)
+      if (invalid) return json(res, 400, { error: invalid })
+      db.blogs ||= []
+      if (db.blogs.some((item) => item.slug === fields.slug)) return json(res, 409, { error: 'A post with this slug already exists.' })
+      const now = new Date().toISOString()
+      const blog = { id: randomBytes(12).toString('hex'), ...fields, createdAt: now, updatedAt: now }
+      db.blogs.unshift(blog)
+      recordAudit(user, 'blog.create', blog.slug, { title: blog.title, status: blog.status })
+      await persist()
+      return json(res, 201, { blog })
+    }
+    const adminBlogMatch = pathName.match(/^\/api\/admin\/blogs\/([a-f0-9]+)$/)
+    if (adminBlogMatch && req.method === 'PATCH') {
+      if (!requireRole('admin')) return
+      db.blogs ||= []
+      const blog = db.blogs.find((item) => item.id === adminBlogMatch[1])
+      if (!blog) return json(res, 404, { error: 'Post not found.' })
+      const input = await body(req)
+      const fields = sanitizeBlog(input, blog)
+      const invalid = validBlogFields(fields)
+      if (invalid) return json(res, 400, { error: invalid })
+      if (db.blogs.some((item) => item.id !== blog.id && item.slug === fields.slug)) return json(res, 409, { error: 'A post with this slug already exists.' })
+      const previousStatus = blog.status
+      Object.assign(blog, fields, { updatedAt: new Date().toISOString() })
+      recordAudit(user, 'blog.update', blog.slug, { title: blog.title, previousStatus, status: blog.status })
+      await persist()
+      return json(res, 200, { blog })
+    }
+    if (adminBlogMatch && req.method === 'DELETE') {
+      if (!requireRole('admin')) return
+      db.blogs ||= []
+      const index = db.blogs.findIndex((item) => item.id === adminBlogMatch[1])
+      if (index === -1) return json(res, 404, { error: 'Post not found.' })
+      const [removed] = db.blogs.splice(index, 1)
+      recordAudit(user, 'blog.delete', removed.slug, { title: removed.title })
+      await persist()
+      return json(res, 200, { ok: true })
+    }
+
+    /* ------------------------------- Admin: careers ------------------------------- */
+    if (req.method === 'GET' && pathName === '/api/admin/jobs') {
+      if (!requireRole('admin')) return
+      db.jobs ||= []; db.jobApplications ||= []
+      const jobs = [...db.jobs].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+      const applicationCounts = {}
+      for (const application of db.jobApplications) applicationCounts[application.jobId] = (applicationCounts[application.jobId] || 0) + 1
+      return json(res, 200, { jobs, applicationCounts })
+    }
+    if (req.method === 'POST' && pathName === '/api/admin/jobs') {
+      if (!requireRole('admin')) return
+      const input = await body(req)
+      const job = {
+        id: randomBytes(12).toString('hex'),
+        title: String(input.title || '').trim().slice(0, 160),
+        department: String(input.department || '').trim().slice(0, 80) || 'General',
+        location: String(input.location || '').trim().slice(0, 180) || 'Remote',
+        employmentType: ['Full-time', 'Part-time', 'Contract', 'Internship'].includes(input.employmentType) ? input.employmentType : 'Full-time',
+        experience: String(input.experience || '').trim().slice(0, 80),
+        salaryRange: String(input.salaryRange || '').trim().slice(0, 120),
+        description: String(input.description || '').trim().slice(0, 8000),
+        requirements: String(input.requirements || '').trim().slice(0, 4000),
+        status: input.status === 'Published' ? 'Published' : 'Draft',
+        isOpen: input.isOpen !== false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      if (job.title.length < 3 || job.description.length < 10) return json(res, 400, { error: 'Provide a title (3+ characters) and a description (10+ characters).' })
+      db.jobs ||= []
+      db.jobs.unshift(job)
+      recordAudit(user, 'job.create', job.id, { title: job.title, status: job.status })
+      await persist()
+      return json(res, 201, { job })
+    }
+    const adminJobMatch = pathName.match(/^\/api\/admin\/jobs\/([a-f0-9]+)$/)
+    if (adminJobMatch && req.method === 'PATCH') {
+      if (!requireRole('admin')) return
+      db.jobs ||= []
+      const job = db.jobs.find((item) => item.id === adminJobMatch[1])
+      if (!job) return json(res, 404, { error: 'Job not found.' })
+      const input = await body(req)
+      const previousStatus = job.status
+      if (input.title !== undefined) job.title = String(input.title).trim().slice(0, 160) || job.title
+      if (input.department !== undefined) job.department = String(input.department).trim().slice(0, 80) || job.department
+      if (input.location !== undefined) job.location = String(input.location).trim().slice(0, 180) || job.location
+      if (input.employmentType !== undefined && ['Full-time', 'Part-time', 'Contract', 'Internship'].includes(input.employmentType)) job.employmentType = input.employmentType
+      if (input.experience !== undefined) job.experience = String(input.experience).trim().slice(0, 80)
+      if (input.salaryRange !== undefined) job.salaryRange = String(input.salaryRange).trim().slice(0, 120)
+      if (input.description !== undefined) job.description = String(input.description).trim().slice(0, 8000) || job.description
+      if (input.requirements !== undefined) job.requirements = String(input.requirements).trim().slice(0, 4000)
+      if (input.status !== undefined && ['Draft', 'Published'].includes(input.status)) job.status = input.status
+      if (input.isOpen !== undefined) job.isOpen = input.isOpen === true
+      job.updatedAt = new Date().toISOString()
+      recordAudit(user, 'job.update', job.id, { title: job.title, previousStatus, status: job.status, isOpen: job.isOpen })
+      await persist()
+      return json(res, 200, { job })
+    }
+    if (adminJobMatch && req.method === 'DELETE') {
+      if (!requireRole('admin')) return
+      db.jobs ||= []; db.jobApplications ||= []
+      const job = db.jobs.find((item) => item.id === adminJobMatch[1])
+      if (!job) return json(res, 404, { error: 'Job not found.' })
+      db.jobs = db.jobs.filter((item) => item.id !== job.id)
+      // Applications for a removed posting are orphaned — keep them so admins can
+      // still review the candidates, but they can also be pruned explicitly.
+      if (String(url.searchParams.get('pruneApplications')) === 'true') db.jobApplications = db.jobApplications.filter((item) => item.jobId !== job.id)
+      recordAudit(user, 'job.delete', job.id, { title: job.title })
+      await persist()
+      return json(res, 200, { ok: true })
+    }
+
+    if (req.method === 'GET' && pathName === '/api/admin/job-applications') {
+      if (!requireRole('admin')) return
+      db.jobApplications ||= []
+      const status = url.searchParams.get('status') || 'all'
+      if (!['New', 'Reviewed', 'Shortlisted', 'Hired', 'Rejected', 'all'].includes(status)) return json(res, 400, { error: 'Invalid status filter.' })
+      const applications = db.jobApplications
+        .filter((item) => status === 'all' || item.status === status)
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+      return json(res, 200, { applications, counts: { total: db.jobApplications.length, unread: db.jobApplications.filter((item) => item.status === 'New').length } })
+    }
+    const adminApplicationMatch = pathName.match(/^\/api\/admin\/job-applications\/([a-f0-9]+)$/)
+    if (adminApplicationMatch && req.method === 'PATCH') {
+      if (!requireRole('admin')) return
+      db.jobApplications ||= []
+      const application = db.jobApplications.find((item) => item.id === adminApplicationMatch[1])
+      if (!application) return json(res, 404, { error: 'Application not found.' })
+      const input = await body(req)
+      if (!['New', 'Reviewed', 'Shortlisted', 'Hired', 'Rejected'].includes(input.status)) return json(res, 400, { error: 'Application status must be New, Reviewed, Shortlisted, Hired, or Rejected.' })
+      const previousStatus = application.status
+      application.status = input.status
+      application.reviewedAt = new Date().toISOString()
+      application.reviewedBy = user.id
+      recordAudit(user, 'job.application.status', application.id, { jobTitle: application.jobTitle, candidate: application.email, previousStatus, status: application.status })
+      await persist()
+      return json(res, 200, { application })
+    }
+    if (adminApplicationMatch && req.method === 'DELETE') {
+      if (!requireRole('admin')) return
+      db.jobApplications ||= []
+      const application = db.jobApplications.find((item) => item.id === adminApplicationMatch[1])
+      if (!application) return json(res, 404, { error: 'Application not found.' })
+      db.jobApplications = db.jobApplications.filter((item) => item.id !== application.id)
+      recordAudit(user, 'job.application.delete', application.id, { jobTitle: application.jobTitle, candidate: application.email })
+      await persist()
+      return json(res, 200, { ok: true })
     }
     if (req.method === 'POST' && pathName === '/api/quote') {
       const input = await body(req); if (!Array.isArray(input.items) || !input.items.length || input.items.length > 30) return json(res, 400, { error: 'Cart is empty or invalid.' })

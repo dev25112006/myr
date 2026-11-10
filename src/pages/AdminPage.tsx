@@ -3,6 +3,8 @@ import { inr } from '@/lib/format'
 import { useAuth, type TeamMember } from '@/lib/stores'
 import { Link } from 'react-router-dom'
 import { PanelShell, PanelIcons, type PanelNavItem } from '@/components/panel/PanelShell'
+import { BlogManager } from '@/components/admin/BlogManager'
+import { ApplicationsAdmin, CAREERS_ADMIN_NAV, JobsAdmin } from '@/pages/admin/CareersAdmin'
 
 const box = 'rounded-3xl border border-line bg-white p-5 shadow-card sm:p-6'
 
@@ -67,6 +69,8 @@ export function AdminPage() {
     { id: 'team', label: 'Team members', icon: PanelIcons.users, badge: team.length || undefined },
     { id: 'access', label: 'Roles & access', icon: PanelIcons.shield },
     { id: 'reviews', label: 'Review moderation', icon: PanelIcons.star },
+    { id: 'blogs', label: 'Blogs', icon: PanelIcons.doc },
+    ...CAREERS_ADMIN_NAV,
     { id: 'audit', label: 'Activity log', icon: PanelIcons.list },
   ]
   const revenue = serverOrders.filter((order) => ['Paid', 'In progress', 'Completed'].includes(order.status)).reduce((sum, order) => sum + order.total, 0)
@@ -109,6 +113,15 @@ export function AdminPage() {
     </>}
     {section === 'reviews' && <>
     <ReviewModeration />
+    </>}
+    {section === 'blogs' && <>
+    <BlogManager />
+    </>}
+    {section === 'jobs' && <>
+    <JobsAdmin />
+    </>}
+    {section === 'applications' && <>
+    <ApplicationsAdmin />
     </>}
     <p className="mt-6 text-xs leading-relaxed text-ink-400">Account credentials and role changes are handled by the server. Sales and product metrics on this prototype still use browser-local demo data.</p>
   </PanelShell>

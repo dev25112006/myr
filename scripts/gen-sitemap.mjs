@@ -22,10 +22,28 @@ const CANONICAL_PATHS = {
 }
 
 const inv = JSON.parse(readFileSync('audit/inventory.json', 'utf8'))
-const routes = (Array.isArray(inv) ? inv : Object.values(inv))
-  .map((r) => r.route)
-  .filter((p) => !NOINDEX.has(p) && !CANONICAL_PATHS[p])
-  .sort()
+/* Routes added after the audit (careers portal + blog). Kept here so re-running
+   this generator never drops them from the sitemap. */
+const EXTRA_ROUTES = ['/careers/', '/blogs/']
+/* Individual blog posts (src/content/blogs.json — shared seed source). Published
+   admin posts are appended by the API at deploy time; these cover the seeds. */
+const blogSlugs = (() => {
+  try {
+    const posts = JSON.parse(readFileSync('src/content/blogs.json', 'utf8'))
+    return Array.isArray(posts)
+      ? posts.filter((p) => p.status !== 'draft').map((p) => `/blogs/${p.slug}/`)
+      : []
+  } catch {
+    return []
+  }
+})()
+const routes = [
+  ...(Array.isArray(inv) ? inv : Object.values(inv))
+    .map((r) => r.route)
+    .filter((p) => !NOINDEX.has(p) && !CANONICAL_PATHS[p]),
+  ...EXTRA_ROUTES,
+  ...blogSlugs,
+].sort()
 
 const today = new Date().toISOString().slice(0, 10)
 const xml = [

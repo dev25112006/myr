@@ -127,16 +127,16 @@ export function ProductCategoryPage({ kind }: { kind: CategoryKind }) {
           </div>
           <Link to="/tech-store/" className="text-sm font-semibold text-rose-600 hover:text-rose-700">Back to Tech Store →</Link>
         </div>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {[6004, 6005, 6001, 6002, 6003, 6006].map((productId) => {
+        <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-1">
+          {[6001, 6002, 6003, 6004, 6005, 6006, 2765, 2766, 2767].map((productId) => {
             const product = CATALOG[productId]
             if (!product) return null
             return (
-              <div key={productId} className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-                <div className="flex items-center gap-3 mb-4">
-                  <img src={product.image ?? '/assets/2024-09-website-development.jpg'} alt={product.name} className="h-10 w-10 shrink-0 rounded-xl object-cover" loading="lazy" />
+              <div key={productId} className="border rounded-xl border-slate-200 bg-white p-8 sm:p-12 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <img src={product.image ?? '/assets/2024-09-website-development.jpg'} alt={product.name} className="h-12 w-12 shrink-0 rounded-xl object-cover" loading="lazy" />
                   <div>
-                    <h3 className="text-base font-bold text-slate-900">{product.name}</h3>
+                    <h3 className="text-xl font-bold text-slate-900">{product.name}</h3>
                     <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">{product.category}</p>
                   </div>
                 </div>

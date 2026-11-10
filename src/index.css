@@ -734,3 +734,54 @@
     animation: none !important;
   }
 }
+
+
+/* NEW: Cinematic website build animation */
+@keyframes builder {
+  0% { opacity: 0; transform: translateY(50px) scale(0.5); }
+  10% { opacity: 0.8; transform: translateY(20px) scale(0.8); }
+  25% { transform: translateY(0) scale(1); }
+  35% { transform: translateX(-20px) rotate(-5deg); }
+  45% { transform: translateX(15px) rotate(3deg); }
+  55% { transform: translateX(-10px) rotate(-2deg); }
+  65% { transform: translateX(8px) rotate(1deg); opacity: 1; }
+  75% { transform: scale(1.1) translateY(-10px); }
+  85% { transform: scale(0.9) translateY(5px); opacity: 0.9; }
+  90% { transform: scale(1) translateY(0); opacity: 1; }
+  95% { transform: scale(1.05) translateY(-5px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes contentEntrance {
+  0% { opacity: 0; transform: translateY(30px) scale(0.8); }
+  20% { opacity: 0.8; transform: translateY(15px) scale(0.9); }
+  40% { opacity: 1; transform: translateY(0) scale(1); }
+  60% { opacity: 1; }
+  80% { opacity: 0.9; }
+  100% { opacity: 1; }
+}
+
+@keyframes footerEntrance {
+  0% { transform: translateY(20px); opacity: 0; }
+  50% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-20px); opacity: 0; }
+}
+
+@keyframes logoEnter {
+  0% { opacity: 0; transform: scale(0) rotate(-180deg); }
+  50% { transform: scale(1.2) rotate(180deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes logoExit {
+  0% { opacity: 1; transform: scale(1); }
+  50% { transform: scale(1.5) rotate(360deg); opacity: 0; }
+  100% { opacity: 0; transform: scale(0); }
+}
+
+/* Animation classes */
+.animate-[builder_3s_ease-in-out_infinite] { animation: builder 3s ease-in-out infinite; }
+.animate-[contentEntrance_1s_ease-in-out_once] { animation: contentEntrance 1s ease-in-out forwards; }
+.animate-[footerEntrance_1s_ease-in-out_once] { animation: footerEntrance 1s ease-in-out forwards; }
+.animate-[logoEnter_2s_ease-in-out_infinite] { animation: logoEnter 2s ease-in-out infinite; }
+.animate-[logoExit_1s_ease-in-out] { animation: logoExit 1s ease-in-out forwards; }

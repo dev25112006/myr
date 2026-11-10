@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import {
-  COPYRIGHT,
   FOOTER_BLURB,
   FOOTER_COMPANY,
+  FOOTER_MARKETS,
   FOOTER_QUICK_LINKS,
+  FOOTER_RESOURCES,
   FOOTER_SERVICES,
   SOCIALS,
 } from './nav'
@@ -84,8 +85,11 @@ export function SiteFooter() {
         <div className="lg:col-span-2">
           <Column title="Services." links={FOOTER_SERVICES} />
         </div>
+        <div className="lg:col-span-2">
+          <Column title="Careers & Resources." links={FOOTER_RESOURCES} />
+        </div>
 
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-2">
           <h3 className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-accent-600">
             Company.
           </h3>
@@ -134,9 +138,56 @@ export function SiteFooter() {
         </div>
       </div>
 
+      {/* SEO strip — high-intent market keywords (India + US + worldwide) */}
+      <div className="border-t border-line py-6">
+        <div className="container-page">
+          <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent-600">
+            Solutions for businesses in India, the US &amp; worldwide
+          </h3>
+          <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+            {FOOTER_MARKETS.map((marketLink) => (
+              <li key={marketLink.label}>
+                <Link to={marketLink.to} className="text-xs text-ink-400 transition hover:text-accent-600">
+                  {marketLink.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
       <div className="border-t border-line py-5">
         <div className="container-page flex flex-col items-center justify-between gap-2 text-center text-xs text-ink-400 sm:flex-row sm:text-left">
-          <p>{COPYRIGHT}</p>
+          <div className="text-center text-xs text-ink-400 sm:text-left">
+            <span className="mr-1">© 2016-2026 myradvancesolution.com - </span>
+            <Link
+              to="/website-development/"
+              className="text-ink-400 underline underline-offset-2 hover:text-accent-600"
+            >
+              Premium website development
+            </Link>
+            <span className="mx-1">, </span>
+            <Link
+              to="/crm/"
+              className="text-ink-400 underline underline-offset-2 hover:text-accent-600"
+            >
+              CRM
+            </Link>
+            <span className="mx-1">, </span>
+            <Link
+              to="/ipbx-solution/"
+              className="text-ink-400 underline underline-offset-2 hover:text-accent-600"
+            >
+              IP PBX &amp; telephone system
+            </Link>
+            <span className="mx-1">and </span>
+            <Link
+              to="/services/"
+              className="text-ink-400 underline underline-offset-2 hover:text-accent-600"
+            >
+              More
+            </Link>
+          </div>
           <p>Rebuilt independently — new visual identity, same verified content.</p>
         </div>
         <div className="mt-6 flex justify-center px-4 sm:px-6">

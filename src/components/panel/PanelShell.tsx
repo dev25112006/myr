@@ -107,6 +107,13 @@ export const PanelIcons = {
       <path d="M5.5 11.5V20h13v-8.5" />
     </>,
   ),
+  doc: icon(
+    <>
+      <path d="M6 3h9l4 4v14H6z" />
+      <path d="M14 3v5h5" />
+      <path d="M9 13h7M9 17h5" />
+    </>,
+  ),
 }
 
 type PanelShellProps = {

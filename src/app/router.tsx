@@ -20,7 +20,6 @@ const CctvSolutionPage = lazy(() => import('@/pages/CctvSolutionPage').then((m) 
 const NetworkProductsPage = lazy(() => import('@/pages/NetworkProductsPage').then((m) => ({ default: m.NetworkProductsPage })))
 const PartnershipPage = lazy(() => import('@/pages/PartnershipPage').then((m) => ({ default: m.PartnershipPage })))
 const Number1800Page = lazy(() => import('@/pages/Number1800Page').then((m) => ({ default: m.Number1800Page })))
-const PrivyrPage = lazy(() => import('@/pages/PrivyrPage').then((m) => ({ default: m.PrivyrPage })))
 const ContactUsPage = lazy(() => import('@/pages/ContactUsPage').then((m) => ({ default: m.ContactUsPage })))
 const TechStorePage = lazy(() => import('@/pages/TechStorePage').then((m) => ({ default: m.TechStorePage })))
 const ProductCategoryPage = lazy(() => import('@/pages/StoreCatalogPages').then((m) => ({ default: m.ProductCategoryPage })))
@@ -51,6 +50,9 @@ const SaaSSupportPage = lazy(() => import('@/pages/SaaSSupportPage').then((m) =>
 const SaaSAdminPage = lazy(() => import('@/pages/SaaSAdminPage').then((m) => ({ default: m.SaaSAdminPage })))
 const SaaSSupportAdminPage = lazy(() => import('@/pages/SaaSSupportAdminPage').then((m) => ({ default: m.SaaSSupportAdminPage })))
 const SaaSProductModulePage = lazy(() => import('@/pages/SaaSProductModulePage').then((m) => ({ default: m.SaaSProductModulePage })))
+const CareersPage = lazy(() => import('@/pages/CareersPage').then((m) => ({ default: m.CareersPage })))
+const BlogPage = lazy(() => import('@/pages/BlogPage').then((m) => ({ default: m.BlogPage })))
+const BlogPostPage = lazy(() => import('@/pages/BlogPage').then((m) => ({ default: m.BlogPostPage })))
 
 function RouteFallback() {
   return (
@@ -160,6 +162,13 @@ export function AppRoutes() {
           <Route path="/team-chat/" element={<CRMPanelPage pathname="/team-chat/" />} />
           <Route path="/team-panel/" element={<CRMPanelPage pathname="/team-panel/" />} />
           <Route path="/customer-panel/" element={<CustomerPanelPage />} />
+
+          {/* Careers portal (blog lives at /blogs/ with the CMS-driven BlogPage) */}
+          <Route path="/careers/" element={<CareersPage />} />
+
+          {/* Blogs — SEO article hub + individual posts */}
+          <Route path="/blogs/" element={<BlogPage />} />
+          <Route path="/blogs/:slug/" element={<BlogPostPage />} />
 
           {/* Source 404s + catch-all (Phase 7 keeps verifying) */}
           <Route path="/not-found/" element={<NotFoundPage />} />

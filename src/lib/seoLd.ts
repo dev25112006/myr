@@ -4,6 +4,7 @@
  */
 
 const SITE = typeof window !== 'undefined' ? window.location.origin : ''
+export const SITE_ORIGIN = SITE
 const WHATSAPP = '+917408443341'
 
 export const ORGANIZATION_LD = {
@@ -318,4 +319,60 @@ export function pageLd(path: string): object[] {
   if (path === '/website-development/') out.push(FAQ_WEBSITE)
   if (path === '/services/') out.push(FAQ_SERVICES)
   return out
+}
+
+/** Shape from src/lib/blogs.tsx (`Blog`) — kept structural so this stays decoupled. */
+export function blogPostingLd(blog: {
+  title: string
+  slug: string
+  excerpt: string
+  category?: string
+  tags?: string[]
+  author?: string
+  coverImage?: string
+  readingMinutes?: number
+  createdAt: string
+  updatedAt?: string
+}) {
+  const url = `${SITE}/blogs/${blog.slug}/`
+  const image = blog.coverImage
+    ? blog.coverImage.startsWith('http') ? blog.coverImage : `${SITE}${blog.coverImage}`
+    : undefined
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: blog.title,
+    description: blog.excerpt,
+    ...(image ? { image } : {}),
+    url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    datePublished: blog.createdAt,
+    dateModified: blog.updatedAt || blog.createdAt,
+    author: { '@type': 'Organization', name: blog.author || 'MYR Editorial Team', url: `${SITE}/` },
+    publisher: { '@id': `${SITE}/#organization` },
+    ...(blog.category ? { articleSection: blog.category } : {}),
+    keywords: (blog.tags || []).join(', '),
+    timeRequired: `PT${Math.max(1, blog.readingMinutes || 3)}M`,
+    inLanguage: 'en',
+  }
+}
+
+/** Blog + schema for the /blogs/ index page. */
+export function blogIndexLd(blogs: Array<{ title: string; slug: string; excerpt: string; createdAt: string; category?: string; tags?: string[]; readingMinutes?: number }>) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'MyR Advance Solution Blog',
+    description: 'Guides and insights on ERP software, CRM, HRM, website development, digital marketing, IP PBX and CCTV from the MYR team.',
+    url: `${SITE}/blogs/`,
+    publisher: { '@id': `${SITE}/#organization` },
+    blogPost: blogs.map((blog, index) => ({
+      '@type': 'BlogPosting',
+      headline: blog.title,
+      url: `${SITE}/blogs/${blog.slug}/`,
+      description: blog.excerpt,
+      datePublished: blog.createdAt,
+      position: index + 1,
+    })),
+  }
 }
