@@ -401,6 +401,46 @@ export const FAQ_SERVICES = {
   ],
 }
 
+/** FAQ IP PBX */
+export const FAQ_IP_PBX = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'How does cloud IP PBX telephony work for teams in India and the US?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'A cloud IP PBX routes calls over the internet instead of legacy phone lines: extensions, IVR menus, ring groups, call recording and CRM screen-pops are configured in software. India offices connect through SIP trunks, and US teams can run toll-free 1800 numbers. The same system serves multi-location and remote teams.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What is the typical response time for support inquiries?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Phone and live chat get assistance within minutes during support hours, and email queries are answered within 24 hours. Support runs Monday to Friday, 10 AM to 6 PM IST, with a ticketing system and severity-based prioritisation.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do you work with clients outside India — the US and worldwide?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. We serve clients in the United States and worldwide with remote-first delivery, IST/EST-overlap meetings, WhatsApp and live-chat support, and quotes in INR or USD. Discovery, demos and handovers happen online, so timezone differences do not slow delivery.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What are your payment terms and accepted payment methods?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Projects are billed in INR with a GST invoice, or in USD for applicable regions. Typical terms are an advance to begin, with milestone payments through delivery. Hardware and ready-made products can be purchased directly through the Tech Store checkout, and subscriptions renew per the agreed billing cycle.',
+      },
+    },
+  ],
+}
+
 /** Product JSON-LD for verified catalog IDs (exact prices from audit). */
 const PRODUCTS: Record<
   string,
@@ -461,6 +501,7 @@ export function pageLd(path: string): object[] {
   const eduSegment = SEGMENT_LIST.find((s) => s.path === path)
   if (eduSegment) out.push(faqPageLd(eduSegment.faq))
   if (path === '/education-erp/' || path === '/education-erp/modules/') out.push(faqPageLd(MODULES_FAQ))
+  if (path === '/ipbx-solution/') out.push(FAQ_IP_PBX)
   if (path === '/careers/') out.push(FAQ_CAREERS)
   if (path === '/blogs/') out.push(FAQ_BLOG)
   return out
