@@ -361,7 +361,7 @@ function HeroSection() {
   const xImage = useTransform(x, [-50, 50], [-8, 8])
   const yImage = useTransform(y, [-50, 50], [-8, 8])
 
-  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect()
     const xPos = ((event.clientX - rect.left) / rect.width) * 100 - 50
     const yPos = ((event.clientY - rect.top) / rect.height) * 100 - 50
@@ -428,10 +428,12 @@ function HeroSection() {
   )
 }
 
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
   const xImage = useTransform(x, [-50, 50], [-8, 8])
   const yImage = useTransform(y, [-50, 50], [-8, 8])
 
-  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect()
     const xPos = ((event.clientX - rect.left) / rect.width) * 100 - 50
     const yPos = ((event.clientY - rect.top) / rect.height) * 100 - 50
