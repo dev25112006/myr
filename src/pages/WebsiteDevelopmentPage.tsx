@@ -1060,6 +1060,16 @@ function FaqSection() {
   /* Website-development page FAQs — 6 questions, verbatim from this page's manifest. */
   const items = [
     {
+      q: 'How much does website development cost in India or the US?',
+      a: (
+        <p>
+          <RichText>
+            Business websites start around **₹15,000 for India-based clients** and near **$1,000 for US clients**, scaling with design, pages and integrations. Ecommerce and custom web apps are quoted individually, with a **fixed, itemised estimate in INR or USD** before work starts.
+          </RichText>
+        </p>
+      ),
+    },
+    {
       q: 'How long does it take to build my website?',
       a: (
         <p>
@@ -1070,39 +1080,40 @@ function FaqSection() {
       ),
     },
     {
-      q: 'Do you offer custom website designs?',
-      a: <p>Yes! We create unique, tailored designs to match your brand and business needs.</p>,
-    },
-    {
-      q: 'Will my website be mobile-friendly?',
+      q: 'Will my website rank on Google and appear in AI search results?',
       a: (
         <p>
           <RichText>
-            Absolutely! All our websites are **fully responsive** and **optimized** for mobile devices.
+            Every build includes **technical SEO**: semantic HTML, schema markup, sitemap and robots setup, and **Core Web Vitals optimisation**. Content structure is designed for **Google's AI Overviews** and answer engines such as ChatGPT, and advanced SEO campaigns for India, the US or global markets are available as add-on plans.
+          </RichText>
+        </p>
+      ),
+    },
+    {
+      q: 'Will my website be mobile-friendly and fast?',
+      a: (
+        <p>
+          <RichText>
+            Yes. All our websites are **fully responsive** and are built to pass modern **Core Web Vitals targets** for speed and stability, tested on both mobile and desktop devices.
           </RichText>
         </p>
       ),
     },
     {
       q: "Can I update my website after it's live?",
-      a: <p>Yes! We provide easy-to-use tools and support so you can manage updates effortlessly.</p>,
-    },
-    {
-      q: 'Do you offer SEO optimization?',
       a: (
         <p>
-          <RichText>
-            Yes! We provide **basic SEO** with every website to ensure a strong foundation. For advanced SEO strategies, you can choose from our **SEO plans** at an additional cost.
-          </RichText>
+          Yes. We provide easy-to-use tools and support so you can manage updates effortlessly, and
+          our team is available for any changes you would rather outsource.
         </p>
       ),
     },
     {
-      q: 'What if I need support after my website is launched?',
+      q: 'What support do I get after my website is launched?',
       a: (
         <p>
           <RichText>
-            We provide **24/7 support via [live chat,](https://1367.3cx.cloud/myradvancesolutionpr) WhatsApp dedicated group, and phone**, while email queries are responded to within **24 hours**.
+            We provide **24/7 support via [live chat,](https://1367.3cx.cloud/myradvancesolutionpr) a dedicated WhatsApp group and phone**, while email queries are answered within **24 hours**. Maintenance, backups and content updates can be bundled with your plan.
           </RichText>
         </p>
       ),

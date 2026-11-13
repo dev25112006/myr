@@ -189,63 +189,107 @@ function FaqSection({ onInternalClick }: { onInternalClick: (href: string) => vo
   /* Services-page FAQ wording — intentionally differs from homepage (see S02). */
   const items = [
     {
-      q: 'How to buy a product?',
-      a: (
-        <ul className="space-y-2">
-          <li>
-            <RichText onInternalClick={onInternalClick}>
-              Browse products on our website. on **[Shop Page](/tech-store/)** Select the desired product.
-            </RichText>
-          </li>
-          <li>Add it to your cart. Proceed to checkout.</li>
-          <li>Enter billing and payment information. Complete the purchase.</li>
-          <li>
-            <RichText onInternalClick={onInternalClick}>
-              Receive confirmation and delivery/access details. **If you need assistance, simply raise a query on our "Contact Us" page for a demo or any other support needed.**
-            </RichText>
-          </li>
-        </ul>
-      ),
-    },
-    {
-      q: 'How to send a custom query?',
+      q: 'Which service should I choose — website, CRM, ERP or digital marketing?',
       a: (
         <div className="space-y-2">
-          <p className="font-semibold text-ink-950">Follow these steps:</p>
           <ul className="list-inside list-disc space-y-1.5">
             <li>
               <RichText onInternalClick={onInternalClick}>
-                Visit our website and navigate to the "**[Contact Us](/contact-us/)** " page.
+                New or outdated online presence → **website development**
               </RichText>
             </li>
-            <li>Fill out the query form with your contact information, including your name, email address, and phone number.</li>
-            <li>In the message section, provide details of your query or request, including any specific information or requirements you have.</li>
-            <li>Click on the "Submit" or "Send" button to send your query to our team.</li>
-            <li>You will receive a confirmation message acknowledging receipt of your query.</li>
-            <li>Our team will review your query and respond to you promptly with the relevant information or assistance you need.</li>
+            <li>Scattered customer data and slow follow-ups → CRM</li>
+            <li>Multi-department operations → ERP</li>
+            <li>Low visibility and lead flow → digital marketing</li>
           </ul>
-          <p className="font-semibold text-ink-950">
-            If you have any urgent queries or prefer to contact us directly, you can also find our contact details, such as email address or phone number, on the "Contact Us" page for immediate assistance.
+          <p>
+            <RichText onInternalClick={onInternalClick}>
+              Each service section on this page links to a dedicated page, or **[contact the team](/contact-us/)** and we will map the right starting point for your business.
+            </RichText>
           </p>
         </div>
       ),
     },
     {
-      /* Source typo "How work" preserved (flag §7). */
-      q: 'How work the support policy?',
+      q: 'Do you add AI features to CRM, ERP and marketing projects?',
       a: (
         <div className="space-y-2">
           <ul className="list-inside list-disc space-y-1.5">
-            <li><strong className="text-ink-950">Scope:</strong> Covers assistance for product functionality, usage, and troubleshooting.</li>
-            <li><strong className="text-ink-950">Channels:</strong> Email, phone, or live chat during specified hours.</li>
-            <li><strong className="text-ink-950">Response Time:</strong> Within 72 Hours during business hours.</li>
-            <li><strong className="text-ink-950">Ticketing System:</strong> Efficient tracking and resolution.</li>
-            <li><strong className="text-ink-950">Support Hours:</strong> Monday to Friday, 10 Am to 6 Pm excluding holidays.</li>
-            <li><strong className="text-ink-950">Severity Levels:</strong> Categorized with varied response times.</li>
-            <li><strong className="text-ink-950">Escalation Process:</strong> Ensures timely issue resolution.</li>
-            <li><strong className="text-ink-950">Updates:</strong> Regular updates and maintenance for improvement.</li>
-            <li><strong className="text-ink-950">End of Support:</strong> Communicated in advance, with upgrade options.</li>
-            <li><strong className="text-ink-950">Feedback:</strong> Welcome for continuous improvement.</li>
+            <li>AI-assisted lead scoring and reply drafting in CRM</li>
+            <li>
+              <RichText onInternalClick={onInternalClick}>
+                AI marketing tools for campaign variants and keyword clustering — see **[AI digital marketing](/digital-marketing/)**
+              </RichText>
+            </li>
+            <li>Reporting modules with AI summaries</li>
+          </ul>
+          <p>
+            We use AI where it measurably saves time and keep human review on anything
+            customer-facing.
+          </p>
+        </div>
+      ),
+    },
+    {
+      q: 'How does cloud IP PBX telephony work for teams in India and the US?',
+      a: (
+        <div className="space-y-2">
+          <ul className="list-inside list-disc space-y-1.5">
+            <li>
+              <RichText onInternalClick={onInternalClick}>
+                A cloud IP PBX routes calls over the internet instead of legacy phone lines — see **[IPBX solutions](/ipbx-solution/)**
+              </RichText>
+            </li>
+            <li>Extensions, IVR menus, ring groups, call recording and CRM screen-pops are configured in software</li>
+            <li>
+              <RichText onInternalClick={onInternalClick}>
+                India offices connect through SIP trunks; US teams can run **[toll-free 1800 numbers](/1800-number/)**
+              </RichText>
+            </li>
+            <li>The same system serves multi-location and remote teams</li>
+          </ul>
+        </div>
+      ),
+    },
+    {
+      q: 'Do you work with clients outside India — the US and worldwide?',
+      a: (
+        <div className="space-y-2">
+          <ul className="list-inside list-disc space-y-1.5">
+            <li>Yes — remote-first delivery for the United States and worldwide clients</li>
+            <li>IST/EST-overlap meetings, WhatsApp and live-chat support</li>
+            <li>Quotes in INR or USD</li>
+            <li>Discovery, demos and handovers happen online, so timezone differences do not slow delivery</li>
+          </ul>
+        </div>
+      ),
+    },
+    {
+      q: 'What are your payment terms and accepted payment methods?',
+      a: (
+        <div className="space-y-2">
+          <ul className="list-inside list-disc space-y-1.5">
+            <li>Projects are billed in INR with a GST invoice, or in USD for applicable regions</li>
+            <li>Typical terms: an advance to begin, with milestone payments through delivery</li>
+            <li>
+              <RichText onInternalClick={onInternalClick}>
+                Hardware and ready-made products can be purchased directly through the **[Tech Store](/tech-store/)** checkout
+              </RichText>
+            </li>
+            <li>Subscriptions renew per the agreed billing cycle</li>
+          </ul>
+        </div>
+      ),
+    },
+    {
+      q: "How fast is MYR's support response?",
+      a: (
+        <div className="space-y-2">
+          <ul className="list-inside list-disc space-y-1.5">
+            <li><strong className="text-ink-950">Phone &amp; live chat:</strong> assistance within minutes during support hours</li>
+            <li><strong className="text-ink-950">Email:</strong> answered within 24 hours</li>
+            <li><strong className="text-ink-950">Support hours:</strong> Monday to Friday, 10 AM to 6 PM IST</li>
+            <li><strong className="text-ink-950">Ticketing:</strong> severity-based prioritisation and escalation for critical issues</li>
           </ul>
           <p>
             <RichText onInternalClick={onInternalClick}>
@@ -253,54 +297,6 @@ function FaqSection({ onInternalClick }: { onInternalClick: (href: string) => vo
             </RichText>
           </p>
         </div>
-      ),
-    },
-    {
-      q: 'How can send a refund request?',
-      a: (
-        <div className="space-y-2">
-          <ul className="list-inside list-disc space-y-1.5">
-            <li>
-              <RichText onInternalClick={onInternalClick}>
-                Visit our website's "**[Refund request](/my-account/)** " page.
-              </RichText>
-            </li>
-            <li>Fill out the query form with your details.</li>
-            <li>Clearly state your refund request in the message.</li>
-            <li>Provide purchase details and reason for the refund.</li>
-            <li>Click "Submit" or "Send".</li>
-          </ul>
-          <p>
-            <RichText onInternalClick={onInternalClick}>
-              To raise your refund, please visit the refund **[policy page](/refund-and-return-policy/)** read carefully for detailed instructions.
-            </RichText>
-          </p>
-        </div>
-      ),
-    },
-    {
-      q: 'My account blocked what can I do?',
-      a: (
-        <ul className="list-inside list-disc space-y-1.5">
-          <li className="list-none font-semibold text-ink-950">If your account is blocked:</li>
-          <li>
-            Contact Customer Support.{' '}
-            <a
-              href="https://wa.me/+917408443341"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-accent-600 underline underline-offset-2"
-            >
-              +91 7408443341
-            </a>
-          </li>
-          <li>Provide necessary information.</li>
-          <li>Understand the reason for the block.</li>
-          <li>Follow instructions to resolve.</li>
-          <li>Review policies.</li>
-          <li>Seek clarification if needed.</li>
-          <li>Be patient for resolution.</li>
-        </ul>
       ),
     },
   ]
@@ -311,7 +307,7 @@ function FaqSection({ onInternalClick }: { onInternalClick: (href: string) => vo
         <SectionHeading
           eyebrow="FAQS"
           title="Frequently Asked Questions"
-          sub="Find answers to your questions about MYR Advance Solution’s services, support, and expertise. Tailored IT solutions for your business needs."
+          sub="Answers on services, pricing in INR and USD, AI features, cloud telephony and support — for businesses in India, the US and worldwide."
         />
         <div className="mt-12">
           <FaqAccordion items={items} />

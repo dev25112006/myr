@@ -765,6 +765,25 @@ export function BlogPostPage() {
           </div>
         </section>
       )}
+      {/* Newsletter CTA */}
+      <section className="section-dark py-16 bg-ink-950/[0.04]">
+        <div className="container-page">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-2xl font-bold text-white mb-4">Stay updated</h2>
+            <p className="text-white/80 mb-6">Subscribe for monthly insights on ERP, CRM, IP PBX, and digital marketing delivered to your inbox.</p>
+            <form className="max-w-md mx-auto space-y-4">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="border border-line rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-accent-400"
+              />
+              <button type="submit" className="btn btn-primary w-full">
+                Subscribe
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
     </>
   )
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { CHAT_SUPPORT, CHAT_SALES } from '@/components/layout/nav'
-import { Reveal, SectionHeading, SupportBlock, TestimonialCard, type Story } from '@/components/ui'
+import { FaqAccordion, Reveal, SectionHeading, SupportBlock, TestimonialCard, type Story } from '@/components/ui'
 import { useCart } from '@/lib/stores'
 import { useNavigate } from 'react-router-dom'
 import { useCatalogPrice } from '@/lib/useCatalogPrice'
@@ -453,6 +453,44 @@ export function IpBxSolutionPage() {
       <BenefitsSection />
       <StoriesSection />
       <SupportSection />
+      <FaqSection />
     </>
+  )
+}
+
+/* ------------------------------ FAQ Section ------------------------------ */
+function FaqSection() {
+  const items = [
+    {
+      q: 'How does cloud IP PBX telephony work for teams in India and the US?',
+      a: 'A cloud IP PBX routes calls over the internet instead of legacy phone lines: extensions, IVR menus, ring groups, call recording and CRM screen-pops are configured in software. India offices connect through SIP trunks, and US teams can run toll-free 1800 numbers. The same system serves multi-location and remote teams.',
+    },
+    {
+      q: 'What is the typical response time for support inquiries?',
+      a: 'Phone and live chat get assistance within minutes during support hours, and email queries are answered within 24 hours. Support runs Monday to Friday, 10 AM to 6 PM IST, with a ticketing system and severity-based prioritisation.',
+    },
+    {
+      q: 'Do you work with clients outside India — the US and worldwide?',
+      a: 'Yes. We serve clients in the United States and worldwide with remote-first delivery, IST/EST-overlap meetings, WhatsApp and live-chat support, and quotes in INR or USD. Discovery, demos and handovers happen online, so timezone differences do not slow delivery.',
+    },
+    {
+      q: 'What are your payment terms and accepted payment methods?',
+      a: 'Projects are billed in INR with a GST invoice, or in USD for applicable regions. Typical terms are an advance to begin, with milestone payments through delivery. Hardware and ready-made products can be purchased directly through the Tech Store checkout, and subscriptions renew per the agreed billing cycle.',
+    },
+  ]
+
+  return (
+    <section className="section-deep py-20 sm:py-24">
+      <div className="container-page">
+        <SectionHeading
+          eyebrow="FAQS"
+          title="Frequently Asked Questions"
+          sub="Answers on IP PBX telephony, support SLA, payment terms and global availability — for businesses in India, the US and worldwide."
+        />
+        <div className="mt-12">
+          <FaqAccordion items={items} />
+        </div>
+      </div>
+    </section>
   )
 }

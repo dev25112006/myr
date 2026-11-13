@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion, useMotionValue, useTransform } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { cn, inr } from '@/lib/format'
 import { WEBSITE_PLANS } from '@/content/plans'
@@ -399,15 +399,46 @@ function AnimatedWebsitePreview() {
 }
 
 function HeroSection() {
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+
+  const xImage = useTransform(x, [-50, 50], [-8, 8])
+  const yImage = useTransform(y, [-50, 50], [-8, 8])
+
+  const handleMouseMove = (event: MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const xPos = ((event.clientX - rect.left) / rect.width) * 100 - 50
+    const yPos = ((event.clientY - rect.top) / rect.height) * 100 - 50
+    x.set(xPos)
+    y.set(yPos)
+  }
+
   return (
-    <section className="section-dark relative overflow-hidden">
-      <div className="container-page py-12 sm:py-16 lg:py-20">
-        <div className="grid items-center gap-10 sm:grid-cols-2 xl:grid-cols-[.812fr_1fr]">
-          <div>
+    <section className="relative overflow-hidden bg-slate-50 py-8 sm:py-12 lg:py-16">
+      <div className="container-page relative">
+        {/* Subtle animated background blobs */}
+        <div className="absolute -inset-1 bg-gradient-to-br from-slate-100/20 via-transparent to-slate-50/20 pointer-events-none">
+          <div className="absolute rounded-full bg-slate-200/30 backdrop-blur-sm opacity-60 animate-[floatPulse_6s_ease-in-out_infinite] top-1/4 left-1/4 w-[400px] h-[400px] transform -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute rounded-lg bg-slate-100/50 backdrop-blur-sm opacity-40 animate-[floatPulse_6s_ease-in-out_infinite_delayed] bottom-1/3 right-1/3 w-[300px] h-[300px] transform -translate-x-1/2 -translate-y-1/2"></div>
+        </div>
+
+        <div className="grid items-center gap-8 sm:grid-cols-2 lg:grid-cols-[.6fr_1fr]">
+          {/* Left: Text content */}
+          <div className="relative z-10">
             <HeroHeading />
-            <p className="mt-4 text-sm leading-relaxed text-ink-400 sm:text-base">
-              <Bold text="At **MyR Advance Solution,** we specialize in delivering cutting-edge **IT solutions** to enhance business operations and support individuals. Our services include **PBX & IP-PBX systems, CCTV security, CRM development, website design, networking, cloud computing, mobile apps, data analytics, digital marketing, VoIP solutions,** and a comprehensive range of **IT hardware products.** With our expertise, we ensure seamless connectivity, security, and efficiency. Partner with us for reliable and innovative technology solutions tailored to your needs." />
-            </p>
+            <ul className="mt-4 max-w-2xl space-y-2 text-sm sm:text-base">
+              {[
+                'Cutting-edge IT solutions that enhance business operations and support individuals.',
+                'End-to-end services: PBX & IP-PBX, CCTV security, CRM development, website design, networking, cloud, mobile apps, data analytics, digital marketing, VoIP and IT hardware.',
+                'Expert-led delivery for seamless connectivity, security, and efficiency.',
+                'Reliable, innovative technology solutions tailored to your needs.',
+              ].map((point) => (
+                <li key={point} className="flex items-start gap-2.5 text-black">
+                  <span aria-hidden="true" className="mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-600" />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
             <div className="mt-6 flex flex-wrap gap-3">
               <a
                 href="/tech-store/"
@@ -417,8 +448,23 @@ function HeroSection() {
               </a>
             </div>
           </div>
-          <div className="flex justify-center">
-            <AnimatedWebsitePreview />
+
+          {/* Right: Hero image with floating animation and subtle parallax */}
+          <div
+            className="relative z-10 flex justify-center"
+            onMouseMove={handleMouseMove}
+          >
+            <motion.div
+              className="max-w-full max-w-[560px] h-auto transform translate-x-6 floatImg_6s_ease-in-out_infinite"
+              style={{ x: xImage, y: yImage }}
+              transition={{ type: 'spring', stiffness: 150, damping: 20 }}
+            >
+              <img
+                src="https://www.myradvancesolution.com/wp-content/uploads/2025/01/website-front-hero-image.png"
+                alt="Hero illustration"
+                className="w-full h-auto max-h-[500px] sm:max-h-[600px] object-contain transition-transform duration-700 ease-out"
+              />
+            </motion.div>
           </div>
         </div>
       </div>
@@ -428,12 +474,12 @@ function HeroSection() {
 
 function StatsSection() {
   return (
-    <section className="section-dark py-12 sm:py-16">
+    <section className="section-dark py-8 sm:py-12">
       <div className="container-page">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-8 text-center sm:grid-cols-4 sm:gap-8">
+        <div className="grid grid-cols-2 gap-x-2 gap-y-4 text-center sm:grid-cols-4 sm:gap-6">
           {STATS.map((s) => (
             <div key={s.label} className="flex flex-col items-center gap-1">
-              <p className="text-3xl font-bold font-display text-ink-950 sm:text-4xl lg:text-5xl">
+              <p className="text-2xl font-bold font-display text-ink-950 sm:text-3xl lg:text-4xl">
                 <StatCounter target={s.value} suffix={s.suffix} comma={s.comma} />
               </p>
               <span className="text-xs font-normal text-ink-400 sm:text-sm">{s.label}</span>
@@ -499,6 +545,18 @@ function ServiceScreen({ serviceIndex }: { serviceIndex: number }) {
         @keyframes serviceWebsiteScroll { 0%, 18% { transform: translateY(0); } 75%, 100% { transform: translateY(-22%); } }
         .service-site-scroll { animation: serviceWebsiteScroll 12s ease-in-out infinite alternate; }
         @media (prefers-reduced-motion: reduce) { .service-site-scroll { animation: none; } }
+        @keyframes floatPulse_6s_ease-in-out_infinite {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-20px) scale(1.02); }
+        }
+        @keyframes floatShadow_6s_ease-in-out_infinite {
+          0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+          50% { box-shadow: 0 20px 50px rgba(0,0,0,0.25); }
+        }
+        @keyframes floatImg_6s_ease-in-out_infinite {
+          0%, 100% { transform: translateY(0) rotate(-2deg); }
+          50% { transform: translateY(-10px) rotate(2deg); }
+        }
       `}</style>
     </div>
   )

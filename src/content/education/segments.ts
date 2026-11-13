@@ -69,6 +69,18 @@ export type SegmentConfig = {
 
 const BASE_FAQ: FaqItem[] = [
   {
+    q: 'How much does MYR education ERP cost per student?',
+    a: 'Pricing depends on your institution size, modules selected and regions you operate in. Indian schools and coaching centres are typically quoted per student per year in INR, while US and international institutions are quoted per campus in USD. Use Request pricing and you will get real commercial terms for your configuration.',
+  },
+  {
+    q: 'Is student data compliant with India\'s DPDP Act and US privacy laws?',
+    a: 'Access is role-based and tenant-scoped, sensitive fields are minimised by design, and every access change lands in the audit log. Implementations are aligned with India\'s DPDP Act, and region-specific requirements for US institutions such as FERPA-aligned handling are reviewed before build, not after.',
+  },
+  {
+    q: 'Does the ERP work for institutions outside India?',
+    a: 'Yes. Institutions in the US and worldwide run the same platform with cloud hosting appropriate to your region, INR or USD billing, and online training sessions scheduled across timezones.',
+  },
+  {
     q: 'What exactly is the Virtual Campus tour?',
     a: 'A walkthrough you can skip. It opens a simulated campus where you pick a location or a role and try short workflows like marking attendance or recording a fee receipt. Everything runs on sample data inside your browser. Nothing you click reaches MYR systems, and no real student record is involved.',
   },

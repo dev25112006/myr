@@ -206,7 +206,7 @@ function ProductsSection() {
               </ul>
               <div className="mt-5 flex items-baseline gap-2 border-t border-line pt-4">
                 {p.original && <span className="text-xs text-ink-400 line-through">{p.original}</span>}
-                <span className="text-lg font-bold text-flame-600">{p.price}</span>
+                <span className="text-lg font-bold text-flame-600">{p.price}{p.original !== p.price && (<span className="ml-2 text-[8px] font-semibold text-flame-600">Best Deal</span>)}</span>
               </div>
               <div className="mt-4 flex gap-2">
                 <Link to="/contact-us/?interest=network-products#contact-form" className="btn btn-primary btn-sm flex-1 justify-center">

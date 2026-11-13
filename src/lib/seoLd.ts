@@ -3,6 +3,8 @@
  * Site-wide: Organization + WebSite. Per-route: Breadcrumb, Service, FAQ, Product.
  */
 
+import { SEGMENT_LIST, MODULES_FAQ, type FaqItem } from '@/content/education/segments'
+
 const SITE = typeof window !== 'undefined' ? window.location.origin : ''
 export const SITE_ORIGIN = SITE
 const WHATSAPP = '+917408443341'
@@ -146,42 +148,144 @@ export const FAQ_HOME = {
   mainEntity: [
     {
       '@type': 'Question',
-      name: 'How to buy a product?',
+      name: 'What IT services does MYR Advance Solution provide for businesses in India and the US?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Browse products/services on our website on the Shop Page and select the desired product. Add it to your cart and proceed to checkout. Enter billing and payment information and complete the purchase. Receive confirmation and delivery/access details. If you need assistance, simply raise a query on our Contact Us page for a demo or any other support needed.',
+        text: 'We deliver end-to-end IT services for startups, SMBs and enterprises across India, the United States and worldwide — website and ecommerce development, custom CRM and ERP software, cloud IP PBX and business telephony, CCTV security, networking, digital marketing, and IT hardware. Every engagement is scoped to your market, so pricing, compliance and timelines fit whether you operate in India or the US.',
       },
     },
     {
       '@type': 'Question',
-      name: 'How to send a custom query?',
+      name: 'How much does a website or software project cost in India vs the US?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Visit our website and navigate to the Contact Us page. Fill out the query form with your contact information, including your name, email address, and phone number. In the message section, provide details of your query or request. Click on the Submit or Send button. You will receive a confirmation message acknowledging receipt of your query, and our team will respond promptly.',
+        text: 'Costs depend on scope, integrations and design. As a guide, a business website in India typically starts around ₹15,000, while a comparable project for a US business usually starts near $1,000; custom software, ERP and CRM builds are quoted individually. You get a fixed, itemised quote in INR or USD before work begins — request one on our Contact Us page.',
       },
     },
     {
       '@type': 'Question',
-      name: 'How Does the Support Policy Work?',
+      name: 'How long does it take to launch a website or software project?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Scope covers product functionality, usage, and troubleshooting. Channels: email, phone, or live chat. Response time: assistance within minutes on phone/live chat; email response within 24 hours. Support hours: Mon-Fri, 10 AM to 6 PM (excluding holidays). A ticketing system ensures efficient tracking, with severity levels, escalation, regular updates, and advance notice of end of support.',
+        text: 'Most websites go live within 24 hours with a maintenance or coming-soon page and are fully completed in 15–20 working days. Custom software, CRM and ERP implementations follow a milestone plan agreed up front, so you always know what ships next and when.',
       },
     },
     {
       '@type': 'Question',
-      name: 'How can send a refund request?',
+      name: 'Will my website rank on Google and AI search engines like ChatGPT?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Go to the My Account section on our website and select Orders. Locate the order for which you would like to request a refund. Click on Request Refund, select the appropriate reason, and click Submit to send your request.',
+        text: "Yes — every site we build ships with technical SEO fundamentals: semantic HTML, schema markup, sitemaps, Core Web Vitals optimisation and mobile-first performance. Content is structured so Google's AI Overviews and answer engines like ChatGPT and Perplexity can cite it, and our digital marketing team can run ongoing SEO campaigns for India, the US or global audiences.",
       },
     },
     {
       '@type': 'Question',
-      name: 'My account blocked what can I do?',
+      name: 'Is my business data secure and compliant with privacy laws?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'If your account is blocked, reach out to Customer Chat Support or email support@myradvancesolution.com. Provide the necessary information related to your account, understand the reason for the block, follow the provided instructions, review our account policies, ask for clarification if anything is unclear, and please be patient while we resolve the issue.',
+        text: "We build with encryption in transit and at rest, role-based access and audit logs, and we align implementations with India's DPDP Act and frameworks used by US clients such as GDPR and CCPA. Education deployments additionally follow student-data-minimisation practices. Compliance requirements for your region are reviewed before build, not after.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How do I get started or book a free demo?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "Share your requirement on the Contact Us page — you'll get a reply within one business day. Browse ready-to-buy products on the Tech Store. Prefer to talk? Chat with our team on WhatsApp or email contact@myradvancesolution.com.",
+      },
+    },
+  ],
+}
+
+export const FAQ_CAREERS = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'How do I apply for a job at MYR Advance Solution?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Anyone can apply — no login required. Fill out the application form on the Careers page, complete the Turnstile human verification, and submit your resume, cover note, and optional portfolio. Applications are reviewed by the hiring team and you will receive a reply within one business day.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Who can apply for positions at MYR?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'All positions are open to freshers and experienced candidates from India, the United States, or anywhere in the world. No sign‑up is needed to apply or to view open positions.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What documents are needed for the application?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Typical documents include an updated resume, a brief cover note (optional but recommended), and a portfolio or LinkedIn profile (optional). References are contacted only if shortlisted.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How long does it take to hear back after applying?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'The hiring team aims to reply within one business day of application submission. If you do not hear back, you may follow up via the contact form or WhatsApp.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I apply for multiple positions at once?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. You may submit one application per open position. Each application is evaluated independently based on the role\'s requirements.',
+      },
+    },
+  ],
+}
+
+export const FAQ_BLOG = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'What kind of topics are covered in the MYR blog?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'The blog covers practical guides on school and college ERP, CRM, HRM, website development cost, AI digital marketing, IP PBX phone systems, and other IT business solutions from the MYR team.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How often are new blog posts published?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'New guides are published roughly twice per month. You can subscribe to updates or follow the blog category that interests you most.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I read older blog articles?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. All past articles are archived under /blogs/ and organized by category (ERP, CRM, IP PBX, Digital Marketing, Website Development). You can use the search and filter tools to find older content.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do the blog articles include JSON‑LD structured data?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. Each blog post ships with BlogPosting schema.org markup, including headline, description, author, publish date, and reading time, so search engines and AI answer engines can cite the content.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How do I search for a specific topic in the blog?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Use the category filter on the /blogs/ index page, or press ⌘/Ctrl + F to search within any article. Tags at the top of each post also link to related topics.',
       },
     },
   ],
@@ -193,6 +297,14 @@ export const FAQ_WEBSITE = {
   mainEntity: [
     {
       '@type': 'Question',
+      name: 'How much does website development cost in India or the US?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Business websites start around ₹15,000 for India-based clients and near $1,000 for US clients, scaling with design, pages and integrations. Ecommerce and custom web apps are quoted individually, with a fixed, itemised estimate in INR or USD before work starts.',
+      },
+    },
+    {
+      '@type': 'Question',
       name: 'How long does it take to build my website?',
       acceptedAnswer: {
         '@type': 'Answer',
@@ -201,18 +313,18 @@ export const FAQ_WEBSITE = {
     },
     {
       '@type': 'Question',
-      name: 'Do you offer custom website designs?',
+      name: 'Will my website rank on Google and appear in AI search results?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes! We create unique, tailored designs to match your brand and business needs.',
+        text: "Every build includes technical SEO: semantic HTML, schema markup, sitemap and robots setup, and Core Web Vitals optimisation. Content structure is designed for Google's AI Overviews and answer engines such as ChatGPT, and advanced SEO campaigns for India, the US or global markets are available as add-on plans.",
       },
     },
     {
       '@type': 'Question',
-      name: 'Will my website be mobile-friendly?',
+      name: 'Will my website be mobile-friendly and fast?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Absolutely! All our websites are fully responsive and optimized for mobile devices.',
+        text: 'Yes. All our websites are fully responsive and are built to pass modern Core Web Vitals targets for speed and stability, tested on both mobile and desktop devices.',
       },
     },
     {
@@ -220,23 +332,15 @@ export const FAQ_WEBSITE = {
       name: "Can I update my website after it's live?",
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes! We provide easy-to-use tools and support so you can manage updates effortlessly.',
+        text: 'Yes. We provide easy-to-use tools and support so you can manage updates effortlessly, and our team is available for any changes you would rather outsource.',
       },
     },
     {
       '@type': 'Question',
-      name: 'Do you offer SEO optimization?',
+      name: 'What support do I get after my website is launched?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes! We provide basic SEO with every website to ensure a strong foundation. For advanced SEO strategies, you can choose from our SEO plans at an additional cost.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'What if I need support after my website is launched?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'We provide 24/7 support via live chat, WhatsApp dedicated group, and phone, while email queries are responded to within 24 hours.',
+        text: 'We provide 24/7 support via live chat, a dedicated WhatsApp group and phone, while email queries are answered within 24 hours. Maintenance, backups and content updates can be bundled with your plan.',
       },
     },
   ],
@@ -245,33 +349,56 @@ export const FAQ_WEBSITE = {
 export const FAQ_SERVICES = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  mainEntity: FAQ_HOME.mainEntity.slice(0, 1).concat([
-    FAQ_HOME.mainEntity[1],
+  mainEntity: [
     {
       '@type': 'Question',
-      name: 'How work the support policy?',
+      name: 'Which service should I choose — website, CRM, ERP or digital marketing?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Scope: covers assistance for product functionality, usage, and troubleshooting. Channels: email, phone, or live chat during specified hours. Response time: within 72 hours during business hours. Support hours: Monday to Friday, 10 Am to 6 Pm excluding holidays. Includes ticketing, severity levels, escalation, regular updates, and advance notice of end of support.',
+        text: 'Start with your bottleneck: a new or outdated online presence calls for website development; scattered customer data and slow follow-ups call for CRM; multi-department operations call for ERP; low visibility and lead flow call for digital marketing. Each service section on this page links to a dedicated page, or contact the team and we will map the right starting point for your business.',
       },
     },
     {
       '@type': 'Question',
-      name: 'How can send a refund request?',
+      name: 'Do you add AI features to CRM, ERP and marketing projects?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: "Visit our website's Refund request page and fill out the query form with your details. Clearly state your refund request in the message, provide purchase details and reason for the refund, and click Submit or Send. To raise your refund, please visit the refund policy page and read carefully for detailed instructions.",
+        text: 'Yes. Current builds include AI-assisted lead scoring and reply drafting in CRM, AI marketing tools for campaign variants and keyword clustering, and reporting with AI summaries. We use AI where it measurably saves time and keep human review on anything customer-facing.',
       },
     },
     {
       '@type': 'Question',
-      name: 'My account blocked what can I do?',
+      name: 'How does cloud IP PBX telephony work for teams in India and the US?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'If your account is blocked, contact Customer Support at +91 7408443341, provide necessary information, understand the reason for the block, follow instructions to resolve, review policies, seek clarification if needed, and be patient for resolution.',
+        text: 'A cloud IP PBX routes calls over the internet instead of legacy phone lines: extensions, IVR menus, ring groups, call recording and CRM screen-pops are configured in software. India offices connect through SIP trunks, and US teams can run toll-free 1800 numbers. The same system serves multi-location and remote teams.',
       },
     },
-  ]),
+    {
+      '@type': 'Question',
+      name: 'Do you work with clients outside India — the US and worldwide?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. We serve clients in the United States and worldwide with remote-first delivery, IST/EST-overlap meetings, WhatsApp and live-chat support, and quotes in INR or USD. Discovery, demos and handovers happen online, so timezone differences do not slow delivery.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What are your payment terms and accepted payment methods?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Projects are billed in INR with a GST invoice, or in USD for applicable regions. Typical terms are an advance to begin with milestone payments through delivery. Hardware and ready-made products can be purchased directly through the Tech Store checkout, and subscriptions renew per the agreed billing cycle.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: "How fast is MYR's support response?",
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Phone and live chat get assistance within minutes during support hours, and email queries are answered within 24 hours. Support runs Monday to Friday, 10 AM to 6 PM IST, with a ticketing system, severity-based prioritisation and escalation for critical issues.',
+      },
+    },
+  ],
 }
 
 /** Product JSON-LD for verified catalog IDs (exact prices from audit). */
@@ -308,6 +435,19 @@ export function productLd(path: string) {
   return node
 }
 
+/** FAQPage node from plain {q, a} pairs (education segments). */
+function faqPageLd(items: FaqItem[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  }
+}
+
 /** Per-route extra structured data. */
 export function pageLd(path: string): object[] {
   const out: object[] = []
@@ -318,6 +458,11 @@ export function pageLd(path: string): object[] {
   if (path === '/') out.push(FAQ_HOME)
   if (path === '/website-development/') out.push(FAQ_WEBSITE)
   if (path === '/services/') out.push(FAQ_SERVICES)
+  const eduSegment = SEGMENT_LIST.find((s) => s.path === path)
+  if (eduSegment) out.push(faqPageLd(eduSegment.faq))
+  if (path === '/education-erp/' || path === '/education-erp/modules/') out.push(faqPageLd(MODULES_FAQ))
+  if (path === '/careers/') out.push(FAQ_CAREERS)
+  if (path === '/blogs/') out.push(FAQ_BLOG)
   return out
 }
 
