@@ -354,50 +354,6 @@ function HeroHeading() {
   )
 }
 
-function AnimatedWebsitePreview() {
-  return (
-    <div className="dental-ad-shell" aria-hidden="true">
-      <div className="dental-ad-screen">
-        <div className="dental-ad-backdrop">
-          <div className="dental-ad-sun" />
-          <div className="dental-ad-horizon" />
-        </div>
-        <div className="dental-ad-content">
-          <header className="dental-ad-nav">
-            <span className="dental-ad-brand"><i aria-hidden="true">✣</i> MYR</span>
-            <span className="dental-ad-nav-button">Become a Partner</span>
-            <span className="dental-ad-menu">Menu <i aria-hidden="true"><b /><b /></i></span>
-            <span className="dental-ad-nav-button dental-ad-reserve">Reserve Now</span>
-          </header>
-          <h2 className="dental-ad-title">
-            <span className="dental-ad-title-line dental-ad-title-first">EVERY DETAIL</span>
-            <span className="dental-ad-title-line dental-ad-title-second">CAPTURED</span>
-          </h2>
-          <div className="dental-ad-scanner" aria-hidden="true">
-            <div className="dental-ad-scanner-art">
-              <img src="/assets/dental-scanner-hero.svg" alt="Dental scanner hero illustration" aria-hidden="true" />
-              <span className="dental-ad-scanner-glint" />
-            </div>
-          </div>
-          <div className="dental-ad-specs">
-            <div className="dental-ad-spec dental-ad-spec-one"><i /><span><strong>20MM</strong><small>Accuracy</small></span></div>
-            <div className="dental-ad-spec dental-ad-spec-two"><i /><span><strong>45S</strong><small>Full-arch scan</small></span></div>
-            <div className="dental-ad-spec dental-ad-spec-three"><i /><span><strong>COLOR</strong><small>Real-time images</small></span></div>
-          </div>
-          <div className="dental-ad-info">
-            <p>Fast, precise intraoral scanning designed to make digital dentistry simpler, from chairside capture to treatment planning.</p>
-            <span className="dental-ad-info-button">Reserve Now</span>
-          </div>
-        </div>
-        <div className="dental-ad-endcard">
-          <img src="/assets/2024-08-MYR-LOGO.png" alt="MYR Advance Solution logo" />
-        </div>
-      </div>
-      <div className="dental-ad-bezel" />
-    </div>
-  )
-}
-
 function HeroSection() {
   const x = useMotionValue(0)
   const y = useMotionValue(0)
@@ -405,13 +361,82 @@ function HeroSection() {
   const xImage = useTransform(x, [-50, 50], [-8, 8])
   const yImage = useTransform(y, [-50, 50], [-8, 8])
 
-  const handleMouseMove = (event: MouseEvent) => {
+  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect()
     const xPos = ((event.clientX - rect.left) / rect.width) * 100 - 50
     const yPos = ((event.clientY - rect.top) / rect.height) * 100 - 50
     x.set(xPos)
     y.set(yPos)
   }
+
+  return (
+    <section className="relative overflow-hidden bg-slate-50 py-8 sm:py-12 lg:py-16">
+      <div className="container-page relative">
+        {/* Subtle animated background blobs */}
+        <div className="absolute -inset-1 bg-gradient-to-br from-slate-100/20 via-transparent to-slate-50/20 pointer-events-none">
+          <div className="absolute rounded-full bg-slate-200/30 backdrop-blur-sm opacity-60 animate-[floatPulse_6s_ease-in-out_infinite] top-1/4 left-1/4 w-[400px] h-[400px] transform -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute rounded-lg bg-slate-100/50 backdrop-blur-sm opacity-40 animate-[floatPulse_6s_ease-in-out_infinite_delayed] bottom-1/3 right-1/3 w-[300px] h-[300px] transform -translate-x-1/2 -translate-y-1/2"></div>
+        </div>
+
+        <div className="grid items-center gap-8 sm:grid-cols-2 lg:grid-cols-[.6fr_1fr]">
+          {/* Left: Text content */}
+          <div className="relative z-10">
+            <HeroHeading />
+            <ul className="mt-4 max-w-2xl space-y-2 text-sm sm:text-base">
+              {[
+                'Cutting-edge IT solutions that enhance business operations and support individuals.',
+                'End-to-end services: PBX & IP-PBX, CCTV security, CRM development, website design, networking, cloud, mobile apps, data analytics, digital marketing, VoIP and IT hardware.',
+                'Expert-led delivery for seamless connectivity, security, and efficiency.',
+                'Reliable, innovative technology solutions tailored to your needs.',
+              ].map((point) => (
+                <li key={point} className="flex items-start gap-2.5 text-black">
+                  <span aria-hidden="true" className="mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-600" />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a
+                href="/tech-store/"
+                className="btn btn-primary btn-lg"
+              >
+                Shop Now
+              </a>
+            </div>
+          </div>
+
+          {/* Right: Hero image with floating animation and subtle parallax */}
+          <div
+            className="relative z-10 flex justify-center"
+            onMouseMove={handleMouseMove}
+          >
+            <motion.div
+              className="max-w-full max-w-[560px] h-auto transform translate-x-6 floatImg_6s_ease-in-out_infinite"
+              style={{ x: xImage, y: yImage }}
+              transition={{ type: 'spring', stiffness: 150, damping: 20 }}
+            >
+              <img
+                src="https://www.myradvancesolution.com/wp-content/uploads/2025/01/website-front-hero-image.png"
+                alt="Hero illustration"
+                className="w-full h-auto max-h-[500px] sm:max-h-[600px] object-contain transition-transform duration-700 ease-out"
+              />
+            </motion.div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+  const xImage = useTransform(x, [-50, 50], [-8, 8])
+  const yImage = useTransform(y, [-50, 50], [-8, 8])
+
+  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const xPos = ((event.clientX - rect.left) / rect.width) * 100 - 50
+    const yPos = ((event.clientY - rect.top) / rect.height) * 100 - 50
+    x.set(xPos)
+    y.set(yPos)
 
   return (
     <section className="relative overflow-hidden bg-slate-50 py-8 sm:py-12 lg:py-16">
