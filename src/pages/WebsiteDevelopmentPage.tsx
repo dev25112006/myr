@@ -12,6 +12,12 @@ import { inr } from '@/lib/format'
 
 /* ------------------------------- source data ------------------------------ */
 
+
+/* ============================ SEO META ============================ */
+const PAGE_TITLE = "Website Development Company | MYR Advance Solution";
+const PAGE_DESCRIPTION = "MYR Advance Solution crafts sleek, user-friendly websites and web applications tailored for business success. Custom design, development, and launch.";
+
+/* ============================ DATA ============================ */
 const HERO_RATINGS = [
   { name: 'Trustpilot', score: '4.5', reviews: '40,850', label: 'TrustScroe' },
   { name: 'Google', score: '5/5', reviews: '1,239', label: 'Rating' },

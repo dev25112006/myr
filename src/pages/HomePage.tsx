@@ -405,6 +405,16 @@ function HeroSection() {
             </div>
           </div>
 
+          {/* Internal Links */}
+          <div className="mt-6 flex flex-wrap gap-3 justify-center">
+            <a href="/services/custom-software-development/" className="btn btn-outline btn-sm">Custom Software</a>
+            <a href="/services/erp-development/" className="btn btn-outline btn-sm">ERP Development</a>
+            <a href="/products/school-erp/" className="btn btn-outline btn-sm">School ERP</a>
+            <a href="/blogs/custom-erp-vs-ready-made-erp" className="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer">ERP Blog</a>
+            <a href="/about-us/" className="btn btn-outline btn-sm">About</a>
+            <a href="/contact-us/" className="btn btn-outline btn-sm">Contact</a>
+          </div>
+
           {/* Right: Hero image with floating animation and subtle parallax */}
           <div
             className="relative z-10 flex justify-center"

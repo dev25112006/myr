@@ -6,6 +6,12 @@ import { Reveal, SectionHeading, Stagger, StaggerItem, StatCounters, SupportBloc
 
 /* ------------------------------- source data ------------------------------ */
 
+
+/* ============================ SEO META ============================ */
+const PAGE_TITLE = "Network & IT Products | MYR Advance Solution";
+const PAGE_DESCRIPTION = "MYR Advance Solution provides network products including routers, switches, firewalls and cabling solutions for businesses in the USA and India.";
+
+/* ============================ DATA ============================ */
 type Product = {
   name: string
   category: 'Routers' | 'Switches' | 'Firewalls' | 'Access Points' | 'Cabling' | 'Servers'

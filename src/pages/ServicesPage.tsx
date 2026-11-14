@@ -13,6 +13,12 @@ import { usePopup } from '@/lib/stores'
 
 /* ------------------------------- source data ------------------------------ */
 
+
+/* ============================ SEO META ============================ */
+const PAGE_TITLE = "Custom Software & IT Services Company | MYR Advance Solution";
+const PAGE_DESCRIPTION = "MYR Advance Solution delivers custom software development, ERP, CRM and IT services. Build, scale, and automate your business with our expert technology solutions.";
+
+/* ============================ DATA ============================ */
 const STATS = [
   { label: 'Team Member', value: 50 },
   { label: 'Total Project', value: 300, suffix: '+' },
@@ -33,39 +39,39 @@ const SERVICE_CARDS: ServiceCard[] = [
   {
     pre: 'Premium',
     title: 'Web Development',
-    blurb: 'We craft sleek, user-friendly designs tailored for your success.',
+    blurb: 'We craft sleek, user-friendly websites and web applications tailored for business success. Our custom designs combine beautiful aesthetics with robust functionality, responsive layouts, and seamless user experiences. From corporate sites to web apps, we build digital platforms that drive growth.',
     to: '/website-development/',
   },
   {
     title: 'CRM Development',
-    blurb: 'We create tailored CRM solutions for your business success.',
+    blurb: 'We create tailored CRM solutions for your business success. Organize leads, manage customer records, track sales pipelines, and automate follow-ups. Our CRM systems integrate with your existing tools and scale as your business grows. Includes contact management, pipeline tracking, reporting and automation workflows.',
     to: '/crm-development/',
   },
   {
     pre: 'Exclusive',
     title: 'Digital Marketing',
-    blurb: 'We excel in digital marketing, maximizing your online success.',
+    blurb: 'We excel in digital marketing, maximizing your online success. Our data-driven approach includes SEO, content marketing, social media management, paid advertising, and analytics. We develop strategies aligned with your business goals and deliver measurable ROI.',
     to: '/digital-marketing/',
   },
   {
     title: 'Networking Solution',
-    blurb: 'Streamline connections with tailored networking solutions.',
+    blurb: 'Streamline connections with tailored networking solutions. We design and implement secure, reliable network infrastructures including LAN/WAN, Wi-Fi, VPNs, network monitoring, and cloud connectivity. Solutions optimized for business continuity and performance.',
     to: '/network-solution/',
   },
   {
     title: 'IPBX Solution',
-    blurb: 'Seamless communication, enhanced efficiency for your business.',
+    blurb: 'Seamless communication, enhanced efficiency for your business. We design and install IP-PBX phone systems, video conferencing, voicemail to email, call routing and analytics. Our systems integrate with CRM and business tools, supporting remote work and team collaboration.',
     to: '/ipbx-solution/',
   },
   {
     title: 'CCTV Solution',
-    blurb: 'We fortify your digital and physical spaces with CCTV solutions.',
+    blurb: 'We fortify your digital and physical spaces with CCTV solutions. Design and installation of surveillance systems with remote monitoring, access control integration, recording storage, and analytics. Systems tailored to your security needs, whether for business premises, retail spaces, or residential properties.',
     to: '/cctv-solution/',
     bookNow: true,
   },
   {
     title: 'Toll-Free 1800 XXX 8899 Number',
-    blurb: 'Unlock unparalleled customer engagement with our exclusive 1-800 toll-free number service.',
+    blurb: 'Unlock unparalleled customer engagement with our exclusive 1-800 toll-free number service. Business phone systems with call routing, IVR, voicemail to email, analytics and multiple device ringing. Perfect for customer support, sales teams and enterprises seeking professional communication channels.',
     to: '/1800-number/',
   },
 ]
