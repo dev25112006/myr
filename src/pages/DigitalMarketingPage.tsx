@@ -7,6 +7,12 @@ import { useCatalogPrice } from '@/lib/useCatalogPrice'
 
 /* ------------------------------- source data ------------------------------ */
 
+
+/* ============================ SEO META ============================ */
+const PAGE_TITLE = "Digital Marketing Agency | MYR Advance Solution";
+const PAGE_DESCRIPTION = "MYR Advance Solution provides digital marketing services including SEO, content marketing, social media, and paid campaigns for businesses in the USA and India.";
+
+/* ============================ DATA ============================ */
 const SERVICES = [
   {
     title: 'AI-Assisted SEO & Search Insights',

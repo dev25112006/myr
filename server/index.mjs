@@ -1325,6 +1325,51 @@ if (req.method === 'GET' && pathName === '/api/saas/verify-email') {
       await settlePaidOrder(order, providerPayment, 'PayU return callback')
       return redirectToAccount('paid')
     }
+    if ((req.method === 'POST' || req.method === 'GET') && pathName === '/api/saas/payments/payu/webhook') {
+      if (!payuConfigured(payuConfig)) return json(res, 503, { error: 'PayU is not configured.' })
+      const input = req.method === 'GET' ? Object.fromEntries(url.searchParams) : await formBody(req)
+      const order = db.orders.find((item) => item.id === input.udf1)
+      if (!order) {
+        console.error('[payu:webhook] unknown order reference', { udf1: String(input.udf1 || '').slice(0, 64), txnid: String(input.txnid || '').slice(0, 64) })
+        return json(res, 400, { error: 'Order not found.' })
+      }
+      const knownTxnIds = orderTxnIds(order)
+      const callbackTxnId = String(input.txnid || '')
+      const expectedOrder = knownTxnIds.includes(callbackTxnId) ? { ...order, payuTxnId: callbackTxnId } : order
+      const callback = verifyPayUCallbackDetail(input, payuConfig, expectedOrder)
+      if (!callback.ok) {
+        console.error('[payu:webhook] rejected PayU response', { orderId: order.id, reason: callback.reason, providerStatus: String(input.status || ''), callbackAmount: String(input.amount || ''), callbackTxnId: callbackTxnId, expectedTxnIds: knownTxnIds, expectedAmount: order.total })
+        order.lastPaymentCheck = { at: new Date().toISOString(), result: `rejected:${callback.reason}` }
+        await persist()
+        return json(res, 400, { error: 'PayU payment response could not be verified.', reason: callback.reason })
+      }
+      rememberPayUTxnId(order, callbackTxnId)
+      const providerStatus = String(input.status || '').toLowerCase()
+      if (providerStatus !== 'success') {
+        order.lastPaymentCheck = { at: new Date().toISOString(), result: `provider:${providerStatus || 'unknown'}' }
+        order.updatedAt = new Date().toISOString()
+        await persist()
+        return json(res, 200, { ok: false, reason: `provider_status:${providerStatus || 'unknown}' })
+      }
+      if (order.paymentStatus === 'paid') return json(res, 200, { ok: true })
+      let providerPayment
+      try {
+        providerPayment = await verifyPayUPayment(payuConfig, callbackTxnId)
+      } catch (error) {
+        console.error('[payu:webhook] Verify Payment unavailable', { orderId: order.id, txnid: callbackTxnId, message: error?.message })
+        order.lastPaymentCheck = { at: new Date().toISOString(), result: 'unavailable' }
+        await persist()
+        return json(res, 200, { ok: false, reason: 'unavailable' })
+      }
+      if (!providerConfirmsOrder(providerPayment, order)) {
+        console.error('[payu:webhook] Verify Payment did not confirm the order', { orderId: order.id, txnid: callbackTxnId, providerStatus: providerPayment?.status, providerTxnId: providerPayment?.txnid, providerAmount: providerPayment?.amt ?? providerPayment?.amount })
+        order.lastPaymentCheck = { at: new Date().toISOString(), result: `provider-mismatch:${providerPayment?.status || 'unknown}' }
+        await persist()
+        return json(res, 200, { ok: false, reason: 'provider-mismatch' })
+      }
+      await settlePaidOrder(order, providerPayment, 'PayU webhook')
+      return json(res, 200, { ok: true })
+    }
     if (req.method === 'POST' && pathName === '/api/payments/payu/refund-callback') {
       const input = await formBody(req)
       const requestId = String(input.request_id || input.txn_update_id || '')

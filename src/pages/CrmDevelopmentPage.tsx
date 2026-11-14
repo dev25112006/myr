@@ -14,6 +14,12 @@ import type { ReactNode } from 'react'
 
 /* ------------------------------- source data ------------------------------ */
 
+
+/* ============================ SEO META ============================ */
+const PAGE_TITLE = "CRM Software Development Company | MYR Advance Solution";
+const PAGE_DESCRIPTION = "MYR Advance Solution custom CRM development for India and US teams. Organize leads, customer records, sales pipelines, follow-ups and reporting around your workflow.";
+
+/* ============================ DATA ============================ */
 const PILLARS = [
   {
     title: 'Understanding Your Business:',

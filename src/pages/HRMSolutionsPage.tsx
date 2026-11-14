@@ -2,6 +2,12 @@ import { useEffect, useState, type PointerEvent } from 'react'
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
 import { CHAT_SALES } from '@/components/layout/nav'
 import { SubscriptionPlans } from '@/components/commerce/SubscriptionPlans'
+
+/* ============================ SEO META ============================ */
+const PAGE_TITLE = "HRMS & Payroll Software | MYR Advance Solution";
+const PAGE_DESCRIPTION = "MYR Advance Solution HRMS software to manage payroll, attendance, hiring and performance for businesses in the USA and India.";
+
+/* ============================ DATA ============================ */
 const MODULES = [
   { name: 'People directory', short: 'People', icon: '◎', eyebrow: 'ONE PEOPLE VIEW', headline: 'Every person, connected.', text: 'Bring employee details, roles, documents, and important moments together in one clear home.' },
   { name: 'Time & attendance', short: 'Attendance', icon: '◷', eyebrow: 'TIME, MADE SIMPLE', headline: 'Know who’s in, at a glance.', text: 'Keep schedules, leave requests, and attendance updates visible to the whole team.' },
